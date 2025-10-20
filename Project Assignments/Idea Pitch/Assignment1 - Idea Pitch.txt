@@ -1,5 +1,7 @@
 Assignment 1: Idea Pitch
 
+Project name:  PRO-BUILD CONSTRUCTION
+
 Motivation:
 We started by discussing the potential products and realisable ideas.
 After some time, we remembered that during one lecture professor Čagalj spoke about constructions. 
@@ -10,6 +12,8 @@ Core ideas of the project:
 - have construction companies registered with approximate prices and avaiable dates. Customer then filters companies that he doesn't like and requests an offer
 - the company sends the customer a proposed offer based on some basic info he/she provides
 - use predominantly yellow color to associate people with construction. Also reinforce the similarity to already popular site https://www.njuskalo.hr/ 
+
+Problems to avoid:
 - avoid the potential scamming problems the site https://www.emajstor.hr/ has by adding authentication systems for companies 
 - avoid fake reviews by asking customers to provide receipts of the construction works before posting a review
 
@@ -18,5 +22,6 @@ Things that still have to be decided upon:
 - will there be a third admin login form that will recieve incoming verification requests?
 - will we add distance as a metric for companies to decide their initial offer from the get-go?
 - will we add payment options on the website or will they be only for connecting companies with the customer?
+
 
 
