@@ -1,0 +1,16 @@
+In this commit we designed our the archetypes of our websites 3 most likely users.
+
+First user is the investor, Marko. He wants centrilized, digitalized way of tracking his portfolio.
+He is a big fan of having everything at one place on his phone and values simplicity over everything.
+Second user is the high network individual Anna that wants everything done swiftly and luxuriously.
+She will not hesitate to pay top dollar for quality service and desires to have remote access to project reports at all times.
+Third persona is Stipe. A family man from Dalmatinska Zagora he studied the topic the most. 
+He wants to make use of his money and wants to pick the offer that gets him the most for his budget.
+He is cautious of scammers and wants to avoid slow workers and slackers on his project.
+
+These personas were created by examining a large pool of personas that we gathered.
+Most of them taken by talking to various leaders of construction sites, 
+one of them being Petar(co-founder of ProBuild-Construction) sister, as well as people working at local administration offices.
+
+In the document we also provided a Sitemap and Card sorting for personas which we hope will enable us
+easier realization of the project.
