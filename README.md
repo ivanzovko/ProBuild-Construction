@@ -25,9 +25,7 @@
 ### Semester Assignments
 
 - Link to Assignment 1: [Idea Pitch](https://github.com/ivanzovko/ProBuild-Construction/blob/main/Project%20Assignments/Idea%20Pitch) 
-- Link to Assignment 2: [**Assignment 2**](URL_TO_ASSIGNMENT_2) <!-- Replace with actual URL -->
-- Link to Assignment 3: [**Assignment 3**](URL_TO_ASSIGNMENT_3) <!-- Replace with actual URL -->
-<!-- Add more assignments as necessary -->
+- Link to Assignment 2: [User personas and information architecture](https://github.com/ivanzovko/ProBuild-Construction/tree/main/Project%20Assignments/User%20personas%20and%20information%20architecture) 
 
 ## Project Requirements
 
