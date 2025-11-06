@@ -26,7 +26,7 @@
 
 - Link to Assignment 1: [Idea Pitch](https://github.com/ivanzovko/ProBuild-Construction/blob/main/Project%20Assignments/Idea%20Pitch) 
 - Link to Assignment 2: [User personas and information architecture](https://github.com/ivanzovko/ProBuild-Construction/tree/main/Project%20Assignments/User%20personas%20and%20information%20architecture) 
-
+- Link to Assignment 3: [Next.js - Deploying Application](https://pro-build-construction.vercel.app/) 
 ## Project Requirements
 
 ### Web Application Requirements
