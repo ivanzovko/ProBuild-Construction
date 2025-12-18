@@ -28,7 +28,7 @@
 - Link to Assignment 2: [User personas and information architecture](https://github.com/ivanzovko/ProBuild-Construction/tree/main/Project%20Assignments/User%20personas%20and%20information%20architecture) 
 - Link to Assignment 3: [Next.js - Deploying Application](https://pro-build-construction.vercel.app/)
 - Link to Assignment 4: [Low/High-fidelity prototype](https://github.com/ivanzovko/ProBuild-Construction/tree/main/Project%20Assignments/Figma)
-- Link to Assignment 5: [Next.js - Dynamic routes, data fetching][Find_Services](https://pro-build-construction.vercel.app/) 
+- Link to Assignment 5: [Next.js - Dynamic routes, data fetching](https://pro-build-construction.vercel.app/) 
 ## Project Requirements
 
 ### Web Application Requirements
