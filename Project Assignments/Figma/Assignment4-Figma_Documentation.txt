@@ -1,0 +1,7 @@
+In this assignment me and my coworker took up on designing the visual display of the app for the user.
+We took up the white-yellow colors that we decided upon 2 months ago and they seem to look good.
+We avoided too much similarity with Njuskalo.hr and yet it looks kind of familiar and intuitive design.
+We put the instructions all in one place so the potential client doesn't have to hustle going
+through a 7 step click session in order to understand what the project is about.
+It also seems intuitive enough for all the customers, as all you need to do is scroll down.
+We will still see how the design will bare in real time environment.
