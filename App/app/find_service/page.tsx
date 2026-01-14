@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Search, Filter, ShieldCheck, MapPin, Star, MessageSquare, BadgeCheck } from "lucide-react";
+import { Search, MapPin, Star, MessageSquare, BadgeCheck } from "lucide-react";
 
 const DATA = [
   { id: 1, name: "Gradnja d.o.o.", category: "Strojna Žbuka", rating: 4.9, reviews: 124, location: "Zagreb", desc: "Specijalizirani za strojnu žbuku i fasade s preko 15 godina iskustva." },
@@ -11,7 +11,7 @@ const DATA = [
   { id: 4, name: "Interijeri Split", category: "Soboslikar", rating: 4.8, reviews: 67, location: "Split", desc: "Vrhunska obrada zidova i dekorativne tehnike." },
 ];
 
-export default function FindServicePage() {
+function FindServiceContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.toLowerCase() || "";
   
@@ -112,5 +112,13 @@ export default function FindServicePage() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function FindServicePage() {
+  return (
+    <Suspense fallback={<div className="p-20 text-center font-black uppercase">Učitavanje...</div>}>
+      <FindServiceContent />
+    </Suspense>
   );
 }
