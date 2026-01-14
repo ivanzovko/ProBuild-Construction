@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useQueryState, parseAsInteger } from "nuqs";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -34,37 +35,42 @@ export const Pagination: React.FC<PaginationProps> = ({
     }
   };
 
+  // Ako ima samo jedna stranica, ne prikazuj paginaciju
+  if (totalPages <= 1) return null;
+
   return (
-    <div className={`w-full max-w-2xl mb-6 ${className}`}>
-      <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4 flex justify-between items-center">
+    <div className={`w-full max-w-2xl mx-auto mb-10 ${className}`}>
+      <div className="bg-white rounded-[24px] border border-slate-100 shadow-sm p-3 md:p-4 flex justify-between items-center">
         <button
           onClick={handlePrev}
-          className={`px-4 py-2 rounded-md transition-colors duration-200 ${
+          className={`flex items-center gap-1 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-200 ${
             isFirstPage
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              ? "bg-slate-50 text-slate-300 cursor-not-allowed"
+              : "bg-slate-900 text-white hover:bg-yellow-400 hover:text-black active:scale-95 shadow-lg shadow-slate-900/10"
           }`}
           disabled={isFirstPage}
         >
-          Prev
+          <ChevronLeft size={16} />
+          <span className="hidden sm:inline">Prev</span>
         </button>
 
-        <p className="text-gray-700">
-          Page{" "}
-          <span className="font-semibold text-gray-900">{currentPage}</span> of{" "}
-          <span className="font-semibold text-gray-900">{totalPages}</span>
+        <p className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 italic text-center">
+          Page <span className="text-slate-900 mx-1">{currentPage}</span> 
+          <span className="mx-1 opacity-30">/</span> 
+          <span className="text-slate-900">{totalPages}</span>
         </p>
 
         <button
           onClick={handleNext}
-          className={`px-4 py-2 rounded-md transition-colors duration-200 ${
+          className={`flex items-center gap-1 px-4 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-200 ${
             isLastPage
-              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              ? "bg-slate-50 text-slate-300 cursor-not-allowed"
+              : "bg-slate-900 text-white hover:bg-yellow-400 hover:text-black active:scale-95 shadow-lg shadow-slate-900/10"
           }`}
           disabled={isLastPage}
         >
-          Next
+          <span className="hidden sm:inline">Next</span>
+          <ChevronRight size={16} />
         </button>
       </div>
     </div>

@@ -1,80 +1,134 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Hammer, User, Menu, X } from "lucide-react";
 
 type Page = {
   title: string;
-  path: `/${string}`;
+  path: string;
 };
 
-/**
- * pages is an array of objects representing the pages in the web app.
- * Each object contains a title and a path. This array is used to generate the navigation menu.
- *
- * We hardcode pages here, but in real app you want to store and read this information from some external source (e.g. CMS, DB, config file, etc).
- */
 const pages: Page[] = [
   { title: "Home", path: "/" },
-   {
-    title: "About us",
-    path: "/about",
-  },
-  {
-    title: "Find Service",
-    path: "/find_service",
-  },
-  {
-    title: "Plans & cost estimates",
-    path: "/plans_cost",
-  },
-   {
-    title: "Project tracking",
-    path: "/project_tracking",
-  },
- 
-  {
-    title: "For companies",
-    path: "/for_companies",
-  },
-   {
-    title: "Support",
-    path: "/support",
-  },
+  { title: "Services", path: "/find_service" },
+  { title: "Estimates", path: "/plans_cost" },
+  { title: "Live Tracking", path: "/project_tracking" },
 ];
-
-/**
- * Render a page list item.
- * @param page - { title, path } for the page
- * @param index - array index used for key
- * @returns JSX element for a list item
- */
-function processPage(page: Page, index: number, currentPath?: string) {
-  // Check if the current path matches the page path
-  // For home page ("/"), use exact match to avoid matching all routes
-  // For other pages, check if current path starts with the page path to support nested routes
-  const isActive =
-    page.path === "/"
-      ? currentPath === page.path
-      : currentPath?.startsWith(page.path);
-
-  return (
-    <li key={index}>
-      <Link href={page.path} className={isActive ? "font-extrabold" : ""}>
-        {page.title}
-      </Link>
-    </li>
-  );
-}
 
 export function Navigation() {
   const currentPath = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [currentPath]);
+
   return (
-    <nav>
-      <ul className="flex space-x-4">
-        {pages.map((page, index) => processPage(page, index, currentPath))}
-      </ul>
-    </nav>
+    <div className="w-full bg-white border-b border-gray-100 shadow-sm fixed top-0 z-50">
+      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+        
+        {/* LOGO - Zadržan tvoj stil */}
+        <Link href="/" className="flex items-center gap-2 group relative z-[60]">
+          <div className="bg-yellow-400 p-2 rounded-lg group-hover:bg-yellow-500 transition-colors">
+            <Hammer size={24} className="text-black" />
+          </div>
+          <span className="text-xl font-black tracking-tighter text-slate-900">
+            PRO-BUILD<span className="text-yellow-500">.</span>
+          </span>
+        </Link>
+
+        {/* MAIN NAVIGATION - Desktop */}
+        <nav className="hidden md:flex items-center gap-8">
+          <ul className="flex gap-6">
+            {pages.map((page, index) => {
+              const isActive = currentPath === page.path;
+              return (
+                <li key={index}>
+                  <Link
+                    href={page.path}
+                    className={`text-sm font-bold uppercase tracking-wide transition-all hover:text-yellow-500 ${
+                      isActive 
+                        ? "text-yellow-500 border-b-2 border-yellow-500 pb-1" 
+                        : "text-slate-600"
+                    }`}
+                  >
+                    {page.title}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="h-6 w-[1px] bg-gray-200" />
+
+          <div className="flex items-center gap-6">
+            <Link 
+              href="/dashboard"
+              className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors"
+            >
+              For Companies
+            </Link>
+            <Link
+              href="/login"
+              className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-slate-800 transition-all shadow-md active:scale-95"
+            >
+              <User size={18} />
+              Sign In
+            </Link>
+          </div>
+        </nav>
+
+        {/* MOBILE MENU BUTTON - Hamburger */}
+        <button 
+          className="md:hidden p-2 text-slate-900 relative z-[60]"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+
+        {/* MOBILE MENU OVERLAY */}
+        <div className={`
+          fixed inset-0 bg-white z-50 flex flex-col p-8 transition-all duration-300 ease-in-out md:hidden
+          ${isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"}
+        `}>
+          <div className="mt-20 flex flex-col gap-8">
+            <ul className="flex flex-col gap-6">
+              {pages.map((page, index) => (
+                <li key={index}>
+                  <Link
+                    href={page.path}
+                    className={`text-2xl font-black uppercase tracking-tighter ${
+                      currentPath === page.path ? "text-yellow-500" : "text-slate-900"
+                    }`}
+                  >
+                    {page.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            
+            <div className="h-[1px] w-full bg-gray-100 my-4" />
+            
+            <div className="flex flex-col gap-6">
+              <Link 
+                href="/dashboard"
+                className="text-lg font-black uppercase tracking-tighter text-slate-600"
+              >
+                For Companies
+              </Link>
+              <Link
+                href="/login"
+                className="flex items-center justify-center gap-3 bg-slate-900 text-white px-8 py-5 rounded-2xl font-black text-lg uppercase tracking-widest shadow-xl"
+              >
+                <User size={24} />
+                Sign In
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
-

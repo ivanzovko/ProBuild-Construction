@@ -14,9 +14,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+
 export const metadata: Metadata = {
-  title: "designmatters.",
-  description: "Design Matters - we care about your design needs.",
+  title: "Pro-Build Construction",
+  description: "Pronađite provjerene građevinske partnere i gradite bez stresa.",
 };
 
 export default function RootLayout({

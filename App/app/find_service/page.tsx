@@ -1,146 +1,116 @@
-import { loadBlogSearchParams } from "../lib/blog-search-params";
-import type { SearchParams } from "nuqs/server";
-import { ArrowRight } from "lucide-react";
-import type { Metadata } from "next";
-import Link from "next/link";
-import { BlogFilters } from "./_components/BlogFilters";
-import { notFound } from "next/navigation";
-import { Pagination } from "../_components/Pagination";
+"use client";
 
-export interface BlogPostProps {
-  userId: number;
-  id: number;
-  title: string;
-  body: string;
-}
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Search, Filter, ShieldCheck, MapPin, Star, MessageSquare, BadgeCheck } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Blog",
-};
+const DATA = [
+  { id: 1, name: "Gradnja d.o.o.", category: "Strojna Žbuka", rating: 4.9, reviews: 124, location: "Zagreb", desc: "Specijalizirani za strojnu žbuku i fasade s preko 15 godina iskustva." },
+  { id: 2, name: "Elektro Jurić", category: "Struja", rating: 4.7, reviews: 85, location: "Split", desc: "Kompletne elektroinstalacije za novogradnju i adaptacije." },
+  { id: 3, name: "Voda & Plin Horvat", category: "Vodoinstalater", rating: 5.0, reviews: 42, location: "Zagreb", desc: "Hitne intervencije i kompletne instalacije kupaonica." },
+  { id: 4, name: "Interijeri Split", category: "Soboslikar", rating: 4.8, reviews: 67, location: "Split", desc: "Vrhunska obrada zidova i dekorativne tehnike." },
+];
 
-const PAGE_SIZE = 6;
-export const BASE_API_URL = "https://jsonplaceholder.typicode.com";
+export default function FindServicePage() {
+  const searchParams = useSearchParams();
+  const query = searchParams.get("q")?.toLowerCase() || "";
+  
+  const [selectedLocation, setSelectedLocation] = useState("Cijela Hrvatska");
 
-// Get the total number of posts; please note this feature is JSONPlaceholder API specific.
-async function getPostsCount(userId?: number): Promise<number> {
-  // https://jsonplaceholder.typicode.com/posts/?_start=5&_limit=8
-  const url =
-    userId && userId > 0
-      ? `${BASE_API_URL}/posts/?userId=${userId}&_limit=1`
-      : `${BASE_API_URL}/posts/?_limit=1`;
-  const data = await fetch(url, {
-    method: "HEAD",
-    next: { revalidate: 60 },
+  const filteredPros = DATA.filter((pro) => {
+    const matchesSearch = pro.name.toLowerCase().includes(query) || pro.category.toLowerCase().includes(query);
+    const matchesLocation = selectedLocation === "Cijela Hrvatska" || pro.location === selectedLocation;
+    return matchesSearch && matchesLocation;
   });
-  const count = data.headers.get("x-total-count") || "1";
-  return parseInt(count, 10);
-}
-
-// Fetch paginated posts
-async function fetchPosts(
-  page: number,
-  pageSize: number,
-  userId?: number
-): Promise<BlogPostProps[]> {
-  const start = (page - 1) * pageSize;
-  const userQuery = userId && userId > 0 ? `&userId=${userId}` : "";
-  const response = await fetch(
-    `${BASE_API_URL}/posts?_start=${start}&_limit=${pageSize}${userQuery}`,
-    { next: { revalidate: 60 } }
-  );
-  return response.json();
-}
-
-// Fetch users
-async function fetchUsers(): Promise<{ id: number; name: string }[]> {
-  const response = await fetch(`${BASE_API_URL}/users`, {
-    next: { revalidate: 60 },
-  });
-  return response.json();
-}
-
-function processPost(post: BlogPostProps, userName?: string) {
-  return (
-    <li key={post.id} className="list-none">
-      <Link
-        href={`/find_service/${post.id}`}
-        className="group block bg-white hover:shadow-lg border-1 border-gray-300 hover:border-gray-400 rounded-lg p-5 transition-all duration-200"
-      >
-        <div className="flex items-center gap-4">
-          {/* Icon placeholder */}
-          <div className="flex-shrink-0 w-10 h-10 rounded bg-gray-200 border border-gray-300"></div>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold capitalize text-lg text-gray-900 mb-0.5">
-              {post.title}
-            </h3>
-            <p className="text-sm text-gray-500">
-              Post #{post.id} by {userName || `User ${post.userId}`}
-            </p>
-          </div>
-
-          {/* Arrow */}
-          <ArrowRight className="mr-2 h-4 w-4 text-gray-600 group-hover:text-gray-900 transition-colors duration-200" />
-        </div>
-      </Link>
-    </li>
-  );
-}
-
-interface BlogPageSearchParams {
-  searchParams: Promise<SearchParams>;
-}
-
-export default async function Page({ searchParams }: BlogPageSearchParams) {
-  const { page, userId } = await loadBlogSearchParams(searchParams);
-  console.log({ userId, page });
-  // Not used, just for console logging
-  const params = await searchParams;
-  console.log("searchParams:", params);
-
-  // Fetch users and total posts count in parallel
-  const [users, totalPosts] = await Promise.all([
-    fetchUsers(),
-    getPostsCount(userId > 0 ? userId : undefined),
-  ]);
-  const totalPages = Math.max(1, Math.ceil(totalPosts / PAGE_SIZE));
-  if (page > totalPages) notFound();
-  const posts = await fetchPosts(
-    page,
-    PAGE_SIZE,
-    userId > 0 ? userId : undefined
-  );
-
-  // Create a map of userId to userName (post author name)
-  // (if authors do not change frequently, this could be cached globally)
-  const userMap = new Map(users.map((user) => [user.id, user.name]));
 
   return (
-    <main>
-      <div className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-6xl font-extrabold tracking-tight mb-4">
-              Services
-            </h1>
-            <p className="text-gray-600 text-lg">Find services for you</p>
-          </div>
-          {/* Filters */}
-          <BlogFilters users={users} currentUserId={userId} />
-          {/* Blog Posts Grid */}
-          <div className="space-y-4">
-            <ul className="space-y-3">
-              {posts.map((post) => processPost(post, userMap.get(post.userId)))}
-            </ul>
-          </div>
-          {/* Pagination */}
-          <div className="flex justify-center mt-8">
-            <Pagination currentPage={page} totalPages={totalPages} />
-          </div>
+    <div className="bg-slate-50 min-h-screen pb-20">
+      <header className="bg-white border-b border-slate-200 py-10 px-6">
+        <div className="container mx-auto">
+          <h1 className="text-3xl font-black text-slate-900 uppercase italic">
+            Rezultati za: <span className="text-yellow-500">{query || "Sve kategorije"}</span>
+          </h1>
+          <p className="text-slate-400 text-xs font-black uppercase tracking-widest mt-2">
+            Pronađeno: {filteredPros.length} provjerenih izvođača
+          </p>
         </div>
+      </header>
+
+      <div className="container mx-auto px-6 py-12 flex flex-col lg:flex-row gap-10">
+        <aside className="w-full lg:w-64 space-y-8">
+          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 text-slate-400">Lokacija</h3>
+            <select 
+              value={selectedLocation}
+              onChange={(e) => setSelectedLocation(e.target.value)}
+              className="w-full p-4 bg-slate-50 border-2 border-transparent rounded-2xl font-bold outline-none focus:border-yellow-400 focus:bg-white transition-all text-sm"
+            >
+              <option>Cijela Hrvatska</option>
+              <option>Zagreb</option>
+              <option>Split</option>
+            </select>
+          </div>
+
+          <div className="bg-slate-900 p-6 rounded-3xl text-white">
+            <h3 className="text-xs font-black uppercase tracking-widest mb-2">Trebate pomoć?</h3>
+            <p className="text-slate-400 text-xs leading-relaxed mb-4">Naš tim vam može pomoći odabrati najboljeg izvođača za vaš projekt.</p>
+            <button className="w-full py-3 bg-yellow-400 text-black rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-500 transition-colors">
+              Besplatno savjetovanje
+            </button>
+          </div>
+        </aside>
+
+        <main className="flex-1 space-y-6">
+          {filteredPros.length > 0 ? (
+            filteredPros.map((pro) => (
+              <div 
+                key={pro.id} 
+                className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm flex flex-col md:flex-row gap-8 items-center group hover:shadow-xl hover:border-yellow-400/50 transition-all duration-300"
+              >
+                <div className="w-32 h-32 bg-slate-50 rounded-2xl overflow-hidden shrink-0 flex items-center justify-center border border-slate-100 group-hover:bg-white transition-colors">
+                  <span className="text-slate-300 font-black italic text-xs tracking-tighter uppercase group-hover:text-yellow-500 transition-colors">Partner Logo</span>
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">{pro.name}</h2>
+                    <BadgeCheck className="text-blue-500 fill-blue-50" size={20} />
+                  </div>
+                  
+                  <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 mb-4 font-black uppercase tracking-widest">
+                    <span className="flex items-center gap-1.5"><Star className="text-yellow-400 fill-yellow-400" size={14}/> {pro.rating} ({pro.reviews})</span>
+                    <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-300"/> {pro.location}</span>
+                    <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-900">{pro.category}</span>
+                  </div>
+                  
+                  <p className="text-slate-500 text-sm line-clamp-2 leading-relaxed font-medium">
+                    {pro.desc}
+                  </p>
+                </div>
+
+                <div className="shrink-0 w-full md:w-auto">
+                  <button className="w-full md:w-auto bg-slate-900 text-white px-8 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-yellow-400 hover:text-black transition-all active:scale-[0.95] flex items-center justify-center gap-3">
+                    Pošalji upit <MessageSquare size={16}/>
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="bg-white p-20 rounded-[40px] text-center border-2 border-dashed border-slate-200">
+              <div className="bg-slate-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Search size={24} className="text-slate-300" />
+              </div>
+              <p className="font-black uppercase text-slate-400 tracking-widest">Nema rezultata za vašu pretragu</p>
+              <button 
+                onClick={() => setSelectedLocation("Cijela Hrvatska")}
+                className="mt-4 text-yellow-600 font-black text-[10px] uppercase tracking-widest hover:underline"
+              >
+                Poništi lokaciju
+              </button>
+            </div>
+          )}
+        </main>
       </div>
-    </main>
+    </div>
   );
 }
