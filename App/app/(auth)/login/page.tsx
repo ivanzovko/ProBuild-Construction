@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { 
-  Hammer, 
   Mail, 
   Lock, 
   ArrowRight, 
@@ -81,17 +80,8 @@ export default function LoginPage() {
   };
 
   return (
-    /* Dodana transformacija scale na malim visinama ekrana (laptopi) da spriječi scroll */
     <div className="flex flex-col items-center animate-in fade-in duration-500 origin-center tall:scale-100 scale-90 md:scale-95 lg:scale-100">
-      <div className="flex flex-col items-center mb-6">
-        <div className="bg-yellow-400 p-3 rounded-2xl shadow-md mb-3 text-black">
-          <Hammer size={24} />
-        </div>
-        <h1 className="text-xl font-black italic uppercase tracking-tighter text-white drop-shadow-sm">
-          PRO-BUILD
-        </h1>
-      </div>
-
+      
       <div className="w-full max-w-md bg-white rounded-[32px] p-8 shadow-lg border border-slate-100">
         <div className="text-center mb-6">
           <h2 className="text-lg font-black uppercase italic text-slate-900">Sign In</h2>

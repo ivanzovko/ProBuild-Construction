@@ -27,14 +27,15 @@ export function Navigation() {
 
   return (
     <div className="w-full bg-white border-b border-gray-100 shadow-sm fixed top-0 z-50">
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between">
+      {/* Smanjena visina sa h-20 na h-14 (mobilni) i h-16 (desktop) */}
+      <div className="container mx-auto px-4 h-14 md:h-16 flex items-center justify-between">
         
-        {/* LOGO - Zadržan tvoj stil */}
+        {/* LOGO - Smanjen padding i ikona za uži bar */}
         <Link href="/" className="flex items-center gap-2 group relative z-[60]">
-          <div className="bg-yellow-400 p-2 rounded-lg group-hover:bg-yellow-500 transition-colors">
-            <Hammer size={24} className="text-black" />
+          <div className="bg-yellow-400 p-1.5 md:p-2 rounded-lg group-hover:bg-yellow-500 transition-colors">
+            <Hammer size={18} className="text-black md:size-[22px]" />
           </div>
-          <span className="text-xl font-black tracking-tighter text-slate-900">
+          <span className="text-lg md:text-xl font-black tracking-tighter text-slate-900">
             PRO-BUILD<span className="text-yellow-500">.</span>
           </span>
         </Link>
@@ -72,20 +73,20 @@ export function Navigation() {
             </Link>
             <Link
               href="/login"
-              className="flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-slate-800 transition-all shadow-md active:scale-95"
+              className={`flex items-center gap-2 bg-slate-900 text-white px-5 py-2 rounded-full font-bold text-sm hover:bg-slate-800 transition-all shadow-md active:scale-95`}
             >
-              <User size={18} />
+              <User size={16} />
               Sign In
             </Link>
           </div>
         </nav>
 
-        {/* MOBILE MENU BUTTON - Hamburger */}
+        {/* MOBILE MENU BUTTON - Smanjena veličina ikone */}
         <button 
           className="md:hidden p-2 text-slate-900 relative z-[60]"
           onClick={() => setIsOpen(!isOpen)}
         >
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
         {/* MOBILE MENU OVERLAY */}
@@ -93,7 +94,7 @@ export function Navigation() {
           fixed inset-0 bg-white z-50 flex flex-col p-8 transition-all duration-300 ease-in-out md:hidden
           ${isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"}
         `}>
-          <div className="mt-20 flex flex-col gap-8">
+          <div className="mt-16 flex flex-col gap-8">
             <ul className="flex flex-col gap-6">
               {pages.map((page, index) => (
                 <li key={index}>

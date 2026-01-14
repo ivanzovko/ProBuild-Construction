@@ -21,8 +21,6 @@ export default function ForCompaniesPage() {
         if (userType === 'company') {
           setIsLoggedInAsCompany(true);
         } else {
-          // Ako je korisnik klijent, NE odjavljujemo ga (signOut).
-          // Samo ga ne puštamo u Dashboard i ostavljamo isLoggedInAsCompany na false.
           setIsLoggedInAsCompany(false);
         }
       }
@@ -54,25 +52,27 @@ export default function ForCompaniesPage() {
 
   if (checkingAuth) {
     return (
-      <div className="fixed inset-0 bg-slate-900 flex flex-col items-center justify-center">
-        <Loader2 className="text-yellow-400 animate-spin mb-4" size={48} />
-        <p className="text-white font-black uppercase text-xs tracking-[0.3em]">
+      <div className="min-h-[100dvh] bg-slate-900 flex flex-col items-center justify-center p-6">
+        <Loader2 className="text-yellow-400 animate-spin mb-4 w-10 h-10 md:w-12 md:h-12" />
+        <p className="text-white font-black uppercase text-[10px] md:text-xs tracking-[0.3em] text-center">
           Authenticating...
         </p>
       </div>
     );
   }
 
-  // Ako je prijavljen kao firma, prikaži dashboard
   if (isLoggedInAsCompany) {
     return <DashboardView />;
   }
 
-  // Ako nije prijavljen KAO FIRMA (možda je klijent ili nitko), prikaži LoginView.
-  // LoginView će sam prepoznati ako je klijent pokušao login i ispisati mu error.
   return (
-    <div className="fixed inset-0 top-20 bg-slate-900 overflow-hidden">
-      <LoginView onLogin={handleLoginSuccess} />
+    /* UMJESTO fixed inset-0 top-20, koristimo min-h. 
+       To omogućuje mobitelu da skrola ako je tipkovnica otvorena ili je ekran mali.
+    */
+    <div className="min-h-[calc(100dvh-5rem)] bg-slate-900 flex items-center justify-center p-4 md:p-8">
+      <div className="w-full max-w-md mx-auto">
+        <LoginView onLogin={handleLoginSuccess} />
+      </div>
     </div>
   );
 }
