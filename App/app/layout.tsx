@@ -14,7 +14,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export const metadata: Metadata = {
   title: "Pro-Build Construction",
   description: "Pronađite provjerene građevinske partnere i gradite bez stresa.",
@@ -27,15 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <header className="fixed top-0 left-0 right-0 z-50 border-b">
-          <div className="container mx-auto py-4 flex justify-center">
-            <Navigation />
-          </div>
-        </header>
-        <main className="pt-20">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-900`}>
+        <Navigation />
+        <main className="pt-14 md:pt-16 min-h-screen">
           <NuqsAdapter>{children}</NuqsAdapter>
         </main>
       </body>
