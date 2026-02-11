@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 import { Navigation } from "./_components/navigation";
 
@@ -14,7 +15,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export const metadata: Metadata = {
   title: "Pro-Build Construction",
   description: "Pronađite provjerene građevinske partnere i gradite bez stresa.",
@@ -27,16 +27,25 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <header className="fixed top-0 left-0 right-0 z-50 border-b">
-          <div className="container mx-auto py-4 flex justify-center">
-            <Navigation />
-          </div>
-        </header>
-        <main className="pt-20">
-          <NuqsAdapter>{children}</NuqsAdapter>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-900`}>
+        <Navigation />
+        <main className="pt-14 md:pt-16 min-h-screen">
+          <NuqsAdapter>
+            {children}
+            <Toaster 
+              position="bottom-right" 
+              richColors 
+              expand={false}
+              toastOptions={{
+                style: {
+                  borderRadius: '16px',
+                  border: '1px solid #1e293b',
+                  background: '#0f172a',
+                  color: '#fff',
+                },
+              }}
+            />
+          </NuqsAdapter>
         </main>
       </body>
     </html>
