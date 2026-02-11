@@ -8,10 +8,13 @@ import ProjectFinance from "./components/ProjectFinance";
 import ProjectMedia from "./components/ProjectMedia";
 import ProjectOffers from "./components/ProjectOffers";
 import ChatModal from "../components/modals/ChatModal";
+import ProjectInfoModal from "./components/ProjectInfoModal";
+import CompanyInfoModal from "../../_components/CompanyInfoModal";
+import ReviewsModal from "./components/ReviewsModal";
 import { 
   FileText, ImageIcon, Loader2, ArrowLeft, CheckCircle2, 
   AlertTriangle, HardHat, Calendar, MessageSquare, X, Check,
-  Wallet, Receipt, ChevronDown
+  Wallet, Receipt, ChevronDown, Info, Star
 } from "lucide-react";
 
 type TabType = 'timeline' | 'costs' | 'images' | 'documents' | 'chat' | 'offers';
@@ -51,6 +54,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isReviewsOpen, setIsReviewsOpen] = useState(false);
+  const [isCompanyOpen, setIsCompanyOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const docInputRef = useRef<HTMLInputElement>(null);
   const imgInputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +68,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         .from('jobs')
         .select(`
           *,
-          company_profiles (company_name),
+          company_profiles (*),
           payments (id, amount, payment_date, description, created_at)
         `)
         .eq('id', projectId)
@@ -69,10 +76,17 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       
       if (error) console.error("Error fetching project:", error.message);
       if (data) setJob(data);
-      setLoading(false);
+      loading && setLoading(false);
     };
     fetchProject();
   }, [projectId, supabase]);
+
+  const getBackUrl = () => {
+    if (!job) return '/project_tracking';
+    if (job.status === 'pending') return '/project_tracking?tab=estimates';
+    if (job.status === 'completed') return '/project_tracking?tab=completed';
+    return '/project_tracking?tab=active';
+  };
 
   const getFileNameFromUrl = (url: string) => {
     try {
@@ -203,9 +217,35 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         />
       )}
 
+      {isInfoOpen && (
+        <ProjectInfoModal 
+          job={job} 
+          onClose={() => setIsInfoOpen(false)} 
+          onViewReviews={() => setIsReviewsOpen(true)}
+        />
+      )}
+
+      {isCompanyOpen && job?.company_profiles && (
+        <CompanyInfoModal 
+          isOpen={isCompanyOpen}
+          company={job.company_profiles}
+          onClose={() => setIsCompanyOpen(false)}
+        />
+      )}
+
+      {isReviewsOpen && (
+        <ReviewsModal
+          isOpen={isReviewsOpen}
+          onClose={() => setIsReviewsOpen(false)}
+          contractorName={job?.company_profiles?.company_name || "Contractor"}
+          contractorId={job?.contractor_id}
+          supabase={supabase}
+        />
+      )}
+
       {deleteConfirm && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-[24px] p-6 w-full max-w-sm shadow-2xl border border-slate-200 text-center">
+          <div className="bg-white rounded-[24px] p-6 w-full max-sm shadow-2xl border border-slate-200 text-center">
             <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4"><AlertTriangle size={24} /></div>
             <h3 className="text-sm font-black uppercase text-slate-900 mb-2 italic">Confirm Deletion</h3>
             <p className="text-[10px] font-bold text-slate-500 uppercase leading-relaxed mb-6">This action is permanent.</p>
@@ -223,33 +263,26 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         <div className="max-w-[1440px] mx-auto px-4 lg:px-6">
           <div className="py-4 lg:py-6 flex items-center gap-4 lg:gap-6">
             <button 
-              onClick={() => router.push('/project_tracking')}
+              onClick={() => router.push(getBackUrl())}
               className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-white/5 text-white rounded-xl lg:rounded-2xl hover:bg-yellow-400 hover:text-slate-900 transition-all border border-white/5 shrink-0 hover:scale-110"
             >
               <ArrowLeft size={20} />
             </button>
             
             <div className="flex-1 flex flex-col lg:flex-row lg:items-center justify-between min-w-0 gap-1 lg:gap-4">
-             <div className="min-w-0 flex-1">
-  <h1 className="text-lg md:text-4xl font-black text-white uppercase italic leading-tight tracking-tighter lg:mb-0">
-    {job?.title || job?.project_type}
-  </h1>
-  
-  <div className="flex lg:hidden items-center gap-x-3 mt-1 flex-wrap">
-    <div className="flex items-center gap-1 min-w-0">
-      <HardHat size={10} className="text-yellow-400 shrink-0" />
-      <span className="text-[9px] font-black uppercase text-slate-400 truncate">
-        {job?.company_profiles?.company_name || "N/A"}
-      </span>
-    </div>
-    <div className="flex items-center gap-1 shrink-0 border-l border-white/10 pl-3">
-      <Calendar size={10} className="text-yellow-400 shrink-0" />
-      <span className="text-[9px] font-black uppercase text-slate-400">
-        {job?.created_at ? new Date(job.created_at).toLocaleDateString('en-GB') : "N/A"}
-      </span>
-    </div>
-  </div>
-</div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-3">
+                  <h1 className="text-lg md:text-4xl font-black text-white uppercase italic leading-tight tracking-tighter">
+                    {job?.title || job?.project_type}
+                  </h1>
+                  <button 
+                    onClick={() => setIsInfoOpen(true)}
+                    className="p-2 bg-white/10 text-yellow-400 rounded-xl hover:bg-yellow-400 hover:text-slate-900 transition-all active:scale-90"
+                  >
+                    <Info size={18} className="lg:w-8 lg:h-8 w-6 h-6" />
+                  </button>
+                </div>
+              </div>
 
               {job?.status === 'completed' && (
                 <div className="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full shrink-0">
@@ -259,17 +292,32 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               )}
 
               <div className="hidden lg:flex items-center gap-6 shrink-0">
-                <div className="flex flex-col items-end border-l border-white/10 pl-6 first:border-none first:pl-0">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Contractor</span>
-                  <div className="flex items-center gap-2">
-                    <HardHat size={16} className="text-yellow-400" />
-                    <span className="text-[14px] font-black uppercase text-white truncate max-w-[150px]">
-                      {job?.company_profiles?.company_name || "N/A"}
-                    </span>
+                <div className="flex flex-col items-start border-l border-white/10 pl-6 first:border-none first:pl-0">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Contractor</span>
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => setIsCompanyOpen(true)}
+                      className="flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 group/contractor"
+                    >
+                      <HardHat size={16} className="text-yellow-400 group-hover/contractor:rotate-12 transition-transform" />
+                      <span className="text-[14px] font-black uppercase text-white group-hover/contractor:text-yellow-400 transition-colors">
+                        {job?.company_profiles?.company_name || "N/A"}
+                      </span>
+                    </button>
+                    {job?.contractor_id && (
+                      <button 
+                        onClick={() => setIsReviewsOpen(true)}
+                        className="flex items-center gap-1.5 bg-yellow-400 px-3 py-1 rounded-lg hover:bg-white transition-all group active:scale-95"
+                      >
+                        <Star size={12} className="fill-slate-950 text-slate-950 group-hover:scale-110 transition-transform" />
+                        <span className="text-[10px] font-black uppercase text-slate-950">Reviews</span>
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className="flex flex-col items-end border-l border-white/10 pl-6">
-                  <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Started on</span>
+                
+                <div className="flex flex-col items-start border-l border-white/10 pl-6">
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Started on</span>
                   <div className="flex items-center gap-2">
                     <Calendar size={16} className="text-yellow-400" />
                     <span className="text-[14px] font-black uppercase text-white">
@@ -281,32 +329,54 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             </div>
           </div>
 
-          {/* MOBILNI DROPDOWN IZBORNIK */}
-          <div className="lg:hidden pb-4">
-            <div className="relative">
-              <select 
-                value={activeTab}
-                onChange={(e) => {
-                  const val = e.target.value as TabType;
-                  if (val === 'chat') {
-                    setIsChatOpen(true);
-                  } else {
-                    setActiveTab(val);
-                  }
-                }}
-                className="w-full bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-widest rounded-xl px-4 py-3 appearance-none focus:outline-none focus:border-yellow-400/50"
-              >
-                {tabs.map(tab => (
-                  <option key={tab.id} value={tab.id} className="bg-slate-900 text-white">
-                    {tab.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-yellow-400 pointer-events-none" />
-            </div>
+          <div className="lg:hidden pb-4 relative">
+            <button 
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="w-full bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-widest rounded-xl px-4 py-4 flex items-center justify-between active:bg-white/10 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                {(() => {
+                  const activeIcon = tabs.find(t => t.id === activeTab)?.icon || Calendar;
+                  const Icon = activeIcon;
+                  return <Icon size={16} className="text-yellow-400" />;
+                })()}
+                <span>{tabs.find(t => t.id === activeTab)?.label}</span>
+              </div>
+              <ChevronDown size={18} className={`text-yellow-400 transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {isMobileMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setIsMobileMenuOpen(false)} />
+                <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+                  <div className="p-2 space-y-1">
+                    {tabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          if (tab.id === 'chat') {
+                            setIsChatOpen(true);
+                          } else {
+                            setActiveTab(tab.id as TabType);
+                          }
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                          activeTab === tab.id && tab.id !== 'chat'
+                            ? "bg-yellow-400 text-slate-900" 
+                            : "text-white hover:bg-white/5"
+                        }`}
+                      >
+                        <tab.icon size={16} className={activeTab === tab.id && tab.id !== 'chat' ? "text-slate-900" : "text-yellow-400"} />
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* DESKTOP TABOVI - NETAKNUTI */}
           <div className="hidden lg:flex border-t border-white/5">
             {tabs.map((tab) => (
               <button

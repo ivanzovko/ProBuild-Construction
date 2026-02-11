@@ -1,3 +1,6 @@
+// File: page.tsx
+// Folder: app/dashboard/
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -53,9 +56,11 @@ export default function DashboardView() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col lg:flex-row relative text-slate-900">
       
-      {/* MOBILE HEADER */}
-      <div className="lg:hidden bg-slate-950 text-white p-4 flex justify-between items-center z-50 shadow-lg">
-        <h2 className="text-xl font-black italic tracking-tighter uppercase">PRO<span className="text-yellow-400">-BUILD</span></h2>
+      {/* MOBILE HEADER - Izmijenjeno da piše ime stranice */}
+      <div className="lg:hidden bg-slate-950 text-white p-4 flex justify-between items-center z-50 shadow-lg border-b border-white/5">
+        <h2 className="text-lg font-black italic tracking-tighter uppercase text-yellow-400">
+          Overview
+        </h2>
         <button onClick={() => setIsSidebarOpen(true)} className="p-2 bg-slate-900 rounded-xl text-yellow-400">
           <Menu size={24} />
         </button>
@@ -68,7 +73,7 @@ export default function DashboardView() {
       />
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto h-screen">
+      <main className="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto h-[calc(100vh-60px)] lg:h-screen">
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
           <div>
             <h1 className="text-2xl md:text-3xl font-black text-slate-900 uppercase italic leading-tight">

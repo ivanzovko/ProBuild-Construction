@@ -38,7 +38,7 @@ export const useOnboardingData = () => {
 
   const [formData, setFormData] = useState({
     owner_full_name: "", phone_prefix: "+385", phone_number: "",
-    company_name: "", oib: "", address: "", base_county: "",
+    company_name: "", oib: "", iban: "", address: "", base_county: "",
     working_hours: { start: "08:00", end: "16:00" },
     service_counties: [] as string[], categories: [] as string[],
     logo_file: null as File | null,
@@ -94,6 +94,16 @@ export const useOnboardingData = () => {
     if (currentStep === 2) {
       if (!formData.company_name.trim()) newErrors.company_name = "Company name is required";
       if (formData.oib.length !== 11) newErrors.oib = "PIN must be 11 digits";
+      
+    // Općeniti IBAN Regex: Počinje s 2 slova, slijedi 13 do 32 alfanumerička znaka
+  const genericIbanRegex = /^[A-Z]{2}[0-9A-Z]{13,32}$/;
+
+  if (!formData.iban) {
+    newErrors.iban = "IBAN is required";
+  } else if (!genericIbanRegex.test(formData.iban)) {
+    newErrors.iban = "Invalid IBAN format";
+  }
+
       if (!formData.address.trim()) newErrors.address = "Address is required";
       if (!formData.base_county) newErrors.base_county = "HQ county required";
     }
@@ -162,6 +172,7 @@ export const useOnboardingData = () => {
         owner_full_name: formData.owner_full_name,
         company_name: formData.company_name,
         oib: formData.oib,
+        iban: formData.iban,
         address: formData.address,
         phone: `${formData.phone_prefix}${formData.phone_number}`,
         working_hours: workingHours,

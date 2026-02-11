@@ -172,26 +172,44 @@ export default function OnboardingPage() {
           </div>
 
           {/* Submission Modal */}
-          {isSubmitModalOpen && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !isSubmitting && setIsSubmitModalOpen(false)} />
-              <div className="relative bg-white w-full max-w-md rounded-[32px] p-6 md:p-8 shadow-2xl">
-                <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mb-6 shadow-lg">
-                    <Check size={28} className="text-slate-900" strokeWidth={3} />
-                  </div>
-                  <h3 className="text-2xl font-black text-slate-900 uppercase italic mb-2">Ready to <span className="text-yellow-500">Launch?</span></h3>
-                  <p className="text-slate-500 text-sm font-medium mb-8">Confirm your business details for verification.</p>
-                  <div className="flex flex-col sm:flex-row gap-3 w-full">
-                    <button type="button" disabled={isSubmitting} onClick={() => setIsSubmitModalOpen(false)} className="order-2 sm:order-1 flex-1 px-6 py-4 bg-slate-100 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest">Back</button>
-                    <button type="button" disabled={isSubmitting} onClick={handleFinalSubmit} className="order-1 sm:order-2 flex-1 px-6 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
-                      {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : "Confirm"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+         {isSubmitModalOpen && (
+  <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => !isSubmitting && setIsSubmitModalOpen(false)} />
+    <div className="relative bg-white w-full max-w-md rounded-[32px] p-6 md:p-8 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+      <div className="flex flex-col items-center text-center">
+        <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mb-6 shadow-lg shadow-yellow-400/20">
+          <Check size={28} className="text-slate-900" strokeWidth={3} />
+        </div>
+        <h3 className="text-2xl font-black text-slate-900 uppercase italic mb-2">Ready to <span className="text-yellow-500">Launch?</span></h3>
+        <p className="text-slate-500 text-sm font-medium mb-8">Confirm your business details for verification.</p>
+        
+        <div className="flex flex-col sm:flex-row gap-3 w-full">
+          <button 
+            type="button" 
+            disabled={isSubmitting} 
+            onClick={() => setIsSubmitModalOpen(false)} 
+            className="order-2 sm:order-1 flex-1 px-6 py-4 bg-slate-200 text-slate-600 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all duration-200 hover:bg-slate-400 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+          >
+            Back
+          </button>
+          
+          <button 
+            type="button" 
+            disabled={isSubmitting} 
+            onClick={handleFinalSubmit} 
+            className="order-1 sm:order-2 flex-1 px-6 py-4 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-200 hover:bg-yellow-400 hover:text-slate-900 hover:scale-[1.02] hover:shadow-xl hover:shadow-yellow-400/20 active:scale-[0.98] disabled:opacity-50"
+          >
+            {isSubmitting ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              "Confirm"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
         </>
       )}
     </main>

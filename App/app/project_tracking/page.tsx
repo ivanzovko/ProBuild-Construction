@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Construction, Clock, ListFilter, ChevronDown, Home, Building2, Hammer, 
-  AlertTriangle, X, Check, CheckCircle2, Loader2, TrendingUp, ImageIcon, 
-  FileText, MessageSquare, Calendar, HardHat, LifeBuoy 
+  X, CheckCircle2, LifeBuoy, Search, AlertTriangle, Loader2, Check
 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 
@@ -15,6 +14,7 @@ import CompletedProjectCard from "./components/CompletedProjectCard";
 import RatingModal from "./components/modals/RatingModal";
 import RejectionModal from "./components/modals/RejectionModal";
 import ChatModal from "./components/modals/ChatModal";
+import CompanyInfoModal from "../_components/CompanyInfoModal";
 
 const CATEGORY_CONFIG: Record<string, { img: string; icon: any; color: string }> = {
   renovation: {
@@ -49,6 +49,7 @@ const getCategoryData = (type: string) => {
 
 export default function EstimatesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   const supabase = useMemo(() => createBrowserClient(
@@ -59,8 +60,9 @@ export default function EstimatesPage() {
   const [activeTab, setActiveTab] = useState<'active' | 'estimates' | 'completed'>('active');
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [sortBy, setSortBy] = useState<'newest' | 'price_desc' | 'price_asc' | 'sqm_desc'>('newest');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'price_desc' | 'price_asc' | 'sqm_desc'>('newest');
   
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [ratingJob, setRatingJob] = useState<any | null>(null);
@@ -69,9 +71,25 @@ export default function EstimatesPage() {
   const [chatJob, setChatJob] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'active' || tab === 'estimates' || tab === 'completed') {
+      setActiveTab(tab as any);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tabId: 'active' | 'estimates' | 'completed') => {
+    setActiveTab(tabId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', tabId);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  };
 
   const sortOptions = [
     { id: 'newest', label: 'Newest First' },
+    { id: 'oldest', label: 'Oldest First' },
     { id: 'price_desc', label: 'Price: High to Low' },
     { id: 'price_asc', label: 'Price: Low to High' },
     { id: 'sqm_desc', label: 'Size (m²)' },
@@ -97,14 +115,18 @@ export default function EstimatesPage() {
       
       const { data: jobsData, error } = await supabase
         .from('jobs')
-        .select(`*, contractor:company_profiles(company_name, id)`)
+        .select(`
+          *, 
+          contractor:company_profiles!jobs_contractor_id_fkey(*),
+          estimates_count:estimates(count) 
+        `)
         .eq('client_id', user.id);
 
       if (error) throw error;
-      
       setJobs(jobsData?.map(job => ({
         ...job,
-        contractor_name: job.contractor?.company_name
+        contractor_name: job.contractor?.company_name,
+        estimates_count: job.estimates_count?.[0]?.count || 0 
       })) || []);
     } catch (error) {
       console.error(error);
@@ -171,20 +193,24 @@ export default function EstimatesPage() {
     }
   };
 
-  const sortedJobs = useMemo(() => {
-    const data = [...jobs];
+  const filteredAndSortedJobs = useMemo(() => {
+    let data = jobs.filter(job => {
+      const searchStr = `${job.title} ${job.project_type} ${job.contractor_name || ""}`.toLowerCase();
+      return searchStr.includes(searchQuery.toLowerCase());
+    });
     switch (sortBy) {
-      case 'newest': return data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-      case 'price_desc': return data.sort((a, b) => (b.estimated_price || 0) - (a.estimated_price || 0));
-      case 'price_asc': return data.sort((a, b) => (a.estimated_price || 0) - (b.estimated_price || 0));
-      case 'sqm_desc': return data.sort((a, b) => b.sqm - a.sqm);
-      default: return data;
+      case 'newest': data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); break;
+      case 'oldest': data.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()); break;
+      case 'price_desc': data.sort((a, b) => (b.estimated_price || 0) - (a.estimated_price || 0)); break;
+      case 'price_asc': data.sort((a, b) => (a.estimated_price || 0) - (b.estimated_price || 0)); break;
+      case 'sqm_desc': data.sort((a, b) => b.sqm - a.sqm); break;
     }
-  }, [jobs, sortBy]);
+    return data;
+  }, [jobs, sortBy, searchQuery]);
 
-  const activeProjects = sortedJobs.filter(j => ['active', 'in-progress', 'in_progress'].includes(j.status));
-  const myEstimates = sortedJobs.filter(j => j.status === 'pending');
-  const completedProjects = sortedJobs.filter(j => j.status === 'completed');
+  const activeProjects = filteredAndSortedJobs.filter(j => ['active', 'in-progress', 'in_progress'].includes(j.status));
+  const myEstimates = filteredAndSortedJobs.filter(j => j.status === 'pending');
+  const completedProjects = filteredAndSortedJobs.filter(j => j.status === 'completed');
 
   return (
     <div className="h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)] overflow-y-auto bg-slate-50 pb-20 no-scrollbar">
@@ -215,11 +241,23 @@ export default function EstimatesPage() {
               </p>
             </div>
             <div className="flex p-6 gap-3 bg-slate-50/80 border-t border-slate-100">
-              <button disabled={isDeleting} onClick={() => setDeleteId(null)} className="flex-1 py-4 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-slate-900 transition-all">
+              <button 
+                disabled={isDeleting} 
+                onClick={() => setDeleteId(null)} 
+                className="flex-1 py-4 bg-white border border-slate-200 rounded-2xl text-[10px] font-black uppercase tracking-widest text-slate-500 hover:bg-slate-50 hover:text-slate-900 transition-all disabled:opacity-50"
+              >
                 Cancel
               </button>
-              <button disabled={isDeleting} onClick={confirmDelete} className="flex-1 py-4 bg-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest text-yellow-400 hover:bg-black transition-all flex items-center justify-center gap-2">
-                {isDeleting ? <Loader2 size={16} className="animate-spin" /> : "Confirm Delete"}
+              <button 
+                disabled={isDeleting} 
+                onClick={confirmDelete} 
+                className="flex-1 py-4 bg-red-600 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white hover:bg-red-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-600/20 active:scale-95 disabled:bg-red-400"
+              >
+                {isDeleting ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  "Delete Project"
+                )}
               </button>
             </div>
           </div>
@@ -245,38 +283,54 @@ export default function EstimatesPage() {
 
       {chatJob && <ChatModal job={chatJob} onClose={() => setChatJob(null)} />}
 
+     {selectedCompany && (
+        <CompanyInfoModal 
+          isOpen={!!selectedCompany}
+          company={selectedCompany} 
+          onClose={() => setSelectedCompany(null)} 
+        />
+      )}
+
       <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-2xl">
         <div className="max-w-[1440px] mx-auto px-4 md:px-6">
-          <div className="py-5 flex items-center justify-between gap-4">
-            <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl md:text-3xl font-black text-white uppercase italic leading-none tracking-tighter whitespace-nowrap overflow-hidden text-ellipsis">
+          <div className="py-5 flex flex-row items-center justify-between gap-2 md:gap-4">
+            <div className="min-w-0 flex-1 pt-1 md:pt-0">
+              <h1 className="text-base sm:text-2xl md:text-3xl font-black text-white uppercase italic leading-tight md:leading-none tracking-tighter whitespace-normal md:whitespace-nowrap overflow-hidden line-clamp-2 md:line-clamp-none py-1">
                 Project Tracking System
               </h1>
-              <p className="hidden md:block text-[8px] font-bold text-slate-500 uppercase tracking-[0.2em] mt-1.5">Manage your construction journey</p>
             </div>
 
-            <div className="flex items-center gap-2 md:gap-3 shrink-0">
-              <button 
-                onClick={() => router.push("/support")}
-                className="p-2.5 md:px-4 md:py-2.5 bg-slate-800 border border-slate-700 text-slate-400 rounded-xl hover:text-yellow-400 hover:border-yellow-400/50 transition-all hover:scale-105 active:scale-95 group"
-              >
-                <div className="flex items-center gap-2">
-                  <LifeBuoy size={18} className="group-hover:rotate-45 transition-transform duration-500" />
-                  <span className="hidden md:inline text-[11px] font-black uppercase italic tracking-widest">Support</span>
-                </div>
-              </button>
+            <div className="flex items-center gap-1.5 md:gap-3">
+              <div className="relative transition-all duration-300 group">
+                <Search size={14} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none z-10" />
+                <input 
+                  type="text" 
+                  placeholder="Search by project title..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-10 md:w-74 bg-slate-800/50 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 md:pr-10 text-[11px] font-bold text-white placeholder:text-slate-300 focus:outline-none focus:border-yellow-400/50 transition-all uppercase tracking-widest focus:w-44 md:focus:w-64 cursor-pointer focus:cursor-text"
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-md transition-colors group/clear"
+                  >
+                    <X size={14} className="text-slate-400 group-hover/clear:text-yellow-400 transition-colors" />
+                  </button>
+                )}
+              </div>
 
               <div className="relative" ref={dropdownRef}>
                 <button 
                   onClick={() => setIsSortOpen(!isSortOpen)} 
                   className="flex items-center gap-2 px-3 md:px-4 py-2.5 bg-yellow-400 rounded-xl text-[11px] font-black uppercase text-slate-900 hover:bg-yellow-300 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/10"
                 >
-                  <span className="hidden sm:inline">{sortOptions.find(o => o.id === sortBy)?.label}</span>
-                  <ListFilter size={16} className="sm:hidden" />
-                  <ChevronDown size={14} className={`transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
+                  <ListFilter size={16} />
+                  <ChevronDown size={14} className={`hidden md:block transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isSortOpen && (
-                  <div className="absolute right-0 mt-3 w-52 bg-slate-800 border border-white/10 rounded-2xl shadow-2xl p-1.5 z-[60] animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute right-0 mt-3 w-48 md:w-52 bg-slate-800 border border-white/10 rounded-2xl shadow-2xl p-1.5 z-[60] animate-in fade-in zoom-in-95 duration-200">
+                    <div className="px-3 py-2 text-[8px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 mb-1">Sort By</div>
                     {sortOptions.map((option) => (
                       <button
                         key={option.id}
@@ -284,7 +338,7 @@ export default function EstimatesPage() {
                         className={`w-full text-left px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                           sortBy === option.id 
                           ? 'bg-yellow-400 text-slate-900' 
-                          : 'text-slate-300 hover:bg-white/5'
+                          : 'text-slate-300 hover:bg-white/5 hover:translate-x-1'
                         }`}
                       >
                         {option.label}
@@ -293,33 +347,46 @@ export default function EstimatesPage() {
                   </div>
                 )}
               </div>
+
+              <button 
+                onClick={() => router.push("/support")}
+                className="flex items-center justify-center md:gap-2.5 px-3 md:px-4 py-2.5 bg-slate-800 border border-slate-700 text-slate-400 rounded-xl hover:text-yellow-400 hover:border-yellow-400/50 transition-all hover:scale-105 active:scale-95 group shadow-lg"
+              >
+                <LifeBuoy size={18} className="group-hover:rotate-12 transition-transform duration-300" />
+                <span className="hidden md:block text-[11px] font-black uppercase italic tracking-widest">
+                  Support
+                </span>
+              </button>
             </div>
           </div>
 
           <div className="flex border-t border-white/5">
-            {[
-              { id: 'active', label: 'Active', icon: Construction },
-              { id: 'estimates', label: 'Estimates', icon: Clock },
-              { id: 'completed', label: 'History', icon: CheckCircle2 },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 flex items-center justify-center gap-2 py-4 text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all border-b-2 group hover:bg-white/5 ${
-                  activeTab === tab.id
-                  ? "border-yellow-400 text-yellow-400 bg-white/5" 
-                  : "border-transparent text-slate-500 hover:text-slate-200"
-                }`}
-              >
-                <tab.icon size={14} className="shrink-0 group-hover:scale-110 transition-transform duration-300" />
-                <span className="truncate group-hover:tracking-[0.12em] transition-all duration-300">{tab.label}</span>
-              </button>
-            ))}
-          </div>
+  {[
+    { id: 'active', label: 'Active', desktopLabel: ' Projects', icon: Construction },
+    { id: 'estimates', label: 'Estimates', desktopLabel: ' Projects', icon: Clock },
+    { id: 'completed', label: 'History', desktopLabel: ' Archive', icon: CheckCircle2 },
+  ].map((tab) => (
+    <button
+      key={tab.id}
+      onClick={() => handleTabChange(tab.id as any)}
+      className={`flex-1 flex items-center justify-center gap-2 py-4 text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all border-b-2 group hover:bg-white/5 ${
+        activeTab === tab.id
+        ? "border-yellow-400 text-yellow-400 bg-white/5" 
+        : "border-transparent text-slate-500 hover:text-slate-200"
+      }`}
+    >
+      <tab.icon size={14} className="shrink-0 group-hover:scale-110 transition-transform duration-300" />
+      <span className="truncate group-hover:tracking-[0.12em] transition-all duration-300">
+        {tab.label}
+        <span className="hidden md:inline">{tab.desktopLabel}</span>
+      </span>
+    </button>
+  ))}
+</div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-10">
+      <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
         {loading ? (
           <div className="grid gap-6">
             <SkeletonCard type={activeTab === 'estimates' ? 'grid' : 'list'} />
@@ -329,44 +396,72 @@ export default function EstimatesPage() {
           <div className="grid gap-6">
             {activeTab === 'active' && (
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {activeProjects.map((job) => (
+                {activeProjects.map((job, i) => (
                   <div key={job.id} className="hover:scale-[1.01] transition-transform duration-300">
                     <ActiveProjectCard 
                       job={job} 
+                      index={i + 1}
                       config={getCategoryData(job.project_type)}
                       onOpenRating={setRatingJob}
                       onRejectFinish={setRejectionJobId}
                       onOpenChat={setChatJob}
+                      onOpenCompany={() => setSelectedCompany(job.contractor)}
+                      searchQuery={searchQuery}
                     />
                   </div>
                 ))}
-                {activeProjects.length === 0 && <EmptyState icon={<Construction size={24}/>} title="No Active Projects" description="Construction progress appears here." />}
+                {activeProjects.length === 0 && (
+                  <EmptyState 
+                    icon={<Construction size={24}/>} 
+                    title={searchQuery ? "No results found" : "No Active Projects"} 
+                    description={searchQuery ? "Try searching for something else." : "Construction progress appears here."} 
+                  />
+                )}
               </div>
             )}
 
             {activeTab === 'estimates' && (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {myEstimates.map((job) => (
-                  <div key={job.id} className="hover:scale-[1.03] transition-transform duration-300">
-                    <EstimateCard job={job} config={getCategoryData(job.project_type)} onDelete={setDeleteId} />
+              <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                {myEstimates.map((job, i) => (
+                  <div key={job.id} className="hover:scale-[1.01] transition-transform duration-300">
+                    <EstimateCard 
+                      job={job} 
+                      index={i + 1} 
+                      onDelete={setDeleteId} 
+                      searchQuery={searchQuery}
+                    />
                   </div>
                 ))}
                 {myEstimates.length === 0 && (
-                  <div className="sm:col-span-2 lg:col-span-3">
-                    <EmptyState icon={<Clock size={24}/>} title="No Estimates" description="Saved quotes appear here." />
-                  </div>
+                  <EmptyState 
+                    icon={<Clock size={24}/>} 
+                    title={searchQuery ? "No results found" : "No Estimates"} 
+                    description={searchQuery ? "Try searching for something else." : "Saved quotes appear here."} 
+                  />
                 )}
               </div>
             )}
 
             {activeTab === 'completed' && (
               <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {completedProjects.map((job) => (
+                {completedProjects.map((job, i) => (
                   <div key={job.id} className="hover:scale-[1.01] transition-transform duration-300">
-                    <CompletedProjectCard job={job} config={getCategoryData(job.project_type)} />
+                    <CompletedProjectCard 
+                      job={job} 
+                      index={i + 1}
+                      config={getCategoryData(job.project_type)} 
+                      onOpenCompany={() => setSelectedCompany(job.contractor)}
+                      searchQuery={searchQuery}
+                    />
                   </div>
                 ))}
-                {completedProjects.length === 0 && <EmptyState icon={<CheckCircle2 size={24}/>} title="History Empty" description="Archived projects appear here." />}
+                {completedProjects.length === 0 && (
+                  <EmptyState 
+                    icon={<CheckCircle2 size={24}/>} 
+                    title={searchQuery ? "No results found" : "History Empty"} 
+                    description={searchQuery ? "Try searching for something else." : "Archived projects appear here."} 
+                  />
+                )}
               </div>
             )}
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
@@ -37,8 +37,9 @@ export function Navigation() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
+  
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // LOGIKA ZA AKTIVAN LINK
   const isCompanySection = 
     currentPath.startsWith("/dashboard") || 
     currentPath.startsWith("/onboarding") || 
@@ -50,6 +51,22 @@ export function Navigation() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   ), []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   useEffect(() => {
     const getUser = async () => {
@@ -139,7 +156,7 @@ export function Navigation() {
             <Hammer size={18} className="text-black lg:size-[22px]" />
           </div>
           <span className="text-lg lg:text-xl font-black tracking-tighter text-slate-900">
-            PRO-BUILD<span className="text-yellow-500">.</span>
+            PRO-BUILD<span className="text-yellow-500"> CONSTRUCTION</span>
           </span>
         </Link>
 
@@ -200,19 +217,24 @@ export function Navigation() {
             {isLoading ? (
               <div className="h-9 w-24 bg-slate-100 animate-pulse rounded-full" />
             ) : user ? (
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button 
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-slate-800 transition-all hover:scale-105 active:scale-95"
-                >
-                  <div className="w-5 h-5 bg-yellow-400 rounded-full flex items-center justify-center text-black">
-                    <User size={12} />
-                  </div>
-                  <span className="max-w-[100px] truncate italic">
-                    {user.user_metadata?.full_name || user.email?.split('@')[0]}
-                  </span>
-                  <ChevronDown size={14} className={`transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
+  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+  className="flex items-center gap-3 bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 min-w-fit"
+>
+  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-black flex-shrink-0">
+    <User size={14} />
+  </div>
+  <div className="flex flex-col items-start leading-tight">
+    <span className="italic text-[12px] whitespace-nowrap">
+      {user.user_metadata?.full_name || user.email?.split('@')[0]}
+    </span>
+    <span className="text-[9px] text-slate-400 font-medium whitespace-nowrap">
+      {user.email}
+    </span>
+  </div>
+  <ChevronDown size={14} className={`transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+</button>
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 py-2 animate-in fade-in slide-in-from-top-2">
@@ -242,7 +264,6 @@ export function Navigation() {
           </div>
         </nav>
 
-        {/* MOBILE TRIGGER */}
         <button 
           className="lg:hidden p-2 text-slate-900 relative z-[60] hover:scale-110 transition-transform"
           onClick={() => setIsOpen(!isOpen)}
@@ -250,7 +271,6 @@ export function Navigation() {
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
-        {/* MOBILE MENU */}
         <div className={`
           fixed inset-0 bg-white z-30 flex flex-col p-8 transition-all duration-300 ease-in-out lg:hidden
           ${isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0 pointer-events-none"}

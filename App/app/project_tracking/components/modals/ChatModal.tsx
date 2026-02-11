@@ -86,36 +86,38 @@ export default function ChatModal({ job, onClose, isReadOnly }: { job: any; onCl
     <div className="fixed inset-0 z-[120] flex items-start sm:items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
       <div className="bg-white w-full max-w-[340px] sm:max-w-md h-[80dvh] sm:h-[600px] rounded-[24px] sm:rounded-[40px] flex flex-col shadow-2xl border border-slate-100 overflow-hidden animate-in slide-in-from-top-10 duration-300 mx-auto mt-4 sm:mt-0">
         
-        <div className="px-3 py-3 sm:px-6 sm:py-4 flex justify-between items-center bg-white border-b border-slate-50 shrink-0">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className={`w-8 h-8 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center shadow-md rotate-2 transition-colors shrink-0 ${isReadOnly ? 'bg-slate-200 text-slate-500' : 'bg-slate-900 text-yellow-400'}`}>
-              {isReadOnly ? <Lock size={14} /> : <MessageSquare size={16} />}
+        <div className="px-4 py-3 sm:px-6 sm:py-4 flex justify-between items-center bg-white border-b border-slate-50 shrink-0">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center shadow-md rotate-2 transition-colors shrink-0 ${isReadOnly ? 'bg-slate-200 text-slate-500' : 'bg-slate-900 text-yellow-400'}`}>
+              {isReadOnly ? <Lock size={16} /> : <MessageSquare size={18} />}
             </div>
-            <div className="flex flex-col min-w-0">
+            
+            <div className="flex flex-col flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm sm:text-lg font-black text-slate-900 uppercase italic tracking-tight leading-none truncate">
+                <h3 className="text-[15px] sm:text-lg font-black text-slate-900 uppercase italic tracking-tight leading-none whitespace-nowrap">
                   {isReadOnly ? 'Archive' : 'Chat'}
                 </h3>
                 {job.status === 'completed' && (
-                  <div className="flex items-center gap-1 bg-emerald-500 text-white px-1.5 py-0.5 rounded-md shrink-0">
+                  <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-0.5 rounded-md shrink-0">
                     <CheckCircle2 size={8} strokeWidth={3} />
                     <span className="text-[7px] font-black uppercase tracking-tighter">Completed</span>
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-1 mt-0.5 min-w-0">
-                 <Briefcase size={7} className="text-slate-400 shrink-0" />
-                 <p className="text-[7px] sm:text-[9px] text-slate-500 font-black uppercase tracking-wider truncate">
+              <div className="flex items-center gap-1 mt-1 min-w-0">
+                 <Briefcase size={8} className="text-slate-400 shrink-0" />
+                 <p className="text-[8px] sm:text-[9px] text-slate-500 font-black uppercase tracking-wider truncate">
                   {job.title || 'Project'}
                 </p>
               </div>
             </div>
           </div>
+
           <button 
             onClick={onClose} 
-            className="p-1.5 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full transition-all"
+            className="p-2 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full transition-all ml-2 shrink-0"
           >
-            <X size={16}/>
+            <X size={18}/>
           </button>
         </div>
 

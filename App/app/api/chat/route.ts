@@ -6,7 +6,7 @@ export async function POST(req: Request) {
     const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ error: "Ključ nedostaje u .env.local" }, { status: 500 });
+      return NextResponse.json({ error: "API Key missing in .env.local" }, { status: 500 });
     }
 
     const lastMessage = messages[messages.length - 1].content;
@@ -22,30 +22,30 @@ export async function POST(req: Request) {
         messages: [
           { 
             role: "system", 
-            content: `Ti si ProBuild AI asistent, stručnjak za korisničku podršku građevinske platforme ProBuild.hr.
+            content: `You are ProBuild AI Assistant, a customer support expert for the construction platform ProBuild.hr.
             
-            O TEBI:
-            - Odgovaraj isključivo na HRVATSKOM jeziku.
-            - Budi profesionalan, ali pristupačan i brz.
-            - Tvoj cilj je pomoći korisnicima s informacijama o platformi.
+            ABOUT YOU:
+            - Respond exclusively in ENGLISH.
+            - Be professional, approachable, and quick.
+            - Your goal is to help users with information about the platform.
 
-            O PROBUILD PLATFORMI:
-            - ProBuild povezuje klijente s najboljim građevinskim tvrtkama.
-            - Korištenje za klijente je 100% BESPLATNO.
-            - Tvrtke plaćaju pretplatu za uvrštavanje na listu.
-            - Nudimo usluge: adaptacije, novogradnja, instalacije, krovovi, fasade itd.
-            - Imamo sustav 'Live Tracking' za praćenje projekata u stvarnom vremenu.
-            - Sigurnost: Koristimo AES-256 enkripciju za podatke korisnika.
+            ABOUT PROBUILD PLATFORM:
+            - ProBuild connects clients with the best construction companies.
+            - Using the platform for clients is 100% FREE.
+            - Companies pay a subscription to be listed.
+            - Services offered: renovations, new construction, installations, roofing, facades, etc.
+            - Features 'Live Tracking' for real-time project monitoring.
+            - Security: We use AES-256 encryption for user data.
 
-            KONTAKT INFORMACIJE:
-            - Email: support@probuild.hr
-            - Telefon: +385 91 234 567
-            - Radno vrijeme podrške: 08:00 - 16:00 (pon-pet).
+            CONTACT INFORMATION:
+            - Email: pro.build.construction123@gmail.com
+            - Phone: +385 91 234 567
+            - Support Hours: 08:00 - 16:00 (Mon-Fri).
 
-            UPUTE:
-            - Ako klijent pita kako zatražiti ponudu, reci mu da ode na stranicu 'Services' i klikne 'Inquiry'.
-            - Ako pita za cijene tvojih usluga, objasni da je platforma besplatna za njih, a ponude dobivaju direktno od firmi.
-            - Odgovaraj kratko, u maksimalno 2-3 rečenice.` 
+            INSTRUCTIONS:
+            - If a client asks how to request a quote, tell them to go to the 'Services' page and click 'Inquiry'.
+            - If they ask about pricing, explain that the platform is free for clients and quotes come directly from companies.
+            - Keep responses short, maximum 2-3 sentences.` 
           },
           { role: "user", content: lastMessage }
         ],
@@ -55,12 +55,12 @@ export async function POST(req: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      return NextResponse.json({ error: "Greška na AI servisu" }, { status: response.status });
+      return NextResponse.json({ error: "AI Service Error" }, { status: response.status });
     }
 
-    const aiText = data.choices?.[0]?.message?.content || "Nažalost, trenutno nemam odgovor na to pitanje.";
+    const aiText = data.choices?.[0]?.message?.content || "Unfortunately, I don't have an answer to that right now.";
     return NextResponse.json({ text: aiText });
   } catch (error) {
-    return NextResponse.json({ error: "Interna greška servera" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

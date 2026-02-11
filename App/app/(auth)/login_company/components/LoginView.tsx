@@ -1,6 +1,9 @@
+/* components/auth/LoginView.tsx */
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { 
   Building2, Lock, Mail, ArrowRight, ShieldCheck, 
@@ -14,26 +17,38 @@ interface LoginViewProps {
   loading: boolean;
   errorMsg: string | null;
   isClientAccount?: boolean;
+  initialEmail?: string;
 }
 
-export default function LoginView({ 
+function LoginViewContent({ 
   onSubmit, 
   onInputChange, 
   loading, 
   errorMsg, 
-  isClientAccount 
+  isClientAccount,
+  initialEmail = ""
 }: LoginViewProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
-  // Novi state koji prati je li korisnik počeo tipkati nakon greške
   const [isDirty, setIsDirty] = useState(false);
 
-  // Kada se pojavi nova greška, gumb se treba onemogućiti dok korisnik opet ne tipka
+  useEffect(() => {
+    const emailFromUrl = searchParams.get("email");
+    if (emailFromUrl) {
+      setEmail(emailFromUrl);
+      setIsDirty(true);
+    } else if (initialEmail) {
+      setEmail(initialEmail);
+    }
+  }, [initialEmail, searchParams]);
+
   useEffect(() => {
     if (errorMsg) {
       setIsDirty(false);
@@ -42,19 +57,24 @@ export default function LoginView({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isDirty && errorMsg) return; // Dodatna zaštita
+    if (!isDirty && errorMsg) return;
     onSubmit({ isLogin, email, password, confirmPassword });
   };
 
   const handleChange = (type: string, value: string) => {
-    setIsDirty(true); // Korisnik je počeo tipkati
+    setIsDirty(true);
     onInputChange(); 
     if (type === "email") setEmail(value);
     if (type === "password") setPassword(value);
     if (type === "confirm") setConfirmPassword(value);
   };
 
-  // Gumb je disabled ako se stranica učitava ILI ako postoji greška koju korisnik još nije krenuo ispravljati
+  const handleClientRedirect = () => {
+    const params = new URLSearchParams();
+    if (email) params.set("email", email);
+    router.push(`/login?${params.toString()}`);
+  };
+
   const isButtonDisabled = loading || (!!errorMsg && !isDirty);
 
   return (
@@ -114,12 +134,13 @@ export default function LoginView({
                       <span>{errorMsg}</span>
                     </div>
                     {isClientAccount && (
-                      <Link 
-                        href="/login" 
-                        className="flex items-center justify-center gap-2 py-2 bg-red-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-700 transition-colors"
+                      <button 
+                        type="button"
+                        onClick={handleClientRedirect}
+                        className="flex items-center justify-center gap-2 py-2 bg-red-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-700 transition-colors w-full"
                       >
                         Client Login <ArrowRight size={12} />
-                      </Link>
+                      </button>
                     )}
                   </div>
                 </div>
@@ -255,5 +276,13 @@ function FeatureItem({ icon, title, desc, color }: any) {
         <p className="text-slate-400 text-[10px] lg:text-xs leading-relaxed">{desc}</p>
       </div>
     </div>
+  );
+}
+
+export default function LoginView(props: LoginViewProps) {
+  return (
+    <Suspense fallback={null}>
+      <LoginViewContent {...props} />
+    </Suspense>
   );
 }

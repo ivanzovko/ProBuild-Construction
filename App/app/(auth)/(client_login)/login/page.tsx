@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import { 
   Mail, 
@@ -16,8 +16,10 @@ import {
   Loader2 
 } from "lucide-react";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,13 +27,20 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
-  
   const [isDirty, setIsDirty] = useState(false);
 
   const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   ), []);
+
+  useEffect(() => {
+    const emailFromUrl = searchParams.get("email");
+    if (emailFromUrl) {
+      setEmail(emailFromUrl);
+      setIsDirty(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (generalError) {
@@ -147,7 +156,7 @@ export default function LoginPage() {
                 </div>
                 {generalError.includes("company") && (
                   <Link 
-                    href="/login_company" 
+                    href={`/login_company?email=${encodeURIComponent(email)}`} 
                     className="w-full bg-red-600 text-white py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-700 transition-colors"
                   >
                     <span>Go to Business Login</span>
@@ -239,5 +248,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 className="animate-spin text-yellow-400" size={32} /></div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

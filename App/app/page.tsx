@@ -100,22 +100,22 @@ export default function Home() {
           </div>
         </section>
 
-        {/* SECTION 2: CATEGORIES */}
-        <section className="flex-1 flex flex-col items-center lg:justify-center justify-start p-4 sm:p-6 bg-slate-50 relative lg:min-h-0 lg:overflow-y-auto">
-          <div className="w-full max-w-md lg:max-w-3xl relative z-10">
+        {/* SECTION 2: CATEGORIES - CENTRIRANO */}
+        <section className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 bg-slate-50 relative lg:min-h-0 lg:overflow-y-auto">
+          <div className="w-full max-w-md lg:max-w-3xl relative z-10 py-8 lg:py-0">
             
-            <div className="mt-4 mb-4 sm:mb-8 flex justify-start">
+            <div className="mb-6 sm:mb-10 flex justify-start">
               <p className="text-slate-500 text-[10px] sm:text-xs font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] border-l-2 border-yellow-400 pl-4 leading-relaxed max-w-[240px] sm:max-w-xs text-left">
                 Select your project phase to find verified local experts.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 mx-auto lg:mx-0 mb-4 lg:mb-0">
+            <div className="grid grid-cols-2 gap-3 sm:gap-6">
               {NAV_CARDS.map((card) => (
                 <button
                   key={card.id}
                   onClick={() => navigateTo(card.id)}
-                  className={`group relative flex flex-col justify-between p-4 sm:p-5 h-36 sm:h-44 bg-white border border-slate-200 rounded-[24px] sm:rounded-[32px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.03] ${card.color} hover:border-transparent overflow-hidden`}
+                  className={`group relative flex flex-col justify-between p-4 sm:p-6 h-40 sm:h-52 bg-white border border-slate-200 rounded-[24px] sm:rounded-[40px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.03] ${card.color} hover:border-transparent overflow-hidden`}
                 >
                   <div className="absolute -right-4 -bottom-4 text-slate-100 group-hover:text-white/10 transition-all duration-500 rotate-12 group-hover:rotate-0">
                     {card.bgIcon}
@@ -125,14 +125,14 @@ export default function Home() {
                     <div className="p-2.5 sm:p-3 bg-slate-900 text-white rounded-xl group-hover:bg-white group-hover:text-slate-900 transition-all duration-300">
                       {card.icon}
                     </div>
-                    <ArrowUpRight className="text-slate-300 group-hover:text-white/50 transition-colors" size={18} />
+                    <ArrowUpRight className="text-slate-300 group-hover:text-white/50 transition-colors" size={20} />
                   </div>
 
                   <div className="relative z-10 text-left">
-                    <span className="text-[7px] sm:text-[8px] font-black text-yellow-600 group-hover:text-yellow-200 transition-colors uppercase tracking-widest block mb-1">
+                    <span className="text-[7px] sm:text-[9px] font-black text-yellow-600 group-hover:text-yellow-200 transition-colors uppercase tracking-widest block mb-1">
                       {card.stats}
                     </span>
-                    <h3 className="text-[10px] sm:text-base font-black uppercase italic text-slate-900 group-hover:text-white transition-colors leading-none tracking-tight">
+                    <h3 className="text-sm sm:text-xl font-black uppercase italic text-slate-900 group-hover:text-white transition-colors leading-none tracking-tight">
                       {card.title}
                     </h3>
                   </div>
@@ -141,8 +141,9 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="absolute -top-10 -left-10 pointer-events-none select-none opacity-[0.02] hidden lg:block">
-            <h1 className="text-[15vw] font-black italic uppercase text-slate-900 leading-none">CORE</h1>
+          {/* BACKGROUND TEXT */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-[0.03] hidden lg:flex">
+            <h1 className="text-[20vw] font-black italic uppercase text-slate-900 leading-none">CORE</h1>
           </div>
         </section>
 

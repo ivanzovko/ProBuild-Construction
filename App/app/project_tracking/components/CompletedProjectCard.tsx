@@ -1,107 +1,112 @@
 "use client";
 
-import { FileText, CheckCircle2, Ruler, Home, Building2, Hammer, MapPin } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FileText, LucideIcon, CheckCircle2 } from "lucide-react";
+import ProjectCardLayout from "./ProjectCardLayout";
 
 interface CompletedProjectCardProps {
-  job: {
-    id: string;
-    title: string;
-    sqm: number;
-    project_type: string;
-    created_at: string;
-  };
+  job: any;
   config: {
-    img: string;
+    icon: LucideIcon;
   };
+  index: number;
+  onOpenCompany: (company: any) => void;
+  searchQuery?: string;
 }
 
-export default function CompletedProjectCard({ job, config }: CompletedProjectCardProps) {
-  const houseImage = "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=800&auto=format&fit=crop";
+const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+  if (!text) return null;
+  if (!highlight || !highlight.trim()) return <>{text}</>;
+  const regex = new RegExp(`(${highlight})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <>
+      {parts.map((part, i) => 
+        part.toLowerCase() === highlight.toLowerCase() ? (
+          <span key={i} className="text-yellow-400 underline decoration-yellow-400/30 underline-offset-2">
+            {part}
+          </span>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+};
 
-  const getCategoryIcon = (type: string) => {
-    switch (type?.toLowerCase()) {
-      case 'house': return <Home size={10} />;
-      case 'apartment': return <Building2 size={10} />;
-      case 'renovation': return <Hammer size={10} />;
-      default: return <MapPin size={10} />;
-    }
+export default function CompletedProjectCard({ 
+  job, 
+  config, 
+  index,
+  onOpenCompany,
+  searchQuery = ""
+}: CompletedProjectCardProps) {
+  const router = useRouter();
+
+  const handleNavigate = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    router.push(`/project_tracking/${job.id}`);
   };
 
+  const highlightedTitle = (
+    <HighlightText text={job.title} highlight={searchQuery} />
+  );
+
   return (
-    <Link 
-      href={`/project_tracking/${job.id}`}
-      className="group relative block bg-slate-50/50 rounded-[20px] sm:rounded-[24px] border border-slate-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden max-w-4xl"
+    <ProjectCardLayout
+      index={index}
+      title={highlightedTitle}
+      contractorName={job.contractor_name}
+      onContractorClick={() => {
+        if (job.contractor) {
+          onOpenCompany(job.contractor);
+        }
+      }}
+      projectType={job.project_type}
+      progress={100}
+      icon={config.icon}
+      onClick={handleNavigate}
+      customProgress={
+        <div className="flex flex-col items-center justify-center flex-1 w-full gap-1 animate-in fade-in slide-in-from-bottom-1 duration-500">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <CheckCircle2 size={14} className="text-white" strokeWidth={3} />
+            </div>
+            <span className="text-[13px] md:text-[15px] font-black uppercase italic tracking-[0.05em] text-emerald-500 leading-none">
+              Completed
+            </span>
+          </div>
+          <span className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.2em] ml-8">
+            Project Archived
+          </span>
+        </div>
+      }
     >
-      <div className="flex flex-col sm:flex-row">
-        
-        <div className="relative w-full sm:w-48 h-28 sm:h-auto overflow-hidden shrink-0 grayscale group-hover:grayscale-0 transition-all duration-700">
-          <img 
-            src={houseImage} 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
-            alt="Completed Project" 
-          />
-          <div className="absolute inset-0 bg-slate-900/20" />
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-            <CheckCircle2 className="text-white" size={24} />
-          </div>
-        </div>
-
-        <div className="flex-1 p-4 sm:p-7 flex flex-col justify-center bg-white">
-          <div className="flex justify-between items-start mb-2">
-            <div>
-              <div className="flex items-center gap-2 mb-1.5">
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500 text-white rounded-md">
-                  {getCategoryIcon(job.project_type)}
-                  <span className="text-[8px] font-black uppercase tracking-widest leading-none">
-                    {job.project_type}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1 text-slate-400">
-                  <CheckCircle2 size={10} strokeWidth={3} />
-                  <span className="text-[8px] font-black uppercase tracking-widest">Archive</span>
-                </div>
-              </div>
-
-              <h3 className="text-sm sm:text-lg font-black text-slate-900 uppercase italic tracking-tight leading-tight">
-                {job.title}
-              </h3>
-
-              <div className="flex items-center gap-3 mt-2">
-                <div className="flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded-md border border-slate-100">
-                  <Ruler size={10} className="text-slate-400" />
-                  <span className="text-[10px] font-black text-slate-500 uppercase italic">{job.sqm} m²</span>
-                </div>
-                <p className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase tracking-tight">
-                  Completed: {new Date(job.created_at).toLocaleDateString('hr-HR')}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-2 sm:mt-4 flex items-center gap-2 sm:gap-3">
-            <div className="px-2 py-0.5 sm:px-3 sm:py-1 bg-slate-100 rounded-full shrink-0">
-              <span className="text-[8px] sm:text-[9px] font-black text-slate-500 uppercase tracking-tighter">Certified Finish</span>
-            </div>
-            
-            <div className="sm:hidden flex items-center gap-2 px-4 py-1.5 bg-slate-900 text-white rounded-full">
-              <FileText size={12} />
-              <span className="text-[10px] font-black uppercase tracking-tight">View Archive</span>
-            </div>
-
-            <div className="h-px flex-1 bg-slate-100" />
-          </div>
-        </div>
-
-        <div className="hidden sm:flex p-5 sm:w-24 items-center justify-center border-l border-slate-50 bg-slate-50/30 group-hover:bg-emerald-500 transition-colors duration-300">
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-white text-slate-900 group-hover:text-emerald-600 transition-all duration-300 shadow-md">
-              <FileText size={20} strokeWidth={2} />
-            </div>
-            <span className="text-[8px] font-black uppercase tracking-tighter text-slate-400 group-hover:text-white transition-colors">Details</span>
+      <div className="flex flex-row items-center justify-between w-full md:hidden mb-4 px-1">
+        <div className="flex flex-col items-start">
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">
+            Status
+          </span>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 size={14} className="text-emerald-500" strokeWidth={3} />
+            <span className="text-[14px] font-black uppercase italic text-emerald-600">
+              Completed
+            </span>
           </div>
         </div>
       </div>
-    </Link>
+
+      <div 
+        className="flex flex-col items-center gap-1 group/btn cursor-pointer" 
+        onClick={handleNavigate}
+      >
+        <div className="w-11 h-11 md:w-11 md:h-11 flex items-center justify-center rounded-xl bg-white text-slate-900 border border-slate-200 group-hover:bg-emerald-500 group-hover:text-white group-hover:border-emerald-500 transition-all duration-300 shadow-sm active:scale-90">
+          <FileText size={18} />
+        </div>
+        <span className="text-[9px] font-black uppercase tracking-tighter text-slate-400 group-hover/btn:text-emerald-600 transition-colors">
+          Details
+        </span>
+      </div>
+    </ProjectCardLayout>
   );
 }
