@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react"; // Dodan Suspense
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Construction, Clock, ListFilter, ChevronDown, Home, Building2, Hammer, 
@@ -16,38 +16,11 @@ import RejectionModal from "./components/modals/RejectionModal";
 import ChatModal from "./components/modals/ChatModal";
 import CompanyInfoModal from "../_components/CompanyInfoModal";
 
-const CATEGORY_CONFIG: Record<string, { img: string; icon: any; color: string }> = {
-  renovation: {
-    img: "https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?q=80&w=600&auto=format&fit=crop",
-    icon: Hammer,
-    color: "from-orange-500/20 to-orange-500/5"
-  },
-  apartment: {
-    img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=600&auto=format&fit=crop",
-    icon: Building2,
-    color: "from-blue-500/20 to-blue-500/5"
-  },
-  house: {
-    img: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=600&auto=format&fit=crop",
-    icon: Home,
-    color: "from-green-500/20 to-green-500/5"
-  },
-  default: {
-    img: "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=600&auto=format&fit=crop",
-    icon: Construction,
-    color: "from-slate-500/20 to-slate-500/5"
-  }
-};
+// Forsiranje dinamičkog renderiranja kako bi build na Vercelu prošao
+export const dynamic = 'force-dynamic';
 
-const getCategoryData = (type: string) => {
-  const t = type?.toLowerCase() || "";
-  if (t.includes("renov")) return CATEGORY_CONFIG.renovation;
-  if (t.includes("apartman") || t.includes("stan") || t.includes("apartment")) return CATEGORY_CONFIG.apartment;
-  if (t.includes("kuca") || t.includes("kuća") || t.includes("house")) return CATEGORY_CONFIG.house;
-  return CATEGORY_CONFIG.default;
-};
-
-export default function EstimatesPage() {
+// Unutarnja komponenta koja koristi useSearchParams
+function ProjectTrackingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -214,6 +187,7 @@ export default function EstimatesPage() {
 
   return (
     <div className="h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)] overflow-y-auto bg-slate-50 pb-20 no-scrollbar">
+      {/* ... (ostatak tvog JSX-a je identičan) ... */}
       {showSuccess && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[150] animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3">
@@ -361,28 +335,28 @@ export default function EstimatesPage() {
           </div>
 
           <div className="flex border-t border-white/5">
-  {[
-    { id: 'active', label: 'Active', desktopLabel: ' Projects', icon: Construction },
-    { id: 'estimates', label: 'Estimates', desktopLabel: ' Projects', icon: Clock },
-    { id: 'completed', label: 'History', desktopLabel: ' Archive', icon: CheckCircle2 },
-  ].map((tab) => (
-    <button
-      key={tab.id}
-      onClick={() => handleTabChange(tab.id as any)}
-      className={`flex-1 flex items-center justify-center gap-2 py-4 text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all border-b-2 group hover:bg-white/5 ${
-        activeTab === tab.id
-        ? "border-yellow-400 text-yellow-400 bg-white/5" 
-        : "border-transparent text-slate-500 hover:text-slate-200"
-      }`}
-    >
-      <tab.icon size={14} className="shrink-0 group-hover:scale-110 transition-transform duration-300" />
-      <span className="truncate group-hover:tracking-[0.12em] transition-all duration-300">
-        {tab.label}
-        <span className="hidden md:inline">{tab.desktopLabel}</span>
-      </span>
-    </button>
-  ))}
-</div>
+            {[
+              { id: 'active', label: 'Active', desktopLabel: ' Projects', icon: Construction },
+              { id: 'estimates', label: 'Estimates', desktopLabel: ' Projects', icon: Clock },
+              { id: 'completed', label: 'History', desktopLabel: ' Archive', icon: CheckCircle2 },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabChange(tab.id as any)}
+                className={`flex-1 flex items-center justify-center gap-2 py-4 text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all border-b-2 group hover:bg-white/5 ${
+                  activeTab === tab.id
+                  ? "border-yellow-400 text-yellow-400 bg-white/5" 
+                  : "border-transparent text-slate-500 hover:text-slate-200"
+                }`}
+              >
+                <tab.icon size={14} className="shrink-0 group-hover:scale-110 transition-transform duration-300" />
+                <span className="truncate group-hover:tracking-[0.12em] transition-all duration-300">
+                  {tab.label}
+                  <span className="hidden md:inline">{tab.desktopLabel}</span>
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -470,6 +444,51 @@ export default function EstimatesPage() {
     </div>
   );
 }
+
+// Glavna funkcija koja umotava sadržaj u Suspense
+export default function EstimatesPage() {
+  return (
+    <Suspense fallback={
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="w-10 h-10 animate-spin text-yellow-500" />
+      </div>
+    }>
+      <ProjectTrackingContent />
+    </Suspense>
+  );
+}
+
+// ... (Pomoćne funkcije getCategoryData i komponente SkeletonCard/EmptyState ostaju iste)
+const CATEGORY_CONFIG: Record<string, { img: string; icon: any; color: string }> = {
+  renovation: {
+    img: "https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?q=80&w=600&auto=format&fit=crop",
+    icon: Hammer,
+    color: "from-orange-500/20 to-orange-500/5"
+  },
+  apartment: {
+    img: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=600&auto=format&fit=crop",
+    icon: Building2,
+    color: "from-blue-500/20 to-blue-500/5"
+  },
+  house: {
+    img: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?q=80&w=600&auto=format&fit=crop",
+    icon: Home,
+    color: "from-green-500/20 to-green-500/5"
+  },
+  default: {
+    img: "https://images.unsplash.com/photo-1503387762-592dea58ef23?q=80&w=600&auto=format&fit=crop",
+    icon: Construction,
+    color: "from-slate-500/20 to-slate-500/5"
+  }
+};
+
+const getCategoryData = (type: string) => {
+  const t = type?.toLowerCase() || "";
+  if (t.includes("renov")) return CATEGORY_CONFIG.renovation;
+  if (t.includes("apartman") || t.includes("stan") || t.includes("apartment")) return CATEGORY_CONFIG.apartment;
+  if (t.includes("kuca") || t.includes("kuća") || t.includes("house")) return CATEGORY_CONFIG.house;
+  return CATEGORY_CONFIG.default;
+};
 
 function SkeletonCard({ type }: { type: 'list' | 'grid' }) {
   return (
