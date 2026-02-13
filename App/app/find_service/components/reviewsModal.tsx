@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   Star, AlertTriangle, MessageSquare, X, 
-  BadgeCheck, Briefcase, ShieldAlert
+  BadgeCheck, Briefcase, ShieldAlert, Info
 } from "lucide-react";
 
 interface ReviewsModalProps {
@@ -44,6 +44,8 @@ export default function ReviewsModal({
   const [contractorStats, setContractorStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen && contractorId) {
@@ -93,6 +95,18 @@ export default function ReviewsModal({
     }
   }, [isOpen, contractorId, supabase]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tooltipRef.current && !tooltipRef.current.contains(event.target as Node)) {
+        setShowTooltip(false);
+      }
+    };
+    if (showTooltip) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showTooltip]);
+
   if (!isOpen) return null;
 
   return (
@@ -137,11 +151,29 @@ export default function ReviewsModal({
             </div>
 
             {!loading && !contractorStats?.is_verified && (
-              <div className="flex items-center gap-1.5 sm:gap-2 bg-red-50 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl border border-red-100">
-                <ShieldAlert size={12} className="text-red-500 sm:w-[14px] sm:h-[14px]" />
-                <span className="text-[9px] sm:text-[10px] font-black uppercase text-red-600 tracking-widest">
-                  Not Verified
-                </span>
+              <div className="relative" ref={tooltipRef}>
+                <button 
+                  onMouseEnter={() => setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                  onClick={() => setShowTooltip(!showTooltip)}
+                  className="flex items-center gap-1.5 sm:gap-2 bg-red-50 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl border border-red-100 transition-colors hover:bg-red-100 group"
+                >
+                  <ShieldAlert size={12} className="text-red-500 sm:w-[14px] sm:h-[14px]" />
+                  <span className="text-[9px] sm:text-[10px] font-black uppercase text-red-600 tracking-widest">
+                    Not Verified
+                  </span>
+                  <Info size={10} className="text-red-300 group-hover:text-red-500 transition-colors" />
+                </button>
+
+                {showTooltip && (
+                  <div className="absolute bottom-full left-0 mb-3 w-48 sm:w-56 p-3 bg-slate-900 rounded-xl sm:rounded-2xl shadow-2xl z-[160] animate-in fade-in slide-in-from-bottom-2 duration-200 border border-white/10">
+                    <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-yellow-400 mb-1">Verification Status</p>
+                    <p className="text-[10px] sm:text-[11px] text-slate-300 font-medium leading-relaxed italic">
+                      This company has not yet completed our identity and business documentation verification process.
+                    </p>
+                    <div className="absolute -bottom-1 left-6 w-2 h-2 bg-slate-900 rotate-45 border-r border-b border-white/10" />
+                  </div>
+                )}
               </div>
             )}
           </div>

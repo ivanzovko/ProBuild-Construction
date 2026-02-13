@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { X, Send, MessageSquare, Lock, CheckCheck, Trash2, Search, Paperclip, FileText, Download, Loader2, Smile } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 import EmojiPicker, { Theme } from "emoji-picker-react";
+import { Tooltip } from "@components/Tooltip";
 
 function ChatSkeleton() {
   return (
@@ -241,16 +242,18 @@ export default function ChatModal({ job, onClose, isReadOnly }: { job: any; onCl
           <div className="flex-1 min-w-0">
             <p className="text-[10px] font-black uppercase truncate leading-tight text-slate-700">{displayName}</p>
           </div>
-          <button 
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              forceDownload(text, displayName);
-            }} 
-            className="p-1.5 text-slate-400 hover:text-slate-900 transition-all"
-          >
-            <Download size={14} />
-          </button>
+          <Tooltip content="Download file">
+            <button 
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                forceDownload(text, displayName);
+              }} 
+              className="p-1.5 text-slate-400 hover:text-slate-900 transition-all"
+            >
+              <Download size={14} />
+            </button>
+          </Tooltip>
         </div>
       );
     }
@@ -320,17 +323,21 @@ export default function ChatModal({ job, onClose, isReadOnly }: { job: any; onCl
                     {job.title || 'Chat'}
                   </h3>
                   <p className="text-[8px] sm:text-[9px] text-slate-500 font-black uppercase tracking-wider">
-                    Contractor: {job.contractor_name || 'N/A'}
+                    Contractor: {job.company_profiles?.company_name || job.contractor_name || 'N/A'}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button onClick={() => setIsSearching(true)} className="p-2 text-slate-400 hover:text-slate-900 hover:scale-110 active:scale-90 transition-all">
-                  <Search size={18} />
-                </button>
-                <button onClick={onClose} className="p-2 bg-slate-50 text-slate-400 hover:text-slate-900 hover:scale-110 active:scale-90 rounded-full transition-all">
-                  <X size={18}/>
-                </button>
+                <Tooltip content="Search in conversation">
+                  <button onClick={() => setIsSearching(true)} className="p-2 text-slate-400 hover:text-slate-900 hover:scale-110 active:scale-90 transition-all">
+                    <Search size={18} />
+                  </button>
+                </Tooltip>
+                <Tooltip content="Close chat">
+                  <button onClick={onClose} className="p-2 bg-slate-50 text-slate-400 hover:text-slate-900 hover:scale-110 active:scale-90 rounded-full transition-all">
+                    <X size={18}/>
+                  </button>
+                </Tooltip>
               </div>
             </>
           ) : (
@@ -392,12 +399,14 @@ export default function ChatModal({ job, onClose, isReadOnly }: { job: any; onCl
                             }`
                       }`}>
                         {isMe && !isReadOnly && !isSearching && (
-                          <button 
-                            onClick={() => setDeleteConfirm(m.id)}
-                            className={`absolute -left-8 top-1/2 -translate-y-1/2 p-1.5 text-slate-300 hover:text-red-500 hover:scale-125 opacity-0 group-hover/msg:opacity-100 transition-all ${isMedia ? 'bg-white/80 backdrop-blur rounded-full -left-10 shadow-sm' : ''}`}
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          <Tooltip content="Delete message">
+                            <button 
+                              onClick={() => setDeleteConfirm(m.id)}
+                              className={`absolute -left-8 top-1/2 -translate-y-1/2 p-1.5 text-slate-300 hover:text-red-500 hover:scale-125 opacity-0 group-hover/msg:opacity-100 transition-all ${isMedia ? 'bg-white/80 backdrop-blur rounded-full -left-10 shadow-sm' : ''}`}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </Tooltip>
                         )}
                         <div className={isMedia ? "" : "pr-2 leading-relaxed"}>
                           <MessageContent text={m.text} />
@@ -442,16 +451,17 @@ export default function ChatModal({ job, onClose, isReadOnly }: { job: any; onCl
                 <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept="image/*,.pdf,.doc,.docx" />
                 
                 <form onSubmit={sendMessage} className="flex-1 relative group transition-transform hover:scale-[1.01] active:scale-[0.99]">
-                  {/* ATTACH IKONA - LIJEVO */}
                   <div className="absolute left-1 top-1 bottom-1 flex items-center">
-                    <button 
-                      type="button" 
-                      onClick={() => fileInputRef.current?.click()} 
-                      disabled={uploading}
-                      className="w-9 h-9 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-all disabled:opacity-50"
-                    >
-                      {uploading ? <Loader2 size={16} className="animate-spin" /> : <Paperclip size={18} />}
-                    </button>
+                    <Tooltip content="Upload image or document">
+                      <button 
+                        type="button" 
+                        onClick={() => fileInputRef.current?.click()} 
+                        disabled={uploading}
+                        className="w-9 h-9 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-all disabled:opacity-50"
+                      >
+                        {uploading ? <Loader2 size={16} className="animate-spin" /> : <Paperclip size={18} />}
+                      </button>
+                    </Tooltip>
                   </div>
 
                   <input 
@@ -462,22 +472,25 @@ export default function ChatModal({ job, onClose, isReadOnly }: { job: any; onCl
                     className="w-full bg-slate-50 border-2 border-slate-900 rounded-xl py-2.5 pl-11 pr-24 text-[9px] sm:text-[11px] font-black uppercase placeholder:text-slate-400 focus:outline-none focus:border-yellow-400 focus:bg-white transition-all shadow-sm"
                   />
                   
-                  {/* EMOJI I SEND - DESNO */}
                   <div className="absolute right-1 top-1 bottom-1 flex items-center gap-1 pr-1">
-                    <button 
-                      type="button" 
-                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                      className="w-9 h-9 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-all"
-                    >
-                      <Smile size={20} className={showEmojiPicker ? "text-yellow-500" : ""} />
-                    </button>
-                    <button 
-                      type="submit" 
-                      disabled={!newMessage.trim() || uploading} 
-                      className="w-9 h-9 bg-slate-900 text-yellow-400 rounded-lg flex items-center justify-center hover:scale-105 active:scale-90 disabled:opacity-20 transition-all shadow-md"
-                    >
-                      <Send size={14} />
-                    </button>
+                    <Tooltip content="Add emoji">
+                      <button 
+                        type="button" 
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        className="w-9 h-9 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 flex items-center justify-center transition-all"
+                      >
+                        <Smile size={20} className={showEmojiPicker ? "text-yellow-500" : ""} />
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="Send message">
+                      <button 
+                        type="submit" 
+                        disabled={!newMessage.trim() || uploading} 
+                        className="w-9 h-9 bg-slate-900 text-yellow-400 rounded-lg flex items-center justify-center hover:scale-105 active:scale-90 disabled:opacity-20 transition-all shadow-md"
+                      >
+                        <Send size={14} />
+                      </button>
+                    </Tooltip>
                   </div>
                 </form>
               </div>

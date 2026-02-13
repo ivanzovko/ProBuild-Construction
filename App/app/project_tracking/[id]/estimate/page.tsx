@@ -14,6 +14,7 @@ import {
   Search, SlidersHorizontal, X, BadgeCheck, Info
 } from "lucide-react";
 import ProjectInfoModal from "../components/ProjectInfoModal";
+import { Tooltip } from "@components/Tooltip";
 
 function HighlightText({ text, highlight }: { text: string; highlight: string }) {
   if (!text) return null;
@@ -91,7 +92,7 @@ export default function ProjectEstimatesListPage({ params }: { params: Promise<{
   const fetchData = async () => {
     try {
       setLoading(true);
-     const { data: pData } = await supabase.from('jobs').select('*').eq('id', projectId).single();
+      const { data: pData } = await supabase.from('jobs').select('*').eq('id', projectId).single();
     
     const { data: oData, error: oError } = await supabase
       .from('estimates')
@@ -145,8 +146,6 @@ export default function ProjectEstimatesListPage({ params }: { params: Promise<{
     if (project.status === 'pending')  return router.push('/project_tracking?tab=estimates');
     if (project.status === 'completed') return  router.push('/project_tracking?tab=completed');;
     return router.push('/project_tracking?tab=active');
-   
-    
   };
 
   const confirmAction = async () => {
@@ -257,12 +256,14 @@ export default function ProjectEstimatesListPage({ params }: { params: Promise<{
                 <h1 className="text-base md:text-3xl font-black text-white uppercase italic tracking-tighter leading-tight break-words">
                   {project?.title}
                 </h1>
-                <button 
-                  onClick={() => setIsInfoModalOpen(true)}
-                  className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-all text-yellow-500 border border-white/5 active:scale-90 shrink-0 cursor-help"
-                >
-                  <Info size={16} className="md:w-[18px] md:h-[18px]" />
-                </button>
+                <Tooltip content="View original project details and requirements">
+                  <button 
+                    onClick={() => setIsInfoModalOpen(true)}
+                    className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg transition-all text-yellow-500 border border-white/5 active:scale-90 shrink-0 cursor-help"
+                  >
+                    <Info size={16} className="md:w-[18px] md:h-[18px]" />
+                  </button>
+                </Tooltip>
               </div>
             </div>
           </div>
@@ -462,27 +463,33 @@ export default function ProjectEstimatesListPage({ params }: { params: Promise<{
                                   />
                                 </h3>
                                 {offer.company_profiles?.is_verified && (
-                                  <BadgeCheck size={16} className="text-emerald-400 shrink-0" strokeWidth={3} />
+                                  <Tooltip content="Verified Identity and Credentials">
+                                    <BadgeCheck size={16} className="text-emerald-400 shrink-0 cursor-help" strokeWidth={3} />
+                                  </Tooltip>
                                 )}
-                                <div className="p-1 rounded-md bg-white/5 group-hover/name:bg-yellow-400/20 transition-all cursor-help">
-                                  <Info size={12} className="text-white/40 group-hover/name:text-yellow-400" />
-                                </div>
+                                <Tooltip content="View contractor's profile and services">
+                                  <div className="p-1 rounded-md bg-white/5 group-hover/name:bg-yellow-400/20 transition-all cursor-help">
+                                    <Info size={12} className="text-white/40 group-hover/name:text-yellow-400" />
+                                  </div>
+                                </Tooltip>
                               </button>
                               
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setReviewsModal({ 
-                                    show: true, 
-                                    name: offer.company_profiles?.company_name || 'Contractor',
-                                    id: offer.contractor_id 
-                                  });
-                                }}
-                                className="flex items-center gap-1 bg-yellow-500 px-2.5 py-1 md:px-2.5 md:py-1 rounded-lg text-[10px] md:text-[10px] font-black text-white shadow-lg shadow-yellow-500/10 hover:bg-yellow-400 hover:scale-105 transition-all cursor-pointer active:scale-95"
-                              >
-                                <Star size={12} className="fill-white md:w-[12px] md:h-[12px]" />
-                                {rating > 0 ? rating.toFixed(1) : 'NEW'}
-                              </button>
+                              <Tooltip content="Click to see detailed client reviews">
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setReviewsModal({ 
+                                      show: true, 
+                                      name: offer.company_profiles?.company_name || 'Contractor',
+                                      id: offer.contractor_id 
+                                    });
+                                  }}
+                                  className="flex items-center gap-1 bg-yellow-500 px-2.5 py-1 md:px-2.5 md:py-1 rounded-lg text-[10px] md:text-[10px] font-black text-white shadow-lg shadow-yellow-500/10 hover:bg-yellow-400 hover:scale-105 transition-all cursor-pointer active:scale-95"
+                                >
+                                  <Star size={12} className="fill-white md:w-[12px] md:h-[12px]" />
+                                  {rating > 0 ? rating.toFixed(1) : 'NEW'}
+                                </button>
+                              </Tooltip>
                             </div>
                             
                             <div className="flex items-center gap-4">
@@ -503,13 +510,15 @@ export default function ProjectEstimatesListPage({ params }: { params: Promise<{
                           <div className="p-5 md:p-8 cursor-default" onClick={(e) => e.stopPropagation()}>
                             <div className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-6 md:gap-8">
                               <div className="space-y-4 md:border-r md:border-slate-100 md:pr-4">
-                                <div className="flex items-center gap-3">
-                                  <Calendar size={18} className="text-yellow-500" />
-                                  <div>
-                                    <p className="text-[9px] font-black text-slate-400 uppercase">Deadline</p>
-                                    <p className="text-[13px] font-black text-slate-900 uppercase italic">{new Date(offer.deadline_date).toLocaleDateString()}</p>
+                                <Tooltip content="Proposed project completion date">
+                                  <div className="flex items-center gap-3 cursor-help">
+                                    <Calendar size={18} className="text-yellow-500" />
+                                    <div>
+                                      <p className="text-[9px] font-black text-slate-400 uppercase">Deadline</p>
+                                      <p className="text-[13px] font-black text-slate-900 uppercase italic">{new Date(offer.deadline_date).toLocaleDateString()}</p>
+                                    </div>
                                   </div>
-                                </div>
+                                </Tooltip>
                                 <div className="flex items-center gap-3">
                                   <CreditCard size={18} className="text-slate-400" /> 
                                   <div>
@@ -517,19 +526,23 @@ export default function ProjectEstimatesListPage({ params }: { params: Promise<{
                                     <p className="text-[13px] font-black text-slate-900 uppercase italic">{offer.payment_method}</p>
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                  <ShieldCheck size={18} className="text-slate-400" />
-                                  <div>
-                                    <p className="text-[9px] font-black text-slate-400 uppercase">Quality</p>
-                                    <p className="text-[13px] font-black text-slate-900 uppercase italic">{offer.quality_level}</p>
+                                <Tooltip content="Quality of materials and workmanship provided in this offer">
+                                  <div className="flex items-center gap-3 cursor-help">
+                                    <ShieldCheck size={18} className="text-slate-400" />
+                                    <div>
+                                      <p className="text-[9px] font-black text-slate-400 uppercase">Quality</p>
+                                      <p className="text-[13px] font-black text-slate-900 uppercase italic">{offer.quality_level}</p>
+                                    </div>
                                   </div>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                  <AlertTriangle size={18} className={offer.potential_delay_acknowledged ? 'text-red-500' : 'text-emerald-500'} />
-                                  <span className={`text-[12px] font-black uppercase italic ${offer.potential_delay_acknowledged ? 'text-red-600' : 'text-emerald-600'}`}>
-                                    {offer.potential_delay_acknowledged ? 'Potential delay' : 'it will be on time'}
-                                  </span>
-                                </div>
+                                </Tooltip>
+                                <Tooltip content={offer.potential_delay_acknowledged ? "The contractor has noted that delays might occur due to current workload" : "Contractor guarantees completion within the agreed timeframe"}>
+                                  <div className="flex items-center gap-3 cursor-help">
+                                    <AlertTriangle size={18} className={offer.potential_delay_acknowledged ? 'text-red-500' : 'text-emerald-500'} />
+                                    <span className={`text-[12px] font-black uppercase italic ${offer.potential_delay_acknowledged ? 'text-red-600' : 'text-emerald-600'}`}>
+                                      {offer.potential_delay_acknowledged ? 'Potential delay' : 'it will be on time'}
+                                    </span>
+                                  </div>
+                                </Tooltip>
                               </div>
 
                               <div className="bg-slate-50 rounded-2xl p-5 md:p-6 border border-slate-200 relative">

@@ -86,7 +86,7 @@ export const DeleteConfirmModal = ({ onCancel, onConfirm, id }: DeleteConfirmMod
             </div>
             <h3 className="font-black text-sm uppercase tracking-tighter text-slate-900">Deleted Successfully</h3>
             <p className="text-slate-500 text-[10px] uppercase font-bold mt-1 tracking-widest text-center px-4">
-              The message has been removed from the database
+              The message has been removed from the chat.
             </p>
           </div>
         )}

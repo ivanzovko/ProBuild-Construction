@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef, Suspense } from "react"; // Dodan Suspense
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Construction, Clock, ListFilter, ChevronDown, Home, Building2, Hammer, 
@@ -16,8 +16,10 @@ import RejectionModal from "./components/modals/RejectionModal";
 import ChatModal from "./components/modals/ChatModal";
 import CompanyInfoModal from "../_components/CompanyInfoModal";
 
+// Forsiranje dinamičkog renderiranja kako bi build na Vercelu prošao
 export const dynamic = 'force-dynamic';
 
+// Unutarnja komponenta koja koristi useSearchParams
 function ProjectTrackingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -185,8 +187,9 @@ function ProjectTrackingContent() {
 
   return (
     <div className="h-[calc(100dvh-64px)] max-h-[calc(100dvh-64px)] overflow-y-auto bg-slate-50 pb-20 no-scrollbar">
+      {/* ... (ostatak tvog JSX-a je identičan) ... */}
       {showSuccess && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[210] animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[150] animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl border border-white/10 flex items-center gap-3">
             <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center">
               <Check size={14} className="text-slate-900" strokeWidth={3} />
@@ -197,7 +200,7 @@ function ProjectTrackingContent() {
       )}
 
       {deleteId && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white rounded-[40px] w-full max-w-sm overflow-hidden shadow-2xl border border-white animate-in zoom-in-95 duration-200 relative">
             <button onClick={() => setDeleteId(null)} className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-900 transition-colors">
               <X size={20} />
@@ -262,7 +265,7 @@ function ProjectTrackingContent() {
         />
       )}
 
-      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-[99] shadow-2xl">
+      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-99 shadow-2xl">
         <div className="max-w-[1440px] mx-auto px-4 md:px-6">
           <div className="py-5 flex flex-row items-center justify-between gap-2 md:gap-4">
             <div className="min-w-0 flex-1 pt-1 md:pt-0">
@@ -300,7 +303,7 @@ function ProjectTrackingContent() {
                   <ChevronDown size={14} className={`hidden md:block transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
                 </button>
                 {isSortOpen && (
-                  <div className="absolute right-0 mt-3 w-48 md:w-52 bg-slate-800 border border-white/10 rounded-2xl shadow-2xl p-1.5 z-[110] animate-in fade-in zoom-in-95 duration-200">
+                  <div className="absolute right-0 mt-3 w-48 md:w-52 bg-slate-800 border border-white/10 rounded-2xl shadow-2xl p-1.5 z-[60] animate-in fade-in zoom-in-95 duration-200">
                     <div className="px-3 py-2 text-[8px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 mb-1">Sort By</div>
                     {sortOptions.map((option) => (
                       <button
@@ -357,7 +360,7 @@ function ProjectTrackingContent() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10 relative z-10">
+      <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10">
         {loading ? (
           <div className="grid gap-6">
             <SkeletonCard type={activeTab === 'estimates' ? 'grid' : 'list'} />
@@ -442,6 +445,7 @@ function ProjectTrackingContent() {
   );
 }
 
+// Glavna funkcija koja umotava sadržaj u Suspense
 export default function EstimatesPage() {
   return (
     <Suspense fallback={
@@ -454,6 +458,7 @@ export default function EstimatesPage() {
   );
 }
 
+// ... (Pomoćne funkcije getCategoryData i komponente SkeletonCard/EmptyState ostaju iste)
 const CATEGORY_CONFIG: Record<string, { img: string; icon: any; color: string }> = {
   renovation: {
     img: "https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?q=80&w=600&auto=format&fit=crop",

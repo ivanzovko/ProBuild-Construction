@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   ShieldAlert
 } from "lucide-react";
+import { Tooltip } from "@components/Tooltip";
 
 interface DashboardSidebarProps {
   isOpen: boolean;
@@ -100,22 +101,24 @@ export default function DashboardSidebar({ isOpen, onClose }: DashboardSidebarPr
   }, [supabase]);
 
   const navItems = [
-    { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
+    { name: "Overview", href: "/dashboard", icon: LayoutDashboard, tooltip: "Dashboard summary" },
     { 
       name: "Inquiries", 
       href: "/dashboard/inquiries", 
       icon: ClipboardList, 
-      badge: unreadInquiries > 0 ? unreadInquiries.toString() : null 
+      badge: unreadInquiries > 0 ? unreadInquiries.toString() : null,
+      tooltip: "Direct client requests"
     },
-    { name: "Tender Market", href: "/dashboard/tenders", icon: Gavel },
+    { name: "Tender Market", href: "/dashboard/tenders", icon: Gavel, tooltip: "Public biddings" },
     { 
       name: "Messages", 
       href: "/dashboard/messages", 
       icon: MessageSquare, 
-      badge: unreadChatsCount > 0 ? unreadChatsCount.toString() : null 
+      badge: unreadChatsCount > 0 ? unreadChatsCount.toString() : null,
+      tooltip: "Active conversations"
     },
-    { name: "Project Tracker", href: "/dashboard/tracker", icon: Construction },
-    { name: "Company Profile", href: "/dashboard/profile", icon: Building2 },
+    { name: "Project Tracker", href: "/dashboard/tracker", icon: Construction, tooltip: "Manage active jobs" },
+    { name: "Company Profile", href: "/dashboard/profile", icon: Building2, tooltip: "Business details" },
   ];
 
   return (
@@ -165,65 +168,71 @@ export default function DashboardSidebar({ isOpen, onClose }: DashboardSidebarPr
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
-              <Link 
-                key={item.name}
-                href={item.href}
-                onClick={onClose}
-                className={`
-                  w-full flex items-center justify-between px-5 py-3.5 sm:py-4 rounded-2xl font-black text-[10px] sm:text-[11px] uppercase tracking-[0.20em] sm:tracking-[0.25em] transition-all duration-300 group
-                  hover:scale-[1.02] active:scale-95
-                  ${isActive 
-                    ? "bg-yellow-400 text-black shadow-[0_10px_20px_rgba(250,204,21,0.2)]" 
-                    : "text-slate-400 hover:bg-white/5 hover:text-white"
-                  }
-                `}
-              >
-                <div className="flex items-center gap-4 sm:gap-5">
-                  <item.icon 
-                    size={20} 
-                    className={`transition-colors duration-300 ${isActive ? "text-black" : "text-slate-500 group-hover:text-yellow-400"}`} 
-                  />
-                  <span>{item.name}</span>
-                </div>
-                
-                {item.badge ? (
-                  <span className={`px-2.5 py-1 rounded-xl text-[8px] font-black transition-all duration-300 ${isActive ? 'bg-black text-white' : 'bg-yellow-400 text-black group-hover:scale-110'}`}>
-                    {item.badge}
-                  </span>
-                ) : (
-                  <ChevronRight 
-                    size={16} 
-                    className={`transition-all duration-300 ${isActive ? 'text-black opacity-100 translate-x-1' : 'text-slate-700 opacity-0 group-hover:opacity-100 group-hover:text-yellow-400 group-hover:translate-x-1'}`} 
-                  />
-                )}
-              </Link>
+              <Tooltip key={item.name} content={item.tooltip} side="right">
+                <Link 
+                  href={item.href}
+                  onClick={onClose}
+                  className={`
+                    w-full flex items-center justify-between px-5 py-3.5 sm:py-4 rounded-2xl font-black text-[10px] sm:text-[11px] uppercase tracking-[0.20em] sm:tracking-[0.25em] transition-all duration-300 group
+                    hover:scale-[1.02] active:scale-95
+                    ${isActive 
+                      ? "bg-yellow-400 text-black shadow-[0_10px_20px_rgba(250,204,21,0.2)]" 
+                      : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    }
+                  `}
+                >
+                  <div className="flex items-center gap-4 sm:gap-5">
+                    <item.icon 
+                      size={20} 
+                      className={`transition-colors duration-300 ${isActive ? "text-black" : "text-slate-500 group-hover:text-yellow-400"}`} 
+                    />
+                    <span>{item.name}</span>
+                  </div>
+                  
+                  {item.badge ? (
+                    <span className={`px-2.5 py-1 rounded-xl text-[8px] font-black transition-all duration-300 ${isActive ? 'bg-black text-white' : 'bg-yellow-400 text-black group-hover:scale-110'}`}>
+                      {item.badge}
+                    </span>
+                  ) : (
+                    <ChevronRight 
+                      size={16} 
+                      className={`transition-all duration-300 ${isActive ? 'text-black opacity-100 translate-x-1' : 'text-slate-700 opacity-0 group-hover:opacity-100 group-hover:text-yellow-400 group-hover:translate-x-1'}`} 
+                    />
+                  )}
+                </Link>
+              </Tooltip>
             );
           })}
         </nav>
 
-        <div className="flex-shrink-0 mt-6 mb-4 lg:mb-12 pt-6 border-t border-white/5">
+        <div className="flex-shrink-0 mt-6 mb-4 lg:mb-12 pt-6 border-t border-white/5 relative">
           {isVerified === null ? (
             <div className="rounded-2xl p-4 bg-white/5 border border-white/5 animate-pulse">
               <div className="h-2 w-16 bg-white/10 rounded mb-2" />
               <div className="h-3 w-32 bg-white/10 rounded" />
             </div>
           ) : (
-            <div className={`rounded-2xl p-4 border transition-all duration-500 ${isVerified ? 'bg-white/5 border-white/5' : 'bg-red-500/5 border-red-500/20'}`}>
-              <p className="text-[7px] font-black uppercase tracking-[0.3em] text-slate-500 mb-1">Account Status</p>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isVerified ? 'bg-green-500' : 'bg-red-500'}`} />
-                  <span className={`text-[9px] font-black uppercase italic ${isVerified ? 'text-white' : 'text-red-400'}`}>
-                    {isVerified ? 'Verified Partner' : 'Verification Pending'}
-                  </span>
+            <Tooltip 
+              content={isVerified ? "Full access to all market features enabled." : "Identity check required to bid on tenders."} 
+              side="top"
+            >
+              <div className={`rounded-2xl p-4 border transition-all duration-500 ${isVerified ? 'bg-white/5 border-white/5' : 'bg-red-500/5 border-red-500/20'}`}>
+                <p className="text-[7px] font-black uppercase tracking-[0.3em] text-slate-500 mb-1">Account Status</p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${isVerified ? 'bg-green-500' : 'bg-red-500'}`} />
+                    <span className={`text-[9px] font-black uppercase italic ${isVerified ? 'text-white' : 'text-red-400'}`}>
+                      {isVerified ? 'Verified Partner' : 'Verification Pending'}
+                    </span>
+                  </div>
+                  {isVerified ? (
+                    <ShieldCheck size={14} className="text-green-500" />
+                  ) : (
+                    <ShieldAlert size={14} className="text-red-500" />
+                  )}
                 </div>
-                {isVerified ? (
-                  <ShieldCheck size={14} className="text-green-500" />
-                ) : (
-                  <ShieldAlert size={14} className="text-red-500" />
-                )}
               </div>
-            </div>
+            </Tooltip>
           )}
         </div>
       </aside>

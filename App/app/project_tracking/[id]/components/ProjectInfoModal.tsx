@@ -1,6 +1,7 @@
 "use client";
 
 import { X, HardHat, MapPin, Star, Building2, Ruler } from "lucide-react";
+import { Tooltip } from "@components/Tooltip";
 
 interface ProjectInfoModalProps {
   job: any;
@@ -28,28 +29,32 @@ export default function ProjectInfoModal({ job, loading, onClose, onViewReviews 
       value: job.project_type || "N/A",
       icon: Building2,
       color: "text-blue-500",
-      bg: "bg-blue-50"
+      bg: "bg-blue-50",
+      tooltip: "The category of construction work"
     },
     {
       label: "Location",
       value: job.location || "Not specified",
       icon: MapPin,
       color: "text-red-500",
-      bg: "bg-red-50"
+      bg: "bg-red-50",
+      tooltip: "Physical address of the project"
     },
     {
       label: "Square Footage",
       value: job.sqm ? `${job.sqm} m²` : "N/A",
       icon: Ruler,
       color: "text-emerald-500",
-      bg: "bg-emerald-50"
+      bg: "bg-emerald-50",
+      tooltip: "Total area size in square meters"
     },
     {
       label: "Quality Level",
       value: job.quality || "Standard",
       icon: Star,
       color: "text-orange-500",
-      bg: "bg-orange-50"
+      bg: "bg-orange-50",
+      tooltip: "The selected grade of materials and finish"
     }
   ] : [];
 
@@ -57,12 +62,14 @@ export default function ProjectInfoModal({ job, loading, onClose, onViewReviews 
     <div className="fixed inset-0 z-[150] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/60 backdrop-blur-md animate-in fade-in duration-300">
       <div className="bg-white rounded-t-[40px] sm:rounded-[40px] w-full max-w-md overflow-hidden shadow-2xl border-t sm:border border-white animate-in slide-in-from-bottom-10 sm:zoom-in-95 duration-300 relative">
         
-        <button 
-          onClick={onClose} 
-          className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-900 transition-colors z-10"
-        >
-          <X size={20} />
-        </button>
+        <Tooltip content="Close details">
+          <button 
+            onClick={onClose} 
+            className="absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-900 transition-colors z-10"
+          >
+            <X size={20} />
+          </button>
+        </Tooltip>
 
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-4 mb-6">
@@ -98,22 +105,23 @@ export default function ProjectInfoModal({ job, loading, onClose, onViewReviews 
               </>
             ) : (
               infoItems.map((item, i) => (
-                <div 
-                  key={i} 
-                  className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white hover:shadow-md transition-all duration-300"
-                >
-                  <div className={`w-10 h-10 ${item.bg} ${item.color} rounded-xl flex items-center justify-center shadow-sm shrink-0`}>
-                    <item.icon size={18} />
+                <Tooltip key={i} content={item.tooltip}>
+                  <div 
+                    className="flex items-center gap-3 p-2.5 bg-slate-50 rounded-2xl border border-slate-100 group hover:bg-white hover:shadow-md transition-all duration-300 cursor-help"
+                  >
+                    <div className={`w-10 h-10 ${item.bg} ${item.color} rounded-xl flex items-center justify-center shadow-sm shrink-0`}>
+                      <item.icon size={18} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-black text-slate-900 uppercase italic leading-tight mb-0.5 tracking-tight pr-4">
+                        {item.label}&nbsp;
+                      </p>
+                      <p className="text-[11px] font-bold text-slate-400 uppercase truncate tracking-wider">
+                        {item.value}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-[13px] font-black text-slate-900 uppercase italic leading-tight mb-0.5 tracking-tight pr-4">
-                      {item.label}&nbsp;
-                    </p>
-                    <p className="text-[11px] font-bold text-slate-400 uppercase truncate tracking-wider">
-                      {item.value}
-                    </p>
-                  </div>
-                </div>
+                </Tooltip>
               ))
             )}
 
@@ -134,16 +142,18 @@ export default function ProjectInfoModal({ job, loading, onClose, onViewReviews 
                     </div>
                   </div>
                   {(job?.contractor_id || job?.company_id) && (
-                    <button 
-                      onClick={() => {
-                        onClose(); 
-                        if (onViewReviews) onViewReviews(); 
-                      }}
-                      className="flex items-center gap-2 bg-yellow-400 p-2.5 rounded-xl hover:scale-105 active:scale-95 transition-all shrink-0 shadow-lg shadow-yellow-400/20"
-                    >
-                      <Star size={14} className="fill-slate-950 text-slate-950" />
-                      <span className="text-[10px] font-black uppercase text-slate-950 pr-1">Reviews</span>
-                    </button>
+                    <Tooltip content="View contractor reviews and rating">
+                      <button 
+                        onClick={() => {
+                          onClose(); 
+                          if (onViewReviews) onViewReviews(); 
+                        }}
+                        className="flex items-center gap-2 bg-yellow-400 p-2.5 rounded-xl hover:scale-105 active:scale-95 transition-all shrink-0 shadow-lg shadow-yellow-400/20"
+                      >
+                        <Star size={14} className="fill-slate-950 text-slate-950" />
+                        <span className="text-[10px] font-black uppercase text-slate-950 pr-1">Reviews</span>
+                      </button>
+                    </Tooltip>
                   )}
                 </div>
               )}

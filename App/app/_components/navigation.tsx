@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Hammer, 
   User, 
@@ -19,13 +20,14 @@ import {
 type Page = {
   title: string;
   path: string;
+  tooltip?: string;
 };
 
 const pages: Page[] = [
-  { title: "Home", path: "/" },
-  { title: "Services", path: "/find_service" },
-  { title: "Estimates", path: "/plans_cost" },
-  { title: "Live Tracking", path: "/project_tracking" },
+  { title: "Home", path: "/", tooltip: "Back to start" },
+  { title: "Services", path: "/find_service", tooltip: "Browse all services" },
+  { title: "Estimates", path: "/plans_cost", tooltip: "Check price plans" },
+  { title: "Live Tracking", path: "/project_tracking", tooltip: "Track your build" },
 ];
 
 export function Navigation() {
@@ -37,6 +39,10 @@ export function Navigation() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [isCompanyHovered, setIsCompanyHovered] = useState(false);
+  const [isAdminHovered, setIsAdminHovered] = useState(false);
+  const [isUserHovered, setIsUserHovered] = useState(false);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -165,9 +171,11 @@ export function Navigation() {
             {pages.map((page, index) => {
               const isActive = currentPath === page.path;
               return (
-                <li key={index}>
+                <li key={index} className="relative">
                   <Link
                     href={page.path}
+                    onMouseEnter={() => setHoveredIndex(index)}
+                    onMouseLeave={() => setHoveredIndex(null)}
                     className={`relative text-sm font-bold uppercase tracking-wide transition-all py-1.5 hover:scale-110 inline-block
                       after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
                       ${isActive 
@@ -177,6 +185,18 @@ export function Navigation() {
                   >
                     {page.title}
                   </Link>
+                  <AnimatePresence>
+                    {hoveredIndex === index && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded shadow-xl whitespace-nowrap pointer-events-none"
+                      >
+                        {page.tooltip}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </li>
               );
             })}
@@ -186,32 +206,64 @@ export function Navigation() {
 
           <div className="flex items-center gap-6 min-w-[120px] justify-end">
             {isAdmin && (
-              <Link 
-                href="/admin"
-                className={`relative text-sm font-black transition-all py-1.5 flex items-center gap-2 hover:scale-105 text-red-600
-                  after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
-                  ${currentPath === "/admin" 
-                    ? "after:w-full after:h-[3px] after:bg-red-600" 
-                    : "after:w-0 hover:after:w-full after:h-[2px] after:bg-red-600/30"
-                  }`}
-              >
-                <ShieldAlert size={14} />
-                Admin
-              </Link>
+              <div className="relative">
+                <Link 
+                  href="/admin"
+                  onMouseEnter={() => setIsAdminHovered(true)}
+                  onMouseLeave={() => setIsAdminHovered(false)}
+                  className={`relative text-sm font-black transition-all py-1.5 flex items-center gap-2 hover:scale-105 text-red-600
+                    after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
+                    ${currentPath === "/admin" 
+                      ? "after:w-full after:h-[3px] after:bg-red-600" 
+                      : "after:w-0 hover:after:w-full after:h-[2px] after:bg-red-600/30"
+                    }`}
+                >
+                  <ShieldAlert size={14} />
+                  Admin
+                </Link>
+                <AnimatePresence>
+                  {isAdminHovered && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-red-600 text-white text-[9px] font-black uppercase tracking-widest rounded shadow-xl whitespace-nowrap"
+                    >
+                      System Access
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )}
 
             {showCompanyLink && !isAdmin && (
-              <Link 
-                href={user ? "/dashboard" : "/login_company"}
-                className={`relative text-sm font-bold transition-all py-1.5 flex items-center gap-2 hover:scale-105
-                  after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
-                  ${isCompanySection 
-                    ? "text-slate-900 after:w-full after:h-[3px] after:bg-slate-900" 
-                    : "text-slate-500 hover:text-slate-900 after:w-0 hover:after:w-full after:h-[2px] after:bg-slate-900/30"
-                  }`}
-              >
-                For Companies
-              </Link>
+              <div className="relative">
+                <Link 
+                  href={user ? "/dashboard" : "/login_company"}
+                  onMouseEnter={() => setIsCompanyHovered(true)}
+                  onMouseLeave={() => setIsCompanyHovered(false)}
+                  className={`relative text-sm font-bold transition-all py-1.5 flex items-center gap-2 hover:scale-105
+                    after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
+                    ${isCompanySection 
+                      ? "text-slate-900 after:w-full after:h-[3px] after:bg-slate-900" 
+                      : "text-slate-500 hover:text-slate-900 after:w-0 hover:after:w-full after:h-[2px] after:bg-slate-900/30"
+                    }`}
+                >
+                  For Companies
+                </Link>
+                <AnimatePresence>
+                  {isCompanyHovered && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded shadow-xl whitespace-nowrap"
+                    >
+                      Business Portal
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             )}
 
             {isLoading ? (
@@ -219,22 +271,37 @@ export function Navigation() {
             ) : user ? (
               <div className="relative" ref={dropdownRef}>
                 <button 
-  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-  className="flex items-center gap-3 bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 min-w-fit"
->
-  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-black flex-shrink-0">
-    <User size={14} />
-  </div>
-  <div className="flex flex-col items-start leading-tight">
-    <span className="italic text-[12px] whitespace-nowrap">
-      {user.user_metadata?.full_name || user.email?.split('@')[0]}
-    </span>
-    <span className="text-[9px] text-slate-400 font-medium whitespace-nowrap">
-      {user.email}
-    </span>
-  </div>
-  <ChevronDown size={14} className={`transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-</button>
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  onMouseEnter={() => setIsUserHovered(true)}
+                  onMouseLeave={() => setIsUserHovered(false)}
+                  className="flex items-center gap-3 bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 min-w-fit"
+                >
+                  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-black flex-shrink-0">
+                    <User size={14} />
+                  </div>
+                  <div className="flex flex-col items-start leading-tight">
+                    <span className="italic text-[12px] whitespace-nowrap">
+                      {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                    </span>
+                    <span className="text-[9px] text-slate-400 font-medium whitespace-nowrap">
+                      {user.email}
+                    </span>
+                  </div>
+                  <ChevronDown size={14} className={`transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                <AnimatePresence>
+                  {isUserHovered && !isDropdownOpen && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded shadow-xl whitespace-nowrap"
+                    >
+                      Your Account
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 py-2 animate-in fade-in slide-in-from-top-2">

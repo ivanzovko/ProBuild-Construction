@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { HardHat, ArrowLeft, Home } from "lucide-react";
+import {Tooltip} from "@components/Tooltip";
 
 export default function NotFound() {
   return (
@@ -25,21 +26,25 @@ export default function NotFound() {
         </p>
 
         <div className="flex flex-col w-full gap-2">
-          <Link 
-            href="/" 
-            className="flex items-center justify-center gap-3 bg-slate-900 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-yellow-400 hover:text-black transition-all active:scale-95"
-          >
-            <Home size={14} />
-            Back Home
-          </Link>
+          <Tooltip content="Return to the main landing page">
+            <Link 
+              href="/" 
+              className="flex w-full items-center justify-center gap-3 bg-slate-900 text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-yellow-400 hover:text-black transition-all active:scale-95"
+            >
+              <Home size={14} />
+              Back Home
+            </Link>
+          </Tooltip>
           
-          <Link 
-            href="/find_service" 
-            className="flex items-center justify-center gap-3 bg-transparent border border-slate-200 text-slate-400 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:border-slate-900 hover:text-slate-900 transition-all active:scale-95"
-          >
-            <ArrowLeft size={14} />
-            Services
-          </Link>
+          <Tooltip content="Browse all available services">
+            <Link 
+              href="/find_service" 
+              className="flex w-full items-center justify-center gap-3 bg-transparent border border-slate-200 text-slate-400 py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] hover:border-slate-900 hover:text-slate-900 transition-all active:scale-95"
+            >
+              <ArrowLeft size={14} />
+              Services
+            </Link>
+          </Tooltip>
         </div>
 
         <div className="mt-8 opacity-20">

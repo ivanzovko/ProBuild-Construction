@@ -9,6 +9,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import ReviewsModal from "@/app/find_service/components/reviewsModal";
+import { Tooltip } from "@components/Tooltip";
 
 import GeneralTab from "./components/GeneralTab";
 import CategoriesTab from "./components/CategoriesTab";
@@ -189,7 +190,6 @@ export default function ProfilePage() {
         </h1>
         
         <div className="flex flex-1 sm:flex-initial justify-end items-center gap-2 md:gap-3">
-          {/* Mobile Navigation Dropdown - Expands from left to reviews button */}
           <div className="sm:hidden flex-1 relative">
             <button 
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -221,51 +221,58 @@ export default function ProfilePage() {
           </div>
 
           {!isEditing && (
-            <button 
-              onClick={() => setIsReviewsOpen(true)}
-              className="flex items-center justify-center gap-2 bg-slate-50 text-slate-900 p-3 sm:px-4 sm:py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:scale-105 active:scale-95 transition-all border border-slate-100 shadow-sm min-w-[44px]"
-            >
-              <Star size={14} fill="currentColor" /> 
-              <span className="font-bold">{Number(company?.average_rating || 0).toFixed(1)}</span>
-              <span className="hidden sm:inline ml-1">Reviews</span>
-            </button>
+            <Tooltip content="View Reviews">
+              <button 
+                onClick={() => setIsReviewsOpen(true)}
+                className="flex items-center justify-center gap-2 bg-slate-50 text-slate-900 p-3 sm:px-4 sm:py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:scale-105 active:scale-95 transition-all border border-slate-100 shadow-sm min-w-[44px]"
+              >
+                <Star size={14} fill="currentColor" /> 
+                <span className="font-bold">{Number(company?.average_rating || 0).toFixed(1)}</span>
+                <span className="hidden sm:inline ml-1">Reviews</span>
+              </button>
+            </Tooltip>
           )}
 
           {isEditing ? (
             <div className="flex gap-2">
-              <button 
-                onClick={() => { 
-                  setIsEditing(false); 
-                  setFormData(JSON.parse(JSON.stringify(company))); 
-                  setPreviewUrl(company?.logo_url);
-                  setSelectedFile(null);
-                }}
-                className="flex items-center justify-center gap-2 bg-white text-slate-400 p-3 sm:px-6 sm:py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:text-slate-600 hover:scale-105 active:scale-95 transition-all border border-slate-100 shadow-sm min-w-[44px]"
-              >
-                <X size={16} /> 
-                <span className="hidden sm:inline">Cancel</span>
-              </button>
-              <button 
-                onClick={() => setShowConfirmModal(true)}
-                className="flex items-center justify-center gap-2 bg-slate-900 text-white p-3 sm:px-6 sm:py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black hover:scale-105 active:scale-95 transition-all shadow-md min-w-[44px]"
-              >
-                <Save size={16} /> 
-                <span className="hidden sm:inline">Save</span>
-              </button>
+              <Tooltip content="Cancel Editing">
+                <button 
+                  onClick={() => { 
+                    setIsEditing(false); 
+                    setFormData(JSON.parse(JSON.stringify(company))); 
+                    setPreviewUrl(company?.logo_url);
+                    setSelectedFile(null);
+                  }}
+                  className="flex items-center justify-center gap-2 bg-white text-slate-400 p-3 sm:px-6 sm:py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 hover:text-slate-600 hover:scale-105 active:scale-95 transition-all border border-slate-100 shadow-sm min-w-[44px]"
+                >
+                  <X size={16} /> 
+                  <span className="hidden sm:inline">Cancel</span>
+                </button>
+              </Tooltip>
+              <Tooltip content="Save Changes">
+                <button 
+                  onClick={() => setShowConfirmModal(true)}
+                  className="flex items-center justify-center gap-2 bg-slate-900 text-white p-3 sm:px-6 sm:py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black hover:scale-105 active:scale-95 transition-all shadow-md min-w-[44px]"
+                >
+                  <Save size={16} /> 
+                  <span className="hidden sm:inline">Save</span>
+                </button>
+              </Tooltip>
             </div>
           ) : (
-            <button 
-              onClick={() => setIsEditing(true)}
-              className="flex items-center justify-center gap-2 bg-slate-900 text-white p-3 sm:px-6 sm:py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black hover:scale-105 active:scale-95 transition-all shadow-md min-w-[44px]"
-            >
-              <Edit3 size={16} /> 
-              <span className="hidden sm:inline">Edit</span>
-            </button>
+            <Tooltip content="Edit Profile">
+              <button 
+                onClick={() => setIsEditing(true)}
+                className="flex items-center justify-center gap-2 bg-slate-900 text-white p-3 sm:px-6 sm:py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black hover:scale-105 active:scale-95 transition-all shadow-md min-w-[44px]"
+              >
+                <Edit3 size={16} /> 
+                <span className="hidden sm:inline">Edit</span>
+              </button>
+            </Tooltip>
           )}
         </div>
       </header>
 
-      {/* Desktop Tabs Only */}
       <div className="hidden sm:flex border-b border-slate-100 gap-8 overflow-x-auto no-scrollbar py-2 px-1">
         {tabs.map((tab) => (
           <button

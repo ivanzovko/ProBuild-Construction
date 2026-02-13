@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Lock, 
   Loader2, 
@@ -11,6 +12,7 @@ import {
   ArrowRight,
   ShieldCheck
 } from "lucide-react";
+import { Tooltip } from "@components/Tooltip";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -58,7 +60,9 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="w-full flex flex-col items-center px-6">
-      <div 
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="w-full bg-white shadow-2xl border border-slate-100 transition-all shrink-0"
         style={{ 
           maxWidth: 'clamp(320px, 100%, 500px)',
@@ -86,7 +90,7 @@ export default function ResetPasswordPage() {
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">New Password</label>
-              <div className="relative flex items-center group">
+              <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
                 <Lock className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
                 <input 
                   type="password" 
@@ -95,12 +99,12 @@ export default function ResetPasswordPage() {
                   placeholder="••••••••" 
                   className="w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-yellow-400 focus:bg-white transition-all font-bold text-sm text-slate-900 placeholder:text-slate-400"
                 />
-              </div>
+              </motion.div>
             </div>
 
             <div className="space-y-1.5">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Confirm New Password</label>
-              <div className="relative flex items-center group">
+              <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
                 <ShieldCheck className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
                 <input 
                   type="password" 
@@ -109,23 +113,34 @@ export default function ResetPasswordPage() {
                   placeholder="••••••••" 
                   className="w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none focus:border-yellow-400 focus:bg-white transition-all font-bold text-sm text-slate-900 placeholder:text-slate-400"
                 />
-              </div>
+              </motion.div>
             </div>
 
-            <button 
-              type="submit"
-              disabled={loading}
-              className="w-full bg-slate-900 text-white py-[1.8vh] rounded-2xl font-black text-[11px] flex items-center justify-center gap-3 hover:bg-yellow-400 hover:text-black active:scale-[0.98] transition-all uppercase tracking-[0.2em] mt-2 disabled:opacity-70 shadow-lg"
-            >
-              {loading ? <Loader2 className="animate-spin" size={18} /> : "Update Password"} 
-              {!loading && <ArrowRight size={18} />}
-            </button>
+            <div className="relative">
+              <Tooltip content="Confirm security change">
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-slate-900 text-white py-[1.8vh] rounded-2xl font-black text-[11px] flex items-center justify-center gap-3 hover:bg-yellow-400 hover:text-black transition-all uppercase tracking-[0.2em] mt-2 disabled:opacity-70 shadow-lg"
+                >
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : "Update Password"} 
+                  {!loading && <ArrowRight size={18} />}
+                </motion.button>
+              </Tooltip>
+            </div>
           </form>
         ) : (
           <div className="text-center py-4 animate-in fade-in zoom-in duration-500">
-            <div className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 10 }}
+              className="w-16 h-16 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6"
+            >
               <CheckCircle2 size={32} />
-            </div>
+            </motion.div>
             <h3 className="text-lg font-black text-slate-900 uppercase italic mb-2 tracking-tighter text-center">Security Updated</h3>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed text-center">
               Your password has been successfully reset. <br />
@@ -133,7 +148,7 @@ export default function ResetPasswordPage() {
             </p>
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

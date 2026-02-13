@@ -6,6 +6,7 @@ import {
   MessageSquare, X, BadgeCheck, Briefcase,
   ShieldAlert
 } from "lucide-react";
+import { Tooltip } from "@components/Tooltip";
 
 interface ReviewsModalProps {
   isOpen: boolean;
@@ -122,25 +123,31 @@ export default function ReviewsModal({
                   {contractorName}
                 </p>
                 {contractorStats?.is_verified && (
-                  <BadgeCheck size={24} className="text-blue-500 fill-blue-50 shrink-0" />
+                  <Tooltip content="Identity and business credentials verified">
+                    <BadgeCheck size={24} className="text-blue-500 fill-blue-50 shrink-0 cursor-help" />
+                  </Tooltip>
                 )}
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1.5 rounded-lg shadow-md shrink-0">
-                  <Briefcase size={12} className="text-yellow-400 shrink-0" />
-                  <span className="text-[10px] font-bold uppercase italic text-white tracking-tight leading-none">
-                    {loading ? "..." : contractorStats?.jobs_completed_count || 0} Jobs Completed
-                  </span>
-                </div>
-
-                {!loading && !contractorStats?.is_verified && (
-                  <div className="flex items-center gap-1 bg-red-50 px-2 py-1.5 rounded-lg border border-red-100 shrink-0">
-                    <ShieldAlert size={12} className="text-red-500 shrink-0" />
-                    <span className="text-[9px] font-bold uppercase text-red-600 tracking-tight leading-none">
-                      Not Verified
+                <Tooltip content="Successful projects completed on this platform">
+                  <div className="flex items-center gap-1.5 bg-slate-900 px-2.5 py-1.5 rounded-lg shadow-md shrink-0 cursor-help">
+                    <Briefcase size={12} className="text-yellow-400 shrink-0" />
+                    <span className="text-[10px] font-bold uppercase italic text-white tracking-tight leading-none">
+                      {loading ? "..." : contractorStats?.jobs_completed_count || 0} Jobs Completed
                     </span>
                   </div>
+                </Tooltip>
+
+                {!loading && !contractorStats?.is_verified && (
+                  <Tooltip content="This contractor has not yet completed the verification process">
+                    <div className="flex items-center gap-1 bg-red-50 px-2 py-1.5 rounded-lg border border-red-100 shrink-0 cursor-help">
+                      <ShieldAlert size={12} className="text-red-500 shrink-0" />
+                      <span className="text-[9px] font-bold uppercase text-red-600 tracking-tight leading-none">
+                        Not Verified
+                      </span>
+                    </div>
+                  </Tooltip>
                 )}
               </div>
             </div>
@@ -177,11 +184,13 @@ export default function ReviewsModal({
                         {rev.client_profiles?.full_name || "Verified Client"}
                       </p>
                       <div className="flex items-center gap-1">
-                        <div className="flex">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} size={11} className={i < rev.rating ? "fill-yellow-400 text-yellow-400" : "text-slate-200"} />
-                          ))}
-                        </div>
+                        <Tooltip content={`Rated ${rev.rating.toFixed(1)} out of 5 stars`}>
+                          <div className="flex cursor-help">
+                            {[...Array(5)].map((_, i) => (
+                              <Star key={i} size={11} className={i < rev.rating ? "fill-yellow-400 text-yellow-400" : "text-slate-200"} />
+                            ))}
+                          </div>
+                        </Tooltip>
                         <span className="text-[10px] font-bold text-slate-950 bg-yellow-400/20 px-1.5 py-0.5 rounded ml-1">
                           {rev.rating.toFixed(1)}
                         </span>

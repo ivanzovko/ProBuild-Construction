@@ -1,15 +1,15 @@
-/* components/auth/LoginView.tsx */
-
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Building2, Lock, Mail, ArrowRight, ShieldCheck, 
   TrendingUp, Briefcase, 
   AlertCircle, UserPlus, LogIn, Eye, EyeOff 
 } from "lucide-react";
+import { Tooltip } from "@components/Tooltip";
 
 interface LoginViewProps {
   onSubmit: (data: any) => void;
@@ -113,7 +113,9 @@ function LoginViewContent({
         </section>
 
         <section className="flex-1 flex flex-col items-center justify-center p-6 bg-slate-50 overflow-y-auto">
-          <div 
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             className="w-full bg-white rounded-[32px] lg:rounded-[40px] shadow-xl border border-slate-100 my-auto shrink-0"
             style={{ 
               maxWidth: 'clamp(320px, 30vw, 420px)',
@@ -138,13 +140,15 @@ function LoginViewContent({
                       <span>{errorMsg}</span>
                     </div>
                     {isClientAccount && (
-                      <button 
+                      <motion.button 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         type="button"
                         onClick={handleClientRedirect}
                         className="flex items-center justify-center gap-2 py-2 bg-red-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-red-700 transition-colors w-full"
                       >
                         Client Login <ArrowRight size={12} />
-                      </button>
+                      </motion.button>
                     )}
                   </div>
                 </div>
@@ -152,7 +156,7 @@ function LoginViewContent({
 
               <div className="space-y-1.5">
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Business Email</label>
-                <div className="relative flex items-center group">
+                <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
                   <Mail className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
                   <input 
                     type="email" 
@@ -163,7 +167,7 @@ function LoginViewContent({
                     placeholder="e.g. info@yourcompany.com" 
                     className="w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none font-bold transition-all text-sm text-slate-900 placeholder:text-slate-400 placeholder:font-medium disabled:opacity-50" 
                   />
-                </div>
+                </motion.div>
               </div>
 
               <div className="space-y-1.5">
@@ -178,7 +182,7 @@ function LoginViewContent({
                     </Link>
                   )}
                 </div>
-                <div className="relative flex items-center group">
+                <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
                   <Lock className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
                   <input 
                     type={showPassword ? "text" : "password"} 
@@ -189,20 +193,28 @@ function LoginViewContent({
                     placeholder="Enter your password" 
                     className="w-full pl-12 lg:pl-14 pr-12 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none font-bold transition-all text-sm text-slate-900 placeholder:text-slate-400 placeholder:font-medium disabled:opacity-50" 
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 text-slate-400 hover:text-yellow-600 transition-colors p-1"
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
+                  <div className="absolute right-4">
+                    <Tooltip content={showPassword ? "Hide password" : "Show password"}>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-slate-400 hover:text-yellow-600 transition-colors p-2 rounded-full hover:bg-slate-100"
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </Tooltip>
+                  </div>
+                </motion.div>
               </div>
 
               {!isLogin && (
-                <div className="space-y-1.5 animate-in slide-in-from-top-2 duration-300">
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="space-y-1.5"
+                >
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Confirm Password</label>
-                  <div className="relative flex items-center group">
+                  <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
                     <Lock className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
                     <input 
                       type={showConfirmPassword ? "text" : "password"} 
@@ -213,51 +225,67 @@ function LoginViewContent({
                       placeholder="Repeat your password" 
                       className={`w-full pl-12 lg:pl-14 pr-12 py-[1.5vh] bg-slate-50 border-2 rounded-2xl focus:bg-white outline-none font-bold transition-all text-sm text-slate-900 placeholder:text-slate-400 placeholder:font-medium disabled:opacity-50 ${confirmPassword && password !== confirmPassword ? 'border-red-200' : 'border-slate-100 focus:border-yellow-400'}`} 
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-4 text-slate-400 hover:text-yellow-600 transition-colors p-1"
-                    >
-                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                </div>
+                    <div className="absolute right-4">
+                      <Tooltip content={showConfirmPassword ? "Hide password" : "Show password"}>
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="text-slate-400 hover:text-yellow-600 transition-colors p-2 rounded-full hover:bg-slate-100"
+                        >
+                          {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </Tooltip>
+                    </div>
+                  </motion.div>
+                </motion.div>
               )}
 
-              <button 
-                type="submit"
-                disabled={isButtonDisabled}
-                className="w-full bg-slate-900 text-white py-[1.8vh] rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] lg:text-xs hover:bg-yellow-400 hover:text-black transition-all shadow-lg flex items-center justify-center gap-3 active:scale-[0.98] mt-2 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed"
-              >
-                {loading ? "Checking..." : (isLogin ? "Sign In Now" : "Create Account")}
-                {!loading && <ArrowRight size={18} />}
-              </button>
+              <div className="relative">
+                <Tooltip content={isLogin ? "Access Dashboard" : "Join the network"}>
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={isButtonDisabled}
+                    className="w-full bg-slate-900 text-white py-[1.8vh] rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] lg:text-xs hover:bg-yellow-400 hover:text-black transition-all shadow-lg flex items-center justify-center gap-3 mt-2 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed"
+                  >
+                    {loading ? "Checking..." : (isLogin ? "Sign In Now" : "Create Account")}
+                    {!loading && <ArrowRight size={18} />}
+                  </motion.button>
+                </Tooltip>
+              </div>
 
               <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col items-center gap-3">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">
                   {isLogin ? "New to the platform?" : "Already have a company account?"}
                 </p>
-                <button 
-                  type="button"
-                  disabled={loading}
-                  onClick={() => { setIsLogin(!isLogin); setIsDirty(true); onInputChange(); }}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-slate-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all group disabled:opacity-50"
-                >
-                  {isLogin ? (
-                    <>
-                      <UserPlus size={16} className="text-slate-400 group-hover:text-yellow-600" />
-                      <span className="text-[10px] font-black text-slate-900 uppercase">Register your Company</span>
-                    </>
-                  ) : (
-                    <>
-                      <LogIn size={16} className="text-slate-400 group-hover:text-yellow-600" />
-                      <span className="text-[10px] font-black text-slate-900 uppercase">Return to Login</span>
-                    </>
-                  )}
-                </button>
+                <div className="relative w-full">
+                  <Tooltip content={isLogin ? "Switch to Registration" : "Switch to Login"}>
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      type="button"
+                      disabled={loading}
+                      onClick={() => { setIsLogin(!isLogin); setIsDirty(true); onInputChange(); }}
+                      className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-slate-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all group disabled:opacity-50"
+                    >
+                      {isLogin ? (
+                        <>
+                          <UserPlus size={16} className="text-slate-400 group-hover:text-yellow-600" />
+                          <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Register your Company</span>
+                        </>
+                      ) : (
+                        <>
+                          <LogIn size={16} className="text-slate-400 group-hover:text-yellow-600" />
+                          <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Return to Login</span>
+                        </>
+                      )}
+                    </motion.button>
+                  </Tooltip>
+                </div>
               </div>
             </form>
-          </div>
+          </motion.div>
         </section>
       </div>
     </div>
@@ -271,7 +299,10 @@ function FeatureItem({ icon, title, desc, color }: any) {
     green: "bg-green-400/20 text-green-400 border-green-400/30" 
   };
   return (
-    <div className="flex items-center lg:items-start gap-4 p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+    <motion.div 
+      whileHover={{ scale: 1.03, x: 5 }}
+      className="flex items-center lg:items-start gap-4 p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm"
+    >
       <div className={`w-10 h-10 lg:w-12 lg:h-12 shrink-0 border rounded-xl flex items-center justify-center ${colors[color]}`}>
         {icon}
       </div>
@@ -279,7 +310,7 @@ function FeatureItem({ icon, title, desc, color }: any) {
         <h3 className="font-black uppercase italic text-[10px] lg:text-sm mb-0.5 tracking-widest text-white">{title}</h3>
         <p className="text-slate-400 text-[10px] lg:text-xs leading-relaxed">{desc}</p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

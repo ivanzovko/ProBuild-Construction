@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter } from "next/navigation";
+import { Tooltip } from "@components/Tooltip";
 import { 
   Mail, 
   ChevronDown, 
@@ -228,15 +229,17 @@ export default function SupportPage() {
               <div className="h-1.5 w-12 bg-yellow-400 mb-4 rounded-full" />
               
               <div className="flex items-center gap-3 md:gap-4 mb-3 md:mb-6">
-                <button 
-                  onClick={() => router.back()}
-                  className="group flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-all shrink-0"
-                >
-                  <div className="p-2 bg-slate-200 group-hover:bg-yellow-400 rounded-xl transition-all">
-                    <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                  </div>
-                  <span className="text-[10px] font-black uppercase tracking-widest hidden md:block">Back</span>
-                </button>
+                <Tooltip content="Go back to previous page">
+                  <button 
+                    onClick={() => router.back()}
+                    className="group flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-all shrink-0"
+                  >
+                    <div className="p-2 bg-slate-200 group-hover:bg-yellow-400 rounded-xl transition-all">
+                      <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-widest hidden md:block">Back</span>
+                  </button>
+                </Tooltip>
 
                 <h1 className="text-2xl md:text-5xl font-black uppercase italic tracking-tighter leading-[0.9]">
                   How can we <span className="text-slate-400">help you?</span>
@@ -257,18 +260,19 @@ export default function SupportPage() {
 
               <div className="flex gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
                 {CATEGORIES.map((cat) => (
-                  <button 
-                    key={cat.id} 
-                    onClick={() => { setActiveCategory(cat.id); setOpenFaq(null); }} 
-                    className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap border-2 ${
-                      activeCategory === cat.id 
-                      ? "bg-slate-900 border-slate-900 text-white shadow-xl" 
-                      : "bg-white border-slate-100 text-slate-400 hover:border-slate-900"
-                    }`}
-                  >
-                    <span className={activeCategory === cat.id ? "text-yellow-400" : ""}>{cat.icon}</span>
-                    {cat.label}
-                  </button>
+                  <Tooltip key={cat.id} content={`View ${cat.label} questions`}>
+                    <button 
+                      onClick={() => { setActiveCategory(cat.id); setOpenFaq(null); }} 
+                      className={`flex items-center gap-3 px-5 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all whitespace-nowrap border-2 ${
+                        activeCategory === cat.id 
+                        ? "bg-slate-900 border-slate-900 text-white shadow-xl" 
+                        : "bg-white border-slate-100 text-slate-400 hover:border-slate-900"
+                      }`}
+                    >
+                      <span className={activeCategory === cat.id ? "text-yellow-400" : ""}>{cat.icon}</span>
+                      {cat.label}
+                    </button>
+                  </Tooltip>
                 ))}
               </div>
 
@@ -298,7 +302,6 @@ export default function SupportPage() {
                 <MessageCircle size={150} />
               </div>
 
-              {/* Mobile Toggle Button */}
               <button 
                 onClick={() => setShowMobileForm(!showMobileForm)}
                 className="md:hidden absolute top-6 right-6 z-20 p-2 bg-white/10 rounded-xl text-yellow-400"
@@ -364,13 +367,15 @@ export default function SupportPage() {
                         className="w-full bg-white/5 border-2 border-white/10 rounded-2xl px-5 py-4 text-white text-[9px] font-bold uppercase tracking-widest focus:outline-none focus:border-yellow-400 transition-all placeholder:text-white/20 resize-none"
                       ></textarea>
                     </div>
-                    <button 
-                      type="submit" 
-                      disabled={formStatus === 'sending'} 
-                      className="w-full bg-yellow-400 hover:bg-white text-black py-5 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 shadow-xl active:scale-95 disabled:opacity-50"
-                    >
-                      {formStatus === 'sending' ? "Transmitting..." : <>Submit Ticket <Send size={14} /></>}
-                    </button>
+                    <Tooltip content="Send your request to our team">
+                      <button 
+                        type="submit" 
+                        disabled={formStatus === 'sending'} 
+                        className="w-full bg-yellow-400 hover:bg-white text-black py-5 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 shadow-xl active:scale-95 disabled:opacity-50"
+                      >
+                        {formStatus === 'sending' ? "Transmitting..." : <>Submit Ticket <Send size={14} /></>}
+                      </button>
+                    </Tooltip>
                   </form>
                 )}
               </div>
@@ -378,15 +383,17 @@ export default function SupportPage() {
 
             <div className="space-y-3">
               <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-4">Emergency Contact</h4>
-              <a href="mailto:pro.build.construction123@gmail.com" className="bg-slate-50 border-2 border-slate-100 rounded-3xl p-5 flex items-center gap-4 group hover:border-slate-900 transition-all">
-                <div className="p-3 bg-white rounded-xl shadow-sm text-slate-900 group-hover:bg-yellow-400 transition-colors">
-                  <Mail size={18} />
-                </div>
-                <div className="min-w-0">
-                  <span className="block text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Email</span>
-                  <span className="text-[12px] font-black text-slate-900 lowercase truncate block">pro.build.construction123@gmail.com</span>
-                </div>
-              </a>
+              <Tooltip content="Click to send an email">
+                <a href="mailto:pro.build.construction123@gmail.com" className="bg-slate-50 border-2 border-slate-100 rounded-3xl p-5 flex items-center gap-4 group hover:border-slate-900 transition-all">
+                  <div className="p-3 bg-white rounded-xl shadow-sm text-slate-900 group-hover:bg-yellow-400 transition-colors">
+                    <Mail size={18} />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="block text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Email</span>
+                    <span className="text-[12px] font-black text-slate-900 lowercase truncate block">pro.build.construction123@gmail.com</span>
+                  </div>
+                </a>
+              </Tooltip>
             </div>
           </aside>
         </div>
@@ -405,12 +412,14 @@ export default function SupportPage() {
               </div>
             </div>
 
-            <button 
-              onClick={() => setShowTickets(!showTickets)}
-              className="flex items-center gap-2 bg-white px-6 py-3 rounded-2xl border-2 border-slate-200 font-black text-[10px] uppercase tracking-widest hover:border-slate-900 transition-all shadow-sm"
-            >
-              {showTickets ? <><EyeOff size={16} /> Hide History</> : <><Eye size={16} /> Show History</>}
-            </button>
+            <Tooltip content={showTickets ? "Hide your ticket history" : "Show your ticket history"}>
+              <button 
+                onClick={() => setShowTickets(!showTickets)}
+                className="flex items-center gap-2 bg-white px-6 py-3 rounded-2xl border-2 border-slate-200 font-black text-[10px] uppercase tracking-widest hover:border-slate-900 transition-all shadow-sm"
+              >
+                {showTickets ? <><EyeOff size={16} /> Hide History</> : <><Eye size={16} /> Show History</>}
+              </button>
+            </Tooltip>
           </div>
 
           {showTickets && (
@@ -480,13 +489,13 @@ export default function SupportPage() {
         </div>
       )}
 
-    
- {/* CHAT I SCROLL TOP */}
       <div className="fixed bottom-6 right-4 md:right-6 z-[300] flex flex-col items-end gap-4">
         {showScrollTop && (
-          <button onClick={scrollToTop} className="bg-white border-2 border-slate-900 p-3.5 rounded-2xl shadow-xl hover:bg-yellow-400 transition-all group">
-            <ChevronDown size={22} className="text-slate-900 rotate-180 group-hover:-translate-y-1 transition-transform" />
-          </button>
+          <Tooltip content="Scroll to top">
+            <button onClick={scrollToTop} className="bg-white border-2 border-slate-900 p-3.5 rounded-2xl shadow-xl hover:bg-yellow-400 transition-all group">
+              <ChevronDown size={22} className="text-slate-900 rotate-180 group-hover:-translate-y-1 transition-transform" />
+            </button>
+          </Tooltip>
         )}
         
         <div className={`flex flex-col items-end transition-all duration-500 ${isChatOpen ? 'w-[calc(100vw-2rem)] sm:w-[420px]' : 'w-auto'}`}>
@@ -532,20 +541,22 @@ export default function SupportPage() {
               </div>
             </div>
           ) : (
-            <button 
-              onClick={() => setIsChatOpen(true)} 
-              className="group transition-all duration-300 flex items-center justify-center bg-white/80 backdrop-blur-md border border-slate-200 p-3 rounded-2xl shadow-lg hover:bg-yellow-400 active:bg-yellow-400 md:bg-yellow-400 md:hover:bg-slate-900 md:p-4 md:rounded-[24px] md:shadow-2xl md:gap-5 hover:-translate-y-1"
-            >
-              <span className="hidden md:block text-black group-hover:text-white font-black text-[11px] uppercase tracking-[0.2em] pl-4">
-                Live Assistant
-              </span>
-              
-              <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center transition-all duration-500 md:bg-black md:rounded-2xl md:group-hover:bg-yellow-400">
-                <MessageCircle 
-                  className="w-6 h-6 md:w-6 md:h-6 text-slate-900 md:text-yellow-400 md:group-hover:text-black stroke-[1.8]" 
-                />
-              </div>
-            </button>
+            <Tooltip content="Chat with our AI assistant">
+              <button 
+                onClick={() => setIsChatOpen(true)} 
+                className="group transition-all duration-300 flex items-center justify-center bg-white/80 backdrop-blur-md border border-slate-200 p-3 rounded-2xl shadow-lg hover:bg-yellow-400 active:bg-yellow-400 md:bg-yellow-400 md:hover:bg-slate-900 md:p-4 md:rounded-[24px] md:shadow-2xl md:gap-5 hover:-translate-y-1"
+              >
+                <span className="hidden md:block text-black group-hover:text-white font-black text-[11px] uppercase tracking-[0.2em] pl-4">
+                  Live Assistant
+                </span>
+                
+                <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center transition-all duration-500 md:bg-black md:rounded-2xl md:group-hover:bg-yellow-400">
+                  <MessageCircle 
+                    className="w-6 h-6 md:w-6 md:h-6 text-slate-900 md:text-yellow-400 md:group-hover:text-black stroke-[1.8]" 
+                  />
+                </div>
+              </button>
+            </Tooltip>
           )}
         </div>
       </div>

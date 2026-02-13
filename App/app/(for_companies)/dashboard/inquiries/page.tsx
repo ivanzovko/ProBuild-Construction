@@ -1,6 +1,3 @@
-// File: page.tsx
-// Folder: app/dashboard/inquiries/
-
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
@@ -20,6 +17,7 @@ import {
 
 import { InquiryList } from "./components/InquiryList";
 import { InquiryModal } from "./components/InquiryModal";
+import { Tooltip } from "@components/Tooltip";
 
 type SortOption = 'date' | 'answered_date' | 'name' | 'status';
 
@@ -51,7 +49,6 @@ export default function InquiriesPage() {
   const [sortBy, setSortBy] = useState<SortOption>('date');
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -66,6 +63,7 @@ export default function InquiriesPage() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const [showScrollTop, setShowScrollTop] = useState(false);
+
   const pageTopRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -87,11 +85,10 @@ export default function InquiriesPage() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) setIsSortOpen(false);
-      if (searchRef.current && !searchRef.current.contains(event.target as Node) && searchQuery === "") setIsSearchExpanded(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [searchQuery]);
+  }, []);
 
   const fetchInquiries = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -325,50 +322,50 @@ export default function InquiriesPage() {
    <header className="mb-6 md:mb-10">
   <div className="flex items-center justify-between gap-3 h-10 md:h-12 relative">
     
-    {/* NASLOV - Vidljiv samo na desktopu */}
     <h1 className="hidden md:block text-lg sm:text-2xl md:text-3xl font-black text-slate-900 uppercase italic tracking-tight whitespace-nowrap">
       Direct <span className="text-yellow-500">Inquiries</span>
     </h1>
 
-    {/* SEARCH I FILTRI CONTAINER - Na mobitelu zauzima cijelu širinu */}
     <div className="flex items-center gap-2 w-full md:w-auto shrink-0 h-full">
       
-      {/* SEARCH BAR - Na mobitelu flex-1 da popuni prostor, na desktopu md:w-64 */}
       <div 
         className="relative flex-1 md:w-64 transition-all duration-300"
       >
-        <div 
-          className="flex items-center bg-white border border-slate-200 rounded-xl md:rounded-2xl h-10 md:h-12 overflow-hidden shadow-sm px-4 ring-2 ring-yellow-400/5 focus-within:ring-yellow-400/20 transition-all"
-        >
-          <Search className="text-slate-400 shrink-0 mr-3" size={16} />
-          <input 
-            type="text" 
-            placeholder="Search by title or sender..." 
-            value={searchQuery} 
-            onChange={(e) => setSearchQuery(e.target.value)} 
-            className="bg-transparent text-[11px] font-bold uppercase text-slate-900 focus:outline-none w-full block" 
-          />
-          {searchQuery !== "" && (
-            <X 
-              size={16} 
-              className="text-slate-400 cursor-pointer hover:text-slate-600 ml-2" 
-              onClick={() => setSearchQuery("")}
+        <Tooltip content="Filter by name or service" side="bottom">
+          <div 
+            className="flex items-center bg-white border border-slate-200 rounded-xl md:rounded-2xl h-10 md:h-12 overflow-hidden shadow-sm px-4 ring-2 ring-yellow-400/5 focus-within:ring-yellow-400/20 transition-all"
+          >
+            <Search className="text-slate-400 shrink-0 mr-3" size={16} />
+            <input 
+              type="text" 
+              placeholder="Search by title or sender..." 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+              className="bg-transparent text-[11px] font-bold uppercase text-slate-900 focus:outline-none w-full block" 
             />
-          )}
-        </div>
+            {searchQuery !== "" && (
+              <X 
+                size={16} 
+                className="text-slate-400 cursor-pointer hover:text-slate-600 ml-2" 
+                onClick={() => setSearchQuery("")}
+              />
+            )}
+          </div>
+        </Tooltip>
       </div>
 
-      {/* SORT I FILTER GUMBI - Ostaju kompaktni pored search bara */}
       <div className="flex items-center gap-2 shrink-0">
         <div className="relative" ref={dropdownRef}>
-          <button 
-            onClick={() => setIsSortOpen(!isSortOpen)} 
-            className="flex items-center justify-center gap-2 bg-slate-950 text-white h-10 md:h-12 w-10 md:w-auto md:px-4 rounded-xl md:rounded-2xl text-[10px] font-black uppercase hover:bg-slate-800 transition-all shadow-lg"
-          >
-            <Filter size={16} className="text-yellow-400 shrink-0 md:w-[18px]" /> 
-            <span className="hidden md:block">Sort: {sortOptions.find(o => o.id === sortBy)?.label}</span>
-            <ChevronDown size={14} className={`hidden md:block transition-transform ${isSortOpen ? 'rotate-180' : ''}`} />
-          </button>
+          <Tooltip content="Change sorting criteria" side="bottom">
+            <button 
+              onClick={() => setIsSortOpen(!isSortOpen)} 
+              className="flex items-center justify-center gap-2 bg-slate-950 text-white h-10 md:h-12 w-10 md:w-auto md:px-4 rounded-xl md:rounded-2xl text-[10px] font-black uppercase hover:bg-slate-800 transition-all shadow-lg"
+            >
+              <Filter size={16} className="text-yellow-400 shrink-0 md:w-[18px]" /> 
+              <span className="hidden md:block">Sort: {sortOptions.find(o => o.id === sortBy)?.label}</span>
+              <ChevronDown size={14} className={`hidden md:block transition-transform ${isSortOpen ? 'rotate-180' : ''}`} />
+            </button>
+          </Tooltip>
           
           {isSortOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-2xl md:rounded-3xl shadow-2xl z-50 p-2 overflow-hidden">
@@ -385,17 +382,20 @@ export default function InquiriesPage() {
           )}
         </div>
 
-        <button 
-          onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')} 
-          className="flex items-center justify-center h-10 md:h-12 w-10 bg-slate-950 text-white rounded-xl md:rounded-2xl hover:bg-slate-800 shadow-lg transition-all"
-        >
-          {sortOrder === 'asc' ? <SortAsc size={18} /> : <SortDesc size={18} />}
-        </button>
+        <div className="relative">
+          <Tooltip content={sortOrder === 'asc' ? 'Ascending order' : 'Descending order'} side="bottom">
+            <button 
+              onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')} 
+              className="flex items-center justify-center h-10 md:h-12 w-10 bg-slate-950 text-white rounded-xl md:rounded-2xl hover:bg-slate-800 shadow-lg transition-all"
+            >
+              {sortOrder === 'asc' ? <SortAsc size={18} /> : <SortDesc size={18} />}
+            </button>
+          </Tooltip>
+        </div>
       </div>
     </div>
   </div>
 
-  {/* TABS - Unanswered / Answered */}
   <div className="flex mt-6">
     <div className="flex gap-1.5 bg-slate-100 p-1.5 rounded-2xl w-full sm:w-fit">
       <button 
@@ -427,9 +427,18 @@ export default function InquiriesPage() {
         />
       )}
 
-      <button onClick={scrollToTop} className={`fixed bottom-10 right-10 z-[999] p-4 bg-slate-950 text-white rounded-2xl shadow-2xl transition-all duration-500 hover:bg-yellow-400 hover:text-slate-950 ${showScrollTop ? "opacity-100" : "opacity-0 invisible"}`}>
-        <ArrowUp size={24} />
-      </button>
+      <div className="fixed bottom-10 right-10 z-[999] flex flex-col items-center">
+        {showScrollTop && (
+          <Tooltip content="Back to top" side="top">
+            <button 
+              onClick={scrollToTop} 
+              className="p-4 bg-slate-950 text-white rounded-2xl shadow-2xl transition-all duration-500 hover:bg-yellow-400 hover:text-slate-950 opacity-100"
+            >
+              <ArrowUp size={24} />
+            </button>
+          </Tooltip>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,11 +1,9 @@
-// File: CreateJobDetails.tsx
-// Folder: app/dashboard/estimates/components/
-
 "use client";
 
 import { useState } from "react";
 import { X, MapPin, AlignLeft, Type, Plus, Loader2 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
+import { Tooltip } from "@components/Tooltip";
 
 interface DetailsProps {
   onClose: () => void;
@@ -83,8 +81,10 @@ export default function CreateJobDetails({ onClose, onSubmit, projectData }: Det
 
         <form onSubmit={handleSubmit} className="px-8 pb-10 space-y-4">
           <div className="relative group">
-            <div className="absolute left-5 top-4.5 text-slate-400 group-focus-within:text-slate-900 transition-colors">
-              <Type size={16} className="mt-1" />
+            <div className="absolute left-5 top-4.5 text-slate-400 group-focus-within:text-slate-900 transition-colors z-10">
+              <Tooltip content="Enter a clear name for your project">
+                <Type size={16} className="mt-1 cursor-help" />
+              </Tooltip>
             </div>
             <input
               required
@@ -97,8 +97,10 @@ export default function CreateJobDetails({ onClose, onSubmit, projectData }: Det
           </div>
 
           <div className="relative group">
-            <div className="absolute left-5 top-4.5 text-slate-400 group-focus-within:text-slate-900 transition-colors">
-              <MapPin size={16} className="mt-1" />
+            <div className="absolute left-5 top-4.5 text-slate-400 group-focus-within:text-slate-900 transition-colors z-10">
+              <Tooltip content="City and neighborhood of the project">
+                <MapPin size={16} className="mt-1 cursor-help" />
+              </Tooltip>
             </div>
             <input
               required
@@ -111,8 +113,10 @@ export default function CreateJobDetails({ onClose, onSubmit, projectData }: Det
           </div>
 
           <div className="relative group">
-            <div className="absolute left-5 top-5 text-slate-400 group-focus-within:text-slate-900 transition-colors">
-              <AlignLeft size={16} />
+            <div className="absolute left-5 top-5 text-slate-400 group-focus-within:text-slate-900 transition-colors z-10">
+              <Tooltip content="Explain the scope of work and specific requirements">
+                <AlignLeft size={16} className="cursor-help" />
+              </Tooltip>
             </div>
             <textarea
               required
@@ -124,13 +128,15 @@ export default function CreateJobDetails({ onClose, onSubmit, projectData }: Det
             />
           </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 disabled:bg-slate-400"
-          >
-            {isSubmitting ? <Loader2 className="animate-spin" size={14} /> : "Publish"}
-          </button>
+          <Tooltip content="Submit and notify nearby contractors">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 disabled:bg-slate-400"
+            >
+              {isSubmitting ? <Loader2 className="animate-spin" size={14} /> : "Publish"}
+            </button>
+          </Tooltip>
         </form>
 
         <button 

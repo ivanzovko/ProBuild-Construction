@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Star, X, Loader2, CheckCircle2, MessageSquare, ArrowRight } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
+import { Tooltip } from "@components/Tooltip";
 
 interface RatingModalProps {
   job: any;
@@ -65,14 +66,15 @@ export default function RatingModal({ job, onClose, onSuccess }: RatingModalProp
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-300">
       <div className="bg-white rounded-[32px] md:rounded-[48px] w-full max-w-md overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.2)] border border-slate-100 relative animate-in zoom-in-95 duration-300">
         
-        <button 
-          onClick={onClose} 
-          className="absolute top-6 right-6 md:top-8 md:right-8 p-2 bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all z-10"
-        >
-          <X className="w-4 h-4 md:w-[18px] md:h-[18px]" />
-        </button>
+        <Tooltip content="Close without saving">
+          <button 
+            onClick={onClose} 
+            className="absolute top-6 right-6 md:top-8 md:right-8 p-2 bg-slate-50 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all z-10"
+          >
+            <X className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+          </button>
+        </Tooltip>
 
-        {/* Header: Smanjen padding na mobitelu */}
         <div className="pt-10 pb-4 md:pt-12 md:pb-6 text-center">
           <div className="relative inline-flex mb-4 md:mb-6">
             <div className="absolute inset-0 bg-emerald-400/20 blur-2xl rounded-full" />
@@ -90,7 +92,6 @@ export default function RatingModal({ job, onClose, onSuccess }: RatingModalProp
         </div>
 
         <div className="px-6 pb-8 md:px-10 md:pb-12">
-          {/* Zvjezdice: size 32 na mobitelu, 38 na desktopu */}
           <div className="flex justify-center gap-2 md:gap-3 mb-6 md:mb-10">
             {[1, 2, 3, 4, 5].map((star) => (
               <button 
@@ -123,22 +124,24 @@ export default function RatingModal({ job, onClose, onSuccess }: RatingModalProp
             />
           </div>
 
-          <button
-            disabled={isSubmitting}
-            onClick={handleSubmit}
-            className={`w-full bg-slate-900 text-white px-6 py-4 md:px-8 md:py-5 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 group/btn ${
-              isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            {isSubmitting ? (
-              <Loader2 className="w-4 h-4 md:w-[18px] md:h-[18px] animate-spin" />
-            ) : (
-              <>
-                Complete & Close Project
-                <ArrowRight className="w-4 h-4 md:w-[18px] md:h-[18px] group-hover/btn:translate-x-1 transition-transform" />
-              </>
-            )}
-          </button>
+          <Tooltip content="This action will permanently archive the project">
+            <button
+              disabled={isSubmitting}
+              onClick={handleSubmit}
+              className={`w-full bg-slate-900 text-white px-6 py-4 md:px-8 md:py-5 rounded-xl md:rounded-2xl font-black text-[9px] md:text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 group/btn ${
+                isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {isSubmitting ? (
+                <Loader2 className="w-4 h-4 md:w-[18px] md:h-[18px] animate-spin" />
+              ) : (
+                <>
+                  Complete & Close Project
+                  <ArrowRight className="w-4 h-4 md:w-[18px] md:h-[18px] group-hover/btn:translate-x-1 transition-transform" />
+                </>
+              )}
+            </button>
+          </Tooltip>
           
           <p className="text-center mt-4 md:mt-6 text-[8px] md:text-[9px] text-slate-400 font-bold uppercase tracking-widest">
             This will finalize payment and close the job

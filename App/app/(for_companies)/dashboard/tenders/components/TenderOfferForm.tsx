@@ -4,12 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { Tooltip } from "@components/Tooltip";
 import { 
   Gavel, Zap, CalendarDays, ArrowLeft,
   CreditCard, Calendar, MessageSquare,
   Hammer, Banknote, Landmark,
   Check, Euro, Coins, Send, Lock,
-  AlertTriangle
+  AlertTriangle, Info
 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 
@@ -320,12 +321,18 @@ export default function TenderOfferForm({ selectedTender, onClose, onSuccess, on
       </AnimatePresence>
 
       <div className="sticky top-0 mt-[50px] sm:mt-0 z-30 w-full bg-[#0a192f] px-6 py-4 flex items-center gap-4 border-b border-yellow-500/20">
-        <button onClick={handleSafeClose} className="p-2.5 bg-white/10 text-white rounded-xl hover:bg-yellow-400 hover:text-[#0a192f] transition-all shrink-0 flex items-center justify-center">
-          <ArrowLeft strokeWidth={3} className="w-5 h-5" />
-        </button>
+        <Tooltip content="Cancel and return">
+          <button onClick={handleSafeClose} className="p-2.5 bg-white/10 text-white rounded-xl hover:bg-yellow-400 hover:text-[#0a192f] transition-all shrink-0 flex items-center justify-center">
+            <ArrowLeft strokeWidth={3} className="w-5 h-5" />
+          </button>
+        </Tooltip>
         <div className="flex-1 min-w-0">
           <h2 className="text-lg font-black text-white uppercase italic tracking-tight flex items-center gap-2">
-            {isReadOnly ? <Lock className="w-4 h-4 text-yellow-400" /> : null}
+            {isReadOnly ? (
+              <Tooltip content="Offer is submitted and locked">
+                <Lock className="w-4 h-4 text-yellow-400" />
+              </Tooltip>
+            ) : null}
             {isReadOnly ? "Review Proposal" : "Submit Proposal"}
           </h2>
           <p className="text-yellow-400/60 text-[9px] uppercase tracking-[0.2em] font-bold">{selectedTender.title}</p>
@@ -348,6 +355,9 @@ export default function TenderOfferForm({ selectedTender, onClose, onSuccess, on
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5 whitespace-nowrap">
                     <CreditCard className="w-3 h-3 shrink-0" /> 
                     <span>Total Price</span>
+                    <Tooltip content="Enter total price for the project (excluding VAT)">
+                      <Info size={10} className="text-slate-300 ml-1 cursor-help" />
+                    </Tooltip>
                   </label>
                   <div className="flex items-center gap-2 w-full">
                     <input 
@@ -443,19 +453,21 @@ export default function TenderOfferForm({ selectedTender, onClose, onSuccess, on
 
           <div className="p-4 bg-yellow-400/5 rounded-[1.5rem] border-2 border-dashed border-yellow-400/20 space-y-3">
             {[
-              { field: 'advancePayment', label: 'Advance Payment Required' },
-              { field: 'delayNotice', label: 'Potential Delay Notice' }
+              { field: 'advancePayment', label: 'Advance Payment Required', tooltip: 'Check if you require payment before starting work' },
+              { field: 'delayNotice', label: 'Potential Delay Notice', tooltip: 'Notify client that start date might be subject to change' }
             ].map((opt) => (
-              <label key={opt.field} className={`flex items-center gap-3 ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}>
-                <input 
-                  disabled={isReadOnly}
-                  type="checkbox" 
-                  checked={(formData as any)[opt.field]} 
-                  onChange={(e) => setFormData({...formData, [opt.field]: e.target.checked})} 
-                  className="h-5 w-5 border-2 border-slate-300 rounded text-yellow-400 focus:ring-0 disabled:opacity-50" 
-                />
-                <span className="text-[12px] font-black text-[#0a192f] uppercase italic leading-none">{opt.label}</span>
-              </label>
+              <Tooltip key={opt.field} content={opt.tooltip}>
+                <label className={`flex items-center gap-3 w-fit ${isReadOnly ? 'cursor-default' : 'cursor-pointer'}`}>
+                  <input 
+                    disabled={isReadOnly}
+                    type="checkbox" 
+                    checked={(formData as any)[opt.field]} 
+                    onChange={(e) => setFormData({...formData, [opt.field]: e.target.checked})} 
+                    className="h-5 w-5 border-2 border-slate-300 rounded text-yellow-400 focus:ring-0 disabled:opacity-50" 
+                  />
+                  <span className="text-[12px] font-black text-[#0a192f] uppercase italic leading-none">{opt.label}</span>
+                </label>
+              </Tooltip>
             ))}
           </div>
 

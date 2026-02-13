@@ -260,19 +260,16 @@ export default function MessagesPage() {
     } catch { window.open(url, '_blank'); }
   };
 
-const deleteMessage = async (messageId: string) => {
-    // 1. Izvršavamo brisanje u Supabase bazi
+  const deleteMessage = async (messageId: string) => {
     const { error } = await supabase
       .from('job_messages')
       .delete()
       .eq('id', messageId);
 
-    // 2. Ako postoji greška, "bacamo" je da je modal može uhvatiti u catch bloku
     if (error) {
       console.error("Error deleting message:", error.message);
       throw error; 
     }
-
   };
 
   const togglePin = async (e: React.MouseEvent, jobId: string) => {
@@ -474,7 +471,10 @@ const deleteMessage = async (messageId: string) => {
                               {isMe && (
                                 <div>
                                   <Tooltip content="Delete message" side="top">
-                                    <button onClick={() => setDeleteConfirmId(msg.id)} className="opacity-0 group-hover/msg:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:scale-125 active:scale-90 transition-all hidden lg:block">
+                                    <button 
+                                      onClick={() => setDeleteConfirmId(msg.id)} 
+                                      className="opacity-100 lg:opacity-0 group-hover/msg:opacity-100 p-2 text-gray-400 hover:text-red-500 hover:scale-125 active:scale-90 transition-all"
+                                    >
                                       <Trash2 size={14} />
                                     </button>
                                   </Tooltip>

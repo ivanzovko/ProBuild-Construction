@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Mail, 
   Lock, 
@@ -14,8 +15,11 @@ import {
   CheckCircle2,
   ShieldCheck,
   X,
-  Phone
+  Phone,
+  Eye,
+  EyeOff
 } from "lucide-react";
+import { Tooltip } from "@components/Tooltip";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -24,6 +28,8 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
@@ -124,7 +130,9 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <div 
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="w-full bg-white shadow-2xl border border-slate-100 transition-all mx-auto shrink-0 my-auto"
         style={{ 
           maxWidth: '420px',
@@ -153,7 +161,7 @@ export default function RegisterPage() {
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
               Full Name <span className="text-red-500">*</span>
             </label>
-            <div className="relative flex items-center group">
+            <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
               <User className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input
                 type="text"
@@ -163,15 +171,14 @@ export default function RegisterPage() {
                 placeholder="e.g. John Doe"
                 className="w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium"
               />
-            </div>
+            </motion.div>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
               Email Address <span className="text-red-500">*</span>
             </label>
-            <div className="relative flex items-center group">
-              <u className="hidden"></u>
+            <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
               <Mail className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input
                 type="email"
@@ -181,14 +188,14 @@ export default function RegisterPage() {
                 placeholder="name@example.com"
                 className="w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium"
               />
-            </div>
+            </motion.div>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
               Phone Number <span className="text-red-500">*</span>
             </label>
-            <div className="relative flex items-center group">
+            <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
               <Phone className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input
                 type="tel"
@@ -198,55 +205,83 @@ export default function RegisterPage() {
                 placeholder="+385 9x xxx xxxx"
                 className="w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium"
               />
-            </div>
+            </motion.div>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
               Secure Password <span className="text-red-500">*</span>
             </label>
-            <div className="relative flex items-center group">
+            <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
               <Lock className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min. 6 characters"
-                className="w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium"
+                className="w-full pl-12 lg:pl-14 pr-12 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium"
               />
-            </div>
+              <div className="absolute right-4">
+                <Tooltip content={showPassword ? "Hide password" : "Show password"}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="p-2 text-slate-400 hover:text-yellow-600 transition-colors rounded-full hover:bg-slate-100"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </Tooltip>
+              </div>
+            </motion.div>
           </div>
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
               Confirm Password <span className="text-red-500">*</span>
             </label>
-            <div className="relative flex items-center group">
+            <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
               <ShieldCheck className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Repeat password"
-                className={`w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 rounded-2xl outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium ${
+                className={`w-full pl-12 lg:pl-14 pr-12 py-[1.5vh] bg-slate-50 border-2 rounded-2xl outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium ${
                   confirmPassword && password !== confirmPassword 
                   ? "border-red-300 focus:border-red-500" 
                   : "border-slate-100 focus:border-yellow-400 focus:bg-white"
                 }`}
               />
-            </div>
+              <div className="absolute right-4">
+                <Tooltip content={showConfirmPassword ? "Hide password" : "Show password"}>
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="p-2 text-slate-400 hover:text-yellow-600 transition-colors rounded-full hover:bg-slate-100"
+                  >
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </Tooltip>
+              </div>
+            </motion.div>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading || showToast}
-            className="w-full bg-slate-900 text-white py-[1.8vh] rounded-2xl font-black text-[11px] flex items-center justify-center gap-3 hover:bg-yellow-400 hover:text-black active:scale-[0.98] transition-all uppercase tracking-[0.2em] mt-2 disabled:opacity-70 shadow-lg"
-          >
-            {loading ? <Loader2 className="animate-spin" size={18} /> : "Create Account"} 
-            {!loading && <ArrowRight size={18} />}
-          </button>
+          <div className="relative">
+            <Tooltip content="Start your journey">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={loading || showToast}
+                className="w-full bg-slate-900 text-white py-[1.8vh] rounded-2xl font-black text-[11px] flex items-center justify-center gap-3 hover:bg-yellow-400 hover:text-black transition-all uppercase tracking-[0.2em] mt-2 disabled:opacity-70 shadow-lg"
+              >
+                {loading ? <Loader2 className="animate-spin" size={18} /> : "Create Account"} 
+                {!loading && <ArrowRight size={18} />}
+              </motion.button>
+            </Tooltip>
+          </div>
         </form>
 
         <div className="mt-[4vh] flex flex-col items-center gap-3">
@@ -256,16 +291,22 @@ export default function RegisterPage() {
             <div className="h-px flex-1 bg-slate-100"></div>
           </div>
           
-          <Link 
-            href="/login" 
-            className="group flex items-center justify-center gap-2 w-full py-3.5 rounded-xl border-2 border-dashed border-slate-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all"
-          >
-            <span className="text-[10px] font-black text-slate-900 group-hover:text-yellow-700 uppercase tracking-widest">
-              Back to Sign In
-            </span>
-          </Link>
+          <div className="relative w-full">
+            <Tooltip content="Go to Login">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link 
+                  href="/login" 
+                  className="group flex items-center justify-center gap-2 w-full py-3.5 rounded-xl border-2 border-dashed border-slate-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all"
+                >
+                  <span className="text-[10px] font-black text-slate-900 group-hover:text-yellow-700 uppercase tracking-widest">
+                    Back to Sign In
+                  </span>
+                </Link>
+              </motion.div>
+            </Tooltip>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

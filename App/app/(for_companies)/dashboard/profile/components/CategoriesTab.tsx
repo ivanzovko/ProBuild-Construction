@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Briefcase, X, Globe, MapPin, ChevronDown, Search } from "lucide-react";
+import { Briefcase, X, Globe, MapPin, ChevronDown, Info } from "lucide-react";
 import { CATEGORY_GROUPS, COUNTIES } from "@/lib/onboarding-data";
+import { Tooltip } from "@components/Tooltip";
 
 export default function CategoriesTab({ 
   isEditing, 
@@ -103,7 +104,12 @@ export default function CategoriesTab({
       {/* Work Categories Card */}
       <div className="bg-white p-6 md:p-8 rounded-[32px] md:rounded-[40px] border border-slate-100 shadow-sm space-y-6 h-fit transition-all duration-300 hover:shadow-md">
         <div className="flex items-center justify-between">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Work Categories</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Work Categories</h3>
+            <Tooltip content="Services your company provides to customers">
+              <span className="inline-flex"><Info size={12} className="text-slate-300" /></span>
+            </Tooltip>
+          </div>
           <Briefcase size={16} className="text-slate-300" />
         </div>
 
@@ -177,7 +183,12 @@ export default function CategoriesTab({
       {/* Work Area Card */}
       <div className="bg-white p-6 md:p-8 rounded-[32px] md:rounded-[40px] border border-slate-100 shadow-sm space-y-6 h-fit transition-all duration-300 hover:shadow-md">
         <div className="flex items-center justify-between">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Work Area</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Work Area</h3>
+            <Tooltip content="Geographical areas where you operate">
+              <span className="inline-flex"><Info size={12} className="text-slate-300" /></span>
+            </Tooltip>
+          </div>
           <Globe size={16} className="text-slate-300" />
         </div>
 

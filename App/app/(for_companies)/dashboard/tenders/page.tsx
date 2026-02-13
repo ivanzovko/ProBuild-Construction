@@ -4,8 +4,9 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { createBrowserClient } from "@supabase/ssr";
 import { motion, AnimatePresence } from "framer-motion";
 import TenderDetails from "./components/TenderDetails";
+import { Tooltip } from "@components/Tooltip";
 import { 
-  Gavel, Search, Loader2, ChevronRight, X, ArrowUp, AlertTriangle
+  Gavel, Search, Loader2, ChevronRight, X, ArrowUp, AlertTriangle, Info
 } from "lucide-react";
 
 export default function TendersPage() {
@@ -165,14 +166,16 @@ export default function TendersPage() {
 
       <header className="h-16 border-b border-slate-200 flex items-center justify-between px-4 md:px-6 flex-shrink-0 bg-white z-30 shadow-sm relative">
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 cursor-pointer" onClick={() => handleTenderSelection(null)}>
-            <div className="bg-slate-900 p-1.5 rounded-lg text-white">
-              <Gavel size={18} />
+          <Tooltip content="Go to Marketplace Overview">
+            <div className="hidden md:flex items-center gap-2 cursor-pointer" onClick={() => handleTenderSelection(null)}>
+              <div className="bg-slate-900 p-1.5 rounded-lg text-white">
+                <Gavel size={18} />
+              </div>
+              <h1 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter uppercase italic">
+                Market<span className="text-yellow-500">place</span>
+              </h1>
             </div>
-            <h1 className="text-lg md:text-xl font-black text-slate-900 tracking-tighter uppercase italic">
-              Market<span className="text-yellow-500">place</span>
-            </h1>
-          </div>
+          </Tooltip>
           <div className="flex md:hidden items-center gap-2">
             <h2 className="font-black text-slate-900 uppercase tracking-tight text-sm">Available Tenders</h2>
             <span className="bg-slate-900 text-white px-2 py-0.5 rounded-full text-[10px] font-black italic">
@@ -191,7 +194,7 @@ export default function TendersPage() {
                   autoFocus={isSearchExpanded}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search..." 
+                  placeholder="Search projects or locations..." 
                   className="w-full pl-9 pr-10 py-2 bg-slate-100 border border-transparent rounded-xl text-xs font-bold text-slate-800 outline-none focus:bg-white focus:border-yellow-400 transition-all shadow-inner"
                 />
                 {searchQuery && (
@@ -206,9 +209,11 @@ export default function TendersPage() {
             </div>
           </div>
           {!isSearchExpanded && (
-            <button onClick={() => setIsSearchExpanded(true)} className="md:hidden p-2 text-slate-900 hover:text-yellow-500 transition-colors">
-              <Search size={20} strokeWidth={2.5} />
-            </button>
+            <Tooltip content="Search Tenders">
+              <button onClick={() => setIsSearchExpanded(true)} className="md:hidden p-2 text-slate-900 hover:text-yellow-500 transition-colors">
+                <Search size={20} strokeWidth={2.5} />
+              </button>
+            </Tooltip>
           )}
         </div>
       </header>
@@ -231,7 +236,12 @@ export default function TendersPage() {
                 <div className="hidden md:flex items-center justify-between mb-4">
                   <div className="flex flex-col">
                     <h2 className="font-black text-slate-900 uppercase tracking-tight text-xl md:text-2xl leading-none">Available Tenders</h2>
-                    <span className="text-[10px] font-bold text-yellow-600 uppercase tracking-[0.2em] mt-1">Live Marketplace</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] font-bold text-yellow-600 uppercase tracking-[0.2em]">Live Marketplace</span>
+                      <Tooltip content="Real-time updates from customers">
+                        <span className="inline-flex"><Info size={10} className="text-slate-300" /></span>
+                      </Tooltip>
+                    </div>
                   </div>
                   <span className="bg-slate-900 text-white px-3 md:px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black italic">
                     {filteredTenders.length}
@@ -240,15 +250,17 @@ export default function TendersPage() {
                 
                 <div className="flex md:flex-wrap gap-2 overflow-x-auto md:overflow-x-visible no-scrollbar -mx-2 px-2 md:mx-0 md:px-0">
                   {projectTypes.map((type) => (
-                    <button
+                    <motion.button
                       key={type}
                       onClick={() => setActiveFilter(type)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       className={`rounded-full font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap border shrink-0
                         ${selectedTender ? "px-3 py-1 text-[8px] md:px-4 md:py-1.5 md:text-[9px]" : "px-4 py-2 text-[10px] md:px-6 md:py-2.5 md:text-[12px]"}
                         ${getFilterColors(type, activeFilter === type)}`}
                     >
                       {type}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
@@ -292,16 +304,18 @@ export default function TendersPage() {
 
               <AnimatePresence>
                 {showScrollTop && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.5, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.5, y: 20 }}
-                    onClick={scrollToTop}
-                    className="absolute bottom-20 md:bottom-6 right-6 z-50 bg-slate-950 text-white p-4 rounded-2xl shadow-2xl border border-slate-800 transition-all hover:bg-yellow-400 hover:text-slate-950 active:scale-95 group"
-                  >
-                    <div className="relative">
-                      <ArrowUp size={22} strokeWidth={3} className="group-hover:animate-bounce" />
-                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
-                    </div>
-                  </motion.button>
+                  <Tooltip content="Back to top">
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.5, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.5, y: 20 }}
+                      onClick={scrollToTop}
+                      className="absolute bottom-20 md:bottom-6 right-6 z-50 bg-slate-950 text-white p-4 rounded-2xl shadow-2xl border border-slate-800 transition-all hover:bg-yellow-400 hover:text-slate-950 active:scale-95 group"
+                    >
+                      <div className="relative">
+                        <ArrowUp size={22} strokeWidth={3} className="group-hover:animate-bounce" />
+                        <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+                      </div>
+                    </motion.button>
+                  </Tooltip>
                 )}
               </AnimatePresence>
             </div>

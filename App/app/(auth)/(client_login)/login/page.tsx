@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Mail, 
   Lock, 
@@ -15,6 +16,7 @@ import {
   EyeOff,
   Loader2 
 } from "lucide-react";
+import { Tooltip } from "@components/Tooltip";
 
 function LoginContent() {
   const router = useRouter();
@@ -129,7 +131,9 @@ function LoginContent() {
 
   return (
     <div className="w-full flex flex-col items-center px-6">
-      <div 
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="w-full bg-white shadow-2xl border border-slate-100 transition-all shrink-0"
         style={{ 
           maxWidth: 'clamp(320px, 100%, 500px)',
@@ -148,20 +152,22 @@ function LoginContent() {
 
         <form className="space-y-[2vh]" onSubmit={handleSubmit} noValidate>
           {generalError && (
-            <div className="bg-red-50 border border-red-100 p-4 rounded-xl">
+            <div className="bg-red-50 border border-red-100 p-4 rounded-xl text-center">
               <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-red-600 font-bold text-[10px] uppercase tracking-wider">
+                <div className="flex items-center justify-center gap-2 text-red-600 font-bold text-[10px] uppercase tracking-wider">
                   <AlertCircle size={14} className="shrink-0" />
                   <span>{generalError}</span>
                 </div>
                 {generalError.includes("company") && (
-                  <Link 
-                    href={`/login_company?email=${encodeURIComponent(email)}`} 
-                    className="w-full bg-red-600 text-white py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-700 transition-colors"
-                  >
-                    <span>Go to Business Login</span>
-                    <ArrowRight size={12} />
-                  </Link>
+                  <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                    <Link 
+                      href={`/login_company?email=${encodeURIComponent(email)}`} 
+                      className="w-full bg-red-600 text-white py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-red-700 transition-colors"
+                    >
+                      <span>Go to Business Login</span>
+                      <ArrowRight size={12} />
+                    </Link>
+                  </motion.div>
                 )}
               </div>
             </div>
@@ -169,7 +175,7 @@ function LoginContent() {
 
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Email Address</label>
-            <div className="relative flex items-center group">
+            <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
               <Mail className={`absolute left-5 transition-colors ${emailError ? 'text-red-500' : 'text-slate-400 group-focus-within:text-yellow-600'}`} size={18} />
               <input 
                 type="email" 
@@ -179,13 +185,13 @@ function LoginContent() {
                 placeholder="e.g. name@email.com" 
                 className={`w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 rounded-2xl outline-none transition-all font-bold text-sm text-slate-900 placeholder:text-slate-400 placeholder:font-medium ${emailError ? 'border-red-200 bg-red-50/30' : 'border-slate-100 focus:border-yellow-400 focus:bg-white'}`}
               />
-            </div>
+            </motion.div>
             {emailError && <p className="text-[9px] text-red-500 font-black uppercase pl-4 tracking-tighter">{emailError}</p>}
           </div>
           
           <div className="space-y-1.5">
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Password</label>
-            <div className="relative flex items-center group">
+            <motion.div whileHover={{ scale: 1.01 }} className="relative flex items-center group">
               <Lock className={`absolute left-5 transition-colors ${passwordError ? 'text-red-500' : 'text-slate-400 group-focus-within:text-yellow-600'}`} size={18} />
               <input 
                 type={showPassword ? "text" : "password"} 
@@ -195,29 +201,45 @@ function LoginContent() {
                 placeholder="Enter your password" 
                 className={`w-full pl-12 lg:pl-14 pr-12 py-[1.5vh] bg-slate-50 border-2 rounded-2xl outline-none transition-all font-bold text-sm text-slate-900 placeholder:text-slate-400 placeholder:font-medium ${passwordError ? 'border-red-200 bg-red-50/30' : 'border-slate-100 focus:border-yellow-400 focus:bg-white'}`}
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 text-slate-400 hover:text-slate-600 transition-colors">
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
+              <div className="absolute right-4">
+                <Tooltip content={showPassword ? "Hide password" : "Show password"}>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)} 
+                    className="p-2 text-slate-400 hover:text-slate-600 transition-colors rounded-full hover:bg-slate-100"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </Tooltip>
+              </div>
+            </motion.div>
             <div className="flex justify-between items-center px-4">
               {passwordError ? <p className="text-[9px] text-red-500 font-black uppercase tracking-tighter">{passwordError}</p> : <div />}
-              <Link 
-                href="/forgot_password" 
-                className="text-[9px] font-black uppercase text-slate-400 hover:text-yellow-600 transition-colors tracking-widest"
-              >
-                Forgot password
-              </Link>
+              <motion.div whileHover={{ scale: 1.05 }}>
+                <Link 
+                  href="/forgot_password" 
+                  className="text-[9px] font-black uppercase text-slate-400 hover:text-yellow-600 transition-colors tracking-widest"
+                >
+                  Forgot password
+                </Link>
+              </motion.div>
             </div>
           </div>
 
-          <button 
-            type="submit"
-            disabled={isButtonDisabled}
-            className="w-full bg-slate-900 text-white py-[1.8vh] rounded-2xl font-black text-[11px] flex items-center justify-center gap-3 hover:bg-yellow-400 hover:text-black active:scale-[0.98] transition-all uppercase tracking-[0.2em] mt-2 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed shadow-lg"
-          >
-            {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : "Sign In"} 
-            {!isSubmitting && <ArrowRight size={18} />}
-          </button>
+          <div className="relative">
+            <Tooltip content="Access your dashboard">
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isButtonDisabled}
+                className="w-full bg-slate-900 text-white py-[1.8vh] rounded-2xl font-black text-[11px] flex items-center justify-center gap-3 hover:bg-yellow-400 hover:text-black transition-all uppercase tracking-[0.2em] mt-2 disabled:bg-slate-300 disabled:text-slate-500 disabled:cursor-not-allowed shadow-lg"
+              >
+                {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : "Sign In"} 
+                {!isSubmitting && <ArrowRight size={18} />}
+              </motion.button>
+            </Tooltip>
+          </div>
         </form>
 
         <div className="relative my-[3vh] flex items-center justify-center">
@@ -225,28 +247,40 @@ function LoginContent() {
           <span className="relative bg-white px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Secure login with</span>
         </div>
 
-        <button 
-          onClick={handleGoogleLogin}
-          disabled={isSubmitting}
-          className="w-full flex items-center justify-center gap-3 py-[1.5vh] border-2 border-slate-100 rounded-2xl font-black text-[10px] text-slate-900 hover:bg-slate-50 hover:border-slate-200 active:scale-[0.98] transition-all uppercase tracking-widest disabled:opacity-50"
-        >
-          <Chrome size={18} className="text-red-500" />
-          Google Account
-        </button>
+        <div className="relative">
+          <Tooltip content="Fast & Secure">
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleGoogleLogin}
+              disabled={isSubmitting}
+              className="w-full flex items-center justify-center gap-3 py-[1.5vh] border-2 border-slate-100 rounded-2xl font-black text-[10px] text-slate-900 hover:bg-slate-50 hover:border-slate-200 transition-all uppercase tracking-widest disabled:opacity-50"
+            >
+              <Chrome size={18} className="text-red-500" />
+              Google Account
+            </motion.button>
+          </Tooltip>
+        </div>
 
         <div className="mt-[4vh] flex flex-col items-center gap-3">
           <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Don't have an account?</p>
-          <Link 
-            href="/register" 
-            className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed border-slate-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all"
-          >
-            <UserPlus size={16} className="text-slate-400 group-hover:text-yellow-600" />
-            <span className="text-[10px] font-black text-slate-900 group-hover:text-yellow-700 uppercase tracking-widest">
-              Join as a Client
-            </span>
-          </Link>
+          <div className="relative w-full">
+            <Tooltip content="Create new account">
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link 
+                  href="/register" 
+                  className="group flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed border-slate-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all"
+                >
+                  <UserPlus size={16} className="text-slate-400 group-hover:text-yellow-600" />
+                  <span className="text-[10px] font-black text-slate-900 group-hover:text-yellow-700 uppercase tracking-widest">
+                    Join as a Client
+                  </span>
+                </Link>
+              </motion.div>
+            </Tooltip>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

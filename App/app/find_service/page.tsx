@@ -7,6 +7,7 @@ import ReviewsModal from "./components/reviewsModal";
 import DescriptionModal from "../_components/CompanyInfoModal";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import {Tooltip} from "@components/Tooltip";
 import { 
   MapPin, Star, BadgeCheck, HelpCircle, ChevronDown, Check, Search, X,
   Home, ArrowUpRight, ArrowUpDown, SortAsc, SortDesc, MessageSquare,
@@ -615,13 +616,19 @@ function FindServiceContent() {
             </h2>
           </button>
           <div className="flex items-center gap-1.5 shrink-0">
-            <BadgeCheck className={`${company.is_verified ? "text-green-500" : "text-red-500"}`} size={18} />
+            <Tooltip content={company.is_verified ? "This company is verified" : "Not verified"}>
+              <BadgeCheck className={`${company.is_verified ? "text-green-500" : "text-red-500"}`} size={18} />
+            </Tooltip>
             <button 
               onClick={() => setDescriptionCompany(company)}
               className="text-blue-500 hover:text-blue-700 transition-colors cursor-pointer p-1 hover:scale-110 active:scale-90"
             >
-              <span className="sr-only">Info</span>
-              <Info size={20} />
+              <Tooltip content="View company profile and details">
+                <div className="flex items-center justify-center">
+                  <span className="sr-only">Info</span>
+                  <Info size={20} />
+                </div>
+              </Tooltip>
             </button>
           </div>
         </div>
@@ -642,9 +649,11 @@ function FindServiceContent() {
             </div>
             <span className="text-slate-900 ml-1">{company.average_rating ? company.average_rating.toFixed(1) : "0.0"}</span>
             <span className="text-slate-600 ml-0.5">({company.jobs_completed_count || 0})</span>
-            <span className="ml-1 text-slate-400 group-hover/reviews:text-yellow-600 flex items-center gap-1 border-l border-slate-200 pl-2">
-              Review <MessageSquare size={10} />
-            </span>
+            <Tooltip content="Read customer reviews for this company">
+              <span className="ml-1 text-slate-400 group-hover/reviews:text-yellow-600 flex items-center gap-1 border-l border-slate-200 pl-2">
+                Review <MessageSquare size={10} />
+              </span>
+            </Tooltip>
           </button>
           <span className="flex items-center gap-1"><MapPin size={12} /> Base: {company.base_county}</span>
         </div>
