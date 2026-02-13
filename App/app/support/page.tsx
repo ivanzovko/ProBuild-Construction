@@ -480,31 +480,37 @@ export default function SupportPage() {
         </div>
       )}
 
-      {/* CHAT I SCROLL TOP */}
-      <div className="fixed bottom-6 right-6 z-[30] flex flex-col items-end gap-4">
+    
+ {/* CHAT I SCROLL TOP */}
+      <div className="fixed bottom-6 right-4 md:right-6 z-[300] flex flex-col items-end gap-4">
         {showScrollTop && (
           <button onClick={scrollToTop} className="bg-white border-2 border-slate-900 p-3.5 rounded-2xl shadow-xl hover:bg-yellow-400 transition-all group">
             <ChevronDown size={22} className="text-slate-900 rotate-180 group-hover:-translate-y-1 transition-transform" />
           </button>
         )}
-        <div className={`flex flex-col items-end transition-all duration-500 ${isChatOpen ? 'w-[calc(100vw-3rem)] sm:w-[420px]' : 'w-auto'}`}>
+        
+        <div className={`flex flex-col items-end transition-all duration-500 ${isChatOpen ? 'w-[calc(100vw-2rem)] sm:w-[420px]' : 'w-auto'}`}>
           {isChatOpen ? (
-            <div className="w-full bg-white rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] border border-slate-100 overflow-hidden flex flex-col animate-in slide-in-from-bottom-10">
-              <div className="bg-slate-900 p-6 flex justify-between items-center">
+            <div className="w-full bg-white rounded-[30px] md:rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] border border-slate-100 overflow-hidden flex flex-col animate-in slide-in-from-bottom-10 h-[80vh] md:h-auto">
+              <div className="bg-slate-900 p-5 md:p-6 flex justify-between items-center">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="w-12 h-12 bg-yellow-400 rounded-[18px] flex items-center justify-center rotate-3"><MessageCircle size={20} className="text-black" /></div>
-                    <div className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-4 border-slate-900 rounded-full" />
+                    <div className="w-10 h-10 md:w-12 md:h-12 bg-yellow-400 rounded-[15px] md:rounded-[18px] flex items-center justify-center rotate-3">
+                      <MessageCircle size={18} className="text-black" />
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-slate-900 rounded-full" />
                   </div>
                   <div>
-                    <p className="text-white font-black text-[11px] uppercase tracking-widest leading-none">AI Support</p>
-                    <p className="text-green-400 text-[9px] font-bold uppercase mt-2 tracking-widest">Active Now</p>
+                    <p className="text-white font-black text-[10px] md:text-[11px] uppercase tracking-widest leading-none">AI Support</p>
+                    <p className="text-green-400 text-[8px] md:text-[9px] font-bold uppercase mt-1.5 md:mt-2 tracking-widest">Active Now</p>
                   </div>
                 </div>
-                <button onClick={() => setIsChatOpen(false)} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-white/50 hover:text-white transition-colors"><X size={18} /></button>
+                <button onClick={() => setIsChatOpen(false)} className="p-2 bg-white/5 hover:bg-white/10 rounded-xl text-white/50 hover:text-white transition-colors">
+                  <X size={18} />
+                </button>
               </div>
               
-              <div ref={scrollRef} className="h-[450px] bg-slate-50/50 p-6 overflow-y-auto flex flex-col gap-6 custom-scrollbar">
+              <div ref={scrollRef} className="flex-1 md:h-[450px] bg-slate-50/50 p-6 overflow-y-auto flex flex-col gap-6 custom-scrollbar">
                 <div className="bg-white p-5 rounded-[24px] rounded-tl-none border border-slate-100 max-w-[90%] shadow-sm text-slate-700 text-sm font-medium">
                   Hi {formData.name.split(' ')[0] || 'there'}! 👋 <br />How can I help you?
                 </div>
@@ -516,24 +522,33 @@ export default function SupportPage() {
                 {isTyping && <div className="bg-white border border-slate-100 self-start p-4 rounded-2xl rounded-tl-none animate-pulse text-[8px] text-slate-400 font-black uppercase tracking-widest">Typing...</div>}
               </div>
 
-              <div className="p-6 bg-white border-t border-slate-100">
+              <div className="p-4 md:p-6 bg-white border-t border-slate-100">
                 <form onSubmit={handleAiChat} className="relative flex items-center">
-                  <input type="text" value={chatMessage} onChange={(e) => setChatMessage(e.target.value)} placeholder="Type a message..." className="w-full bg-slate-100 border-none rounded-2xl py-5 px-6 text-sm focus:ring-2 focus:ring-yellow-400 outline-none transition-all" />
-                  <button type="submit" className="absolute right-3 p-2.5 bg-slate-900 text-white rounded-[14px] hover:bg-yellow-400 hover:text-black transition-all shadow-md"><Send size={16} /></button>
+                  <input type="text" value={chatMessage} onChange={(e) => setChatMessage(e.target.value)} placeholder="Type a message..." className="w-full bg-slate-100 border-none rounded-2xl py-4 md:py-5 px-5 md:px-6 text-sm focus:ring-2 focus:ring-yellow-400 outline-none transition-all" />
+                  <button type="submit" className="absolute right-2.5 p-2 bg-slate-900 text-white rounded-xl hover:bg-yellow-400 hover:text-black transition-all shadow-md">
+                    <Send size={16} />
+                  </button>
                 </form>
               </div>
             </div>
           ) : (
-            <button onClick={() => setIsChatOpen(true)} className="group bg-yellow-400 hover:bg-slate-900 p-4 rounded-[24px] shadow-2xl transition-all duration-300 flex items-center gap-5 hover:-translate-y-2">
-              <span className="text-black group-hover:text-white font-black text-[11px] uppercase tracking-[0.2em] pl-4">Live Assistant</span>
-              <div className="w-12 h-12 bg-black group-hover:bg-yellow-400 rounded-2xl flex items-center justify-center transition-all duration-500 group-hover:rotate-12">
-                <MessageCircle className="text-yellow-400 group-hover:text-black w-6 h-6" />
+            <button 
+              onClick={() => setIsChatOpen(true)} 
+              className="group transition-all duration-300 flex items-center justify-center bg-white/80 backdrop-blur-md border border-slate-200 p-3 rounded-2xl shadow-lg hover:bg-yellow-400 active:bg-yellow-400 md:bg-yellow-400 md:hover:bg-slate-900 md:p-4 md:rounded-[24px] md:shadow-2xl md:gap-5 hover:-translate-y-1"
+            >
+              <span className="hidden md:block text-black group-hover:text-white font-black text-[11px] uppercase tracking-[0.2em] pl-4">
+                Live Assistant
+              </span>
+              
+              <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center transition-all duration-500 md:bg-black md:rounded-2xl md:group-hover:bg-yellow-400">
+                <MessageCircle 
+                  className="w-6 h-6 md:w-6 md:h-6 text-slate-900 md:text-yellow-400 md:group-hover:text-black stroke-[1.8]" 
+                />
               </div>
             </button>
           )}
         </div>
       </div>
-
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 5px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }

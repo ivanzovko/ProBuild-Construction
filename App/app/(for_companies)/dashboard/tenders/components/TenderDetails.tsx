@@ -6,7 +6,8 @@ import {
   MapPin, Maximize2, Layers, 
   Gavel, TrendingUp, Info,
   CalendarDays, ArrowLeft,
-  Clock, CheckCircle2, XCircle, Eye
+  Clock, CheckCircle2, XCircle, Eye,
+  User, Mail, Phone
 } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
 import TenderOfferForm from "./TenderOfferForm";
@@ -14,7 +15,7 @@ import TenderOfferForm from "./TenderOfferForm";
 interface TenderDetailsProps {
   selectedTender: any;
   setSelectedTender: (tender: any) => void;
-  onFormStatusChange?: (isDirty: boolean) => void; // NOVO: Callback za status forme
+  onFormStatusChange?: (isDirty: boolean) => void;
 }
 
 export default function TenderDetails({ selectedTender, setSelectedTender, onFormStatusChange }: TenderDetailsProps) {
@@ -27,8 +28,8 @@ export default function TenderDetails({ selectedTender, setSelectedTender, onFor
   const [isViewingOffer, setIsViewingOffer] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [existingOffer, setExistingOffer] = useState<any>(null);
+  const [clientInfo, setClientInfo] = useState<any>(null);
 
-  // NOVO: Svaki put kad se promijeni isCreatingOffer, javi roditelju
   useEffect(() => {
     if (onFormStatusChange) {
       onFormStatusChange(isCreatingOffer);
@@ -45,12 +46,27 @@ export default function TenderDetails({ selectedTender, setSelectedTender, onFor
     
     const initFetch = async () => {
       setIsLoading(true);
-      await checkExistingOffer();
+      await Promise.all([
+        checkExistingOffer(),
+        fetchClientInfo()
+      ]);
       setIsLoading(false);
     };
 
     initFetch();
   }, [selectedTender?.id]);
+
+  const fetchClientInfo = async () => {
+    if (!selectedTender.client_id) return;
+    
+    const { data } = await supabase
+      .from('client_profiles')
+      .select('full_name, email, phone')
+      .eq('id', selectedTender.client_id)
+      .single();
+
+    if (data) setClientInfo(data);
+  };
 
   const checkExistingOffer = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -197,14 +213,56 @@ export default function TenderDetails({ selectedTender, setSelectedTender, onFor
             </div>
           </div>
 
-          <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 h-auto">
-            <div className="flex items-center gap-2 mb-3">
-               <Info className="text-[#0a192f] w-4 h-4" />
-               <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Technical Specifications</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 h-auto">
+              <div className="flex items-center gap-2 mb-3">
+                 <Info className="text-[#0a192f] w-4 h-4" />
+                 <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Technical Specifications</h4>
+              </div>
+              <p className="text-sm md:text-base text-slate-600 font-medium leading-relaxed">
+                {selectedTender.description || "No description provided."}
+              </p>
             </div>
-            <p className="text-sm md:text-base text-slate-600 font-medium leading-relaxed">
-              {selectedTender.description || "No description provided."}
-            </p>
+
+            <div className="bg-[#0a192f] p-6 rounded-[2rem] border border-white/5 h-auto shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/5 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+              <div className="flex items-center gap-2 mb-4 relative z-10">
+                 <User className="text-yellow-400 w-4 h-4" />
+                 <h4 className="text-[11px] font-black text-yellow-400/60 uppercase tracking-[0.3em]">Client Information</h4>
+              </div>
+              
+              <div className="space-y-4 relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest block">Full Name</span>
+                    <span className="text-sm font-black text-white uppercase italic tracking-tight">{clientInfo?.full_name || "Loading..."}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                    <Mail className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest block">Email Address</span>
+                    <span className="text-sm font-bold text-white tracking-tight">{clientInfo?.email || "No email provided"}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                    <Phone className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-[9px] font-black text-white/40 uppercase tracking-widest block">Contact Number</span>
+                    <span className="text-sm font-bold text-white tracking-tight">{clientInfo?.phone || "No phone provided"}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {!isLoading && !existingOffer && (

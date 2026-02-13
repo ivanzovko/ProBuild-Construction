@@ -13,7 +13,8 @@ import {
   Loader2,
   CheckCircle2,
   ShieldCheck,
-  X
+  X,
+  Phone
 } from "lucide-react";
 
 export default function RegisterPage() {
@@ -22,6 +23,7 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
@@ -32,16 +34,44 @@ export default function RegisterPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   ), []);
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrorMsg(null);
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const cleanedValue = value.replace(/(?!^\+)[^\d]/g, "");
+    setPhone(cleanedValue);
+  };
 
+  const validateForm = () => {
+    if (fullName.trim().split(" ").length < 2) {
+      setErrorMsg("Please enter your full name (First and Last name)");
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setErrorMsg("Please enter a valid email address");
+      return false;
+    }
+    if (phone.length < 9) {
+      setErrorMsg("Phone number must have at least 9 digits");
+      return false;
+    }
+    if (password.length < 6) {
+      setErrorMsg("Password must be at least 6 characters long");
+      return false;
+    }
     if (password !== confirmPassword) {
       setErrorMsg("Passwords do not match");
-      setLoading(false);
-      return;
+      return false;
     }
+    return true;
+  };
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
+    if (!validateForm()) return;
+
+    setLoading(true);
 
     try {
       const { data, error: authError } = await supabase.auth.signUp({
@@ -50,6 +80,7 @@ export default function RegisterPage() {
         options: {
           data: {
             full_name: fullName,
+            phone: phone,
             user_type: 'client',
           },
           emailRedirectTo: `${window.location.origin}/auth/callback`,
@@ -75,7 +106,7 @@ export default function RegisterPage() {
   return (
     <div className="relative">
       {showToast && (
-        <div className="fixed top-10 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md px-4 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] w-full max-w-md px-4 mt-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="bg-slate-900 border border-slate-800 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="bg-emerald-500 p-2 rounded-full">
@@ -119,7 +150,9 @@ export default function RegisterPage() {
           )}
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Full Name</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
+              Full Name <span className="text-red-500">*</span>
+            </label>
             <div className="relative flex items-center group">
               <User className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input
@@ -134,7 +167,9 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Email Address</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
+              Email Address <span className="text-red-500">*</span>
+            </label>
             <div className="relative flex items-center group">
               <u className="hidden"></u>
               <Mail className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
@@ -150,7 +185,26 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Secure Password</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
+              Phone Number <span className="text-red-500">*</span>
+            </label>
+            <div className="relative flex items-center group">
+              <Phone className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={handlePhoneChange}
+                placeholder="+385 9x xxx xxxx"
+                className="w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
+              Secure Password <span className="text-red-500">*</span>
+            </label>
             <div className="relative flex items-center group">
               <Lock className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input
@@ -165,7 +219,9 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">Confirm Password</label>
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 ml-4">
+              Confirm Password <span className="text-red-500">*</span>
+            </label>
             <div className="relative flex items-center group">
               <ShieldCheck className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input

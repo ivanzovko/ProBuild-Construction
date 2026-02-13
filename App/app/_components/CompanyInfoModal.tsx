@@ -41,6 +41,7 @@ const SkeletonLoader = () => (
 
 export default function CompanyInfoModal({ isOpen, company, onClose }: CompanyInfoModalProps) {
   const [showReviews, setShowReviews] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const [openSections, setOpenSections] = useState({
     general: true,
     hours: false,
@@ -103,7 +104,26 @@ export default function CompanyInfoModal({ isOpen, company, onClose }: CompanyIn
                           {company.company_name}
                         </h2>
                         {company.is_verified ? (
-                          <ShieldCheck className="text-green-400 shrink-0" size={18} />
+                          <div className="relative">
+                            <ShieldCheck 
+                              className="text-green-400 shrink-0 cursor-help" 
+                              size={18} 
+                              onMouseEnter={() => setShowTooltip(true)}
+                              onMouseLeave={() => setShowTooltip(false)}
+                            />
+                            <AnimatePresence>
+                              {showTooltip && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  exit={{ opacity: 0, y: 10 }}
+                                  className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-green-500 text-white text-[10px] font-bold rounded shadow-xl whitespace-nowrap z-50"
+                                >
+                                  Verified Professional
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
                         ) : (
                           <div className="flex items-center gap-1 bg-red-500/20 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider text-red-400 border border-red-500/30">
                             <ShieldAlert size={8} /> Not Verified
@@ -143,7 +163,26 @@ export default function CompanyInfoModal({ isOpen, company, onClose }: CompanyIn
                         {company.company_name}
                       </h2>
                       {company.is_verified ? (
-                        <ShieldCheck className="text-green-400 shrink-0" size={24} />
+                        <div className="relative">
+                          <ShieldCheck 
+                            className="text-green-400 shrink-0 cursor-help" 
+                            size={24} 
+                            onMouseEnter={() => setShowTooltip(true)}
+                            onMouseLeave={() => setShowTooltip(false)}
+                          />
+                          <AnimatePresence>
+                            {showTooltip && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-green-500 text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-xl whitespace-nowrap z-50"
+                              >
+                                Verified Professional
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                       ) : (
                         <div className="flex items-center gap-1 bg-red-500/20 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-red-400 border border-red-500/30">
                           <ShieldAlert size={12} /> Not Verified

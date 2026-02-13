@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { X, Send, Paperclip, Loader2, CheckCircle2, AlertCircle, Trash2, HelpCircle, Mail } from "lucide-react";
 
@@ -16,6 +16,7 @@ export default function InquiryModal({ company, onClose }: InquiryModalProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSuccess, setIsSuccess] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -24,6 +25,15 @@ export default function InquiryModal({ company, onClose }: InquiryModalProps) {
     email: "",
     message: ""
   });
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = "auto";
+      const scrollHeight = textareaRef.current.scrollHeight;
+      const maxHeight = window.innerWidth < 640 ? 120 : 200;
+      textareaRef.current.style.height = Math.min(scrollHeight, maxHeight) + "px";
+    }
+  }, [formData.message]);
 
   const isFieldValid = (name: string) => {
     const val = formData[name as keyof typeof formData];
@@ -123,7 +133,7 @@ export default function InquiryModal({ company, onClose }: InquiryModalProps) {
     return `
       w-full px-3 py-2 sm:px-4 sm:py-2.5
       bg-white border-[1.5px] transition-all duration-200
-      ${hasError ? 'border-red-500 ring-2 ring-red-500/10' : valid ? 'border-green-500 ring-2 ring-green-500/5' : 'border-slate-800'} 
+      ${hasError ? 'border-red-500 ring-2 ring-red-500/10' : valid ? 'border-green-500 ring-2 ring-green-500/5' : 'border-slate-300'} 
       focus:border-yellow-400 focus:ring-4 focus:ring-yellow-400/10 
       rounded-lg sm:rounded-xl outline-none font-bold text-[11px] sm:text-[13px] text-slate-900
       placeholder:text-slate-400
@@ -137,19 +147,18 @@ export default function InquiryModal({ company, onClose }: InquiryModalProps) {
   ) : null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-500">
-      <div className="absolute inset-0 bg-slate-200/40 backdrop-blur-md" onClick={onClose} />
+    <div className={`fixed inset-0 z-[70] flex justify-center p-4 animate-in fade-in duration-500 overflow-y-auto no-scrollbar ${isSuccess || showConfirm ? 'items-center' : 'items-start sm:items-center'}`}>
+      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-md" onClick={onClose} />
       
       <div className={`
-        relative w-full sm:w-full 
-        ${isSuccess || showConfirm ? 'max-w-md' : 'max-w-4xl'} 
-        bg-[#1a1c20] 
-        rounded-t-[32px] sm:rounded-[40px] 
+        relative w-full 
+        ${isSuccess || showConfirm ? 'max-w-md my-auto' : 'max-w-4xl mt-12 sm:mt-0'} 
+        ${showConfirm && !isSuccess ? 'bg-white' : 'bg-[#0a0f1a]'}
+        rounded-[32px] sm:rounded-[40px] 
         shadow-2xl overflow-hidden flex flex-col 
-        animate-in slide-in-from-bottom-10 
-        max-h-[92vh] sm:max-h-[calc(100vh-100px)] 
-        border-t sm:border border-white/5 
-        transition-all duration-300
+        animate-in zoom-in-95 duration-300
+        max-h-[calc(100vh-80px)] sm:max-h-[calc(100vh-100px)] 
+        border border-white/5 
       `}>
         
         {isSuccess && (
@@ -169,37 +178,37 @@ export default function InquiryModal({ company, onClose }: InquiryModalProps) {
 
         {showConfirm && !isSuccess && (
           <div className="p-10 sm:p-12 flex flex-col items-center justify-center text-center space-y-6">
-            <div className="w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-xl">
-              <HelpCircle size={24} className="text-black" />
+            <div className="w-12 h-12 bg-[#0a0f1a] rounded-2xl flex items-center justify-center shadow-xl">
+              <HelpCircle size={24} className="text-yellow-400" />
             </div>
             <div className="space-y-1">
-              <h3 className="font-black text-white uppercase italic text-sm sm:text-xl">Ready to send?</h3>
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed line-clamp-1 px-4">To: <span className="text-white">{company.company_name}</span></p>
+              <h3 className="font-black text-[#0a0f1a] uppercase italic text-sm sm:text-xl">Ready to send?</h3>
+              <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest leading-relaxed line-clamp-1 px-4">To: <span className="text-[#0a0f1a]">{company.company_name}</span></p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full px-4">
-              <button onClick={() => setShowConfirm(false)} className="flex-1 py-3.5 rounded-xl font-black text-[10px] uppercase border border-white/10 text-white order-2 sm:order-1 hover:bg-white/5">Back</button>
-              <button onClick={handleInquirySubmit} className="flex-1 py-3.5 rounded-xl font-black text-[10px] uppercase bg-yellow-400 text-black shadow-lg shadow-yellow-400/20 order-1 sm:order-2">Confirm</button>
+              <button onClick={() => setShowConfirm(false)} className="flex-1 py-3.5 rounded-xl font-black text-[10px] uppercase border border-slate-200 text-slate-500 order-2 sm:order-1 hover:bg-slate-200 transition-colors">Back</button>
+              <button onClick={handleInquirySubmit} className="flex-1 py-3.5 rounded-xl font-black text-[10px] uppercase bg-[#0a0f1a] text-white shadow-lg shadow-slate-900/20 order-1 sm:order-2 hover:bg-yellow-400 hover:text-[#0a0f1a] hover:scale-[1.02] transition-all active:scale-95">Confirm</button>
             </div>
           </div>
         )}
 
         <div className={(showConfirm || isSuccess) ? "hidden" : "contents"}>
-          <div className="px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between bg-[#1a1c20] border-b border-white/5">
+          <div className="px-6 py-4 sm:px-8 sm:py-5 flex items-center justify-between bg-[#0a0f1a] border-b border-white/5">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-yellow-400 rounded-lg sm:rounded-xl flex items-center justify-center rotate-3">
                 <Send size={14} className="text-black" />
               </div>
               <div>
                 <h2 className="font-black uppercase text-[11px] sm:text-sm italic text-white leading-none">Send <span className="text-yellow-400">Inquiry</span></h2>
-                <p className="text-[8px] font-bold uppercase text-slate-500 mt-1 truncate max-w-[150px] sm:max-w-none">To: {company.company_name}</p>
+                <p className="text-[8px] font-bold uppercase text-slate-400 mt-1 truncate max-w-[150px] sm:max-w-none">To: {company.company_name}</p>
               </div>
             </div>
-            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-full hover:bg-white/10"><X size={18} className="text-slate-500" /></button>
+            <button onClick={onClose} className="w-8 h-8 flex items-center justify-center bg-white/5 rounded-full hover:bg-white/10"><X size={18} className="text-slate-400" /></button>
           </div>
 
           <form ref={formRef} onSubmit={triggerConfirm} className="p-5 sm:p-8 overflow-y-auto no-scrollbar">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
-              <div className="space-y-3.5 sm:space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="space-y-1">
                   <div className="flex justify-between items-center px-1">
                     <label className="text-[9px] sm:text-[11px] font-black uppercase text-slate-400">Inquiry Title *</label>
@@ -234,32 +243,39 @@ export default function InquiryModal({ company, onClose }: InquiryModalProps) {
                     <label className="text-[9px] sm:text-[11px] font-black uppercase text-slate-400">Message *</label>
                     <ErrorLabel name="message" />
                   </div>
-                  <textarea name="message" value={formData.message} onChange={handleInputChange} rows={3} placeholder="Describe needs..." className={inputClasses('message') + " resize-none min-h-[90px] sm:min-h-[120px]"} />
+                  <textarea 
+                    ref={textareaRef}
+                    name="message" 
+                    value={formData.message} 
+                    onChange={handleInputChange} 
+                    placeholder="Describe needs..." 
+                    className={inputClasses('message') + " resize-none overflow-y-auto min-h-[40px] sm:min-h-[120px]"} 
+                  />
                 </div>
               </div>
 
-              <div className="flex flex-col h-full">
-                <label className="text-[9px] sm:text-[11px] font-black uppercase text-yellow-400/80 mb-1.5 px-1">Attachments</label>
+              <div className="flex flex-col h-full mt-1 sm:mt-0">
+                <label className="text-[9px] sm:text-[11px] font-black uppercase text-yellow-400/80 mb-1 px-1">Attachments</label>
                 <input type="file" multiple onChange={(e) => e.target.files && setFiles(prev => [...prev, ...Array.from(e.target.files!)])} className="hidden" id="file-upload" />
                 
                 <label 
                   htmlFor="file-upload" 
-                  className={`flex flex-col items-center justify-center gap-2 w-full border-[1.5px] border-dashed border-slate-700 rounded-[20px] sm:rounded-[24px] hover:border-yellow-400/50 hover:bg-white/5 transition-all cursor-pointer bg-white/[0.01] 
-                    ${files.length > 0 ? 'py-3 sm:flex-1' : 'py-6 sm:flex-1'}`}
+                  className={`flex flex-col items-center justify-center gap-2 w-full border-[1.5px] border-dashed border-slate-700 rounded-2xl sm:rounded-[24px] hover:border-yellow-400/50 hover:bg-white/5 transition-all cursor-pointer bg-white/[0.01] 
+                    ${files.length > 0 ? 'py-1.5 sm:py-3 sm:flex-1' : 'py-2.5 sm:py-6 sm:flex-1'}`}
                 >
-                  <Paperclip size={files.length > 0 ? 16 : 20} className="text-slate-500" />
-                  {files.length === 0 && <span className="text-[9px] font-black uppercase text-slate-400">Attach files</span>}
+                  <Paperclip className="text-slate-500 w-3.5 h-3.5 sm:w-5 sm:h-5" />
+                  {files.length === 0 && <span className="text-[7px] sm:text-[9px] font-black uppercase text-slate-400">Attach files</span>}
                 </label>
 
                 {files.length > 0 && (
-                  <div className="mt-3 flex flex-col gap-2 max-h-[140px] overflow-y-auto no-scrollbar">
-                    <p className="text-[8px] font-black text-slate-500 uppercase px-1">Files ({files.length})</p>
-                    <div className="grid grid-cols-1 gap-1.5">
+                  <div className="mt-1.5 sm:mt-3 flex flex-col gap-1 sm:gap-2 max-h-[80px] sm:max-h-[140px] overflow-y-auto no-scrollbar">
+                    <p className="text-[7px] sm:text-[8px] font-black text-slate-500 uppercase px-1">Files ({files.length})</p>
+                    <div className="grid grid-cols-1 gap-1">
                       {files.map((file, idx) => (
-                        <div key={idx} className="flex items-center justify-between bg-white px-3 py-2 rounded-lg border border-slate-900 shadow-sm animate-in zoom-in-95">
-                          <span className="text-[10px] font-bold truncate max-w-[80%]">{file.name}</span>
+                        <div key={idx} className="flex items-center justify-between bg-white px-2 py-1 rounded-lg border border-slate-200 shadow-sm">
+                          <span className="text-[9px] sm:text-[10px] font-bold truncate max-w-[80%] text-slate-900">{file.name}</span>
                           <button type="button" onClick={() => setFiles(files.filter((_, i) => i !== idx))} className="text-red-500 p-0.5">
-                            <Trash2 size={14} />
+                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
                           </button>
                         </div>
                       ))}
@@ -270,9 +286,9 @@ export default function InquiryModal({ company, onClose }: InquiryModalProps) {
             </div>
           </form>
 
-          <div className="px-6 py-5 sm:px-8 sm:py-6 bg-[#1a1c20] border-t border-white/5 mb-6 sm:mb-0">
+          <div className="px-6 py-4 sm:px-8 sm:py-6 bg-[#0a0f1a] border-t border-white/5">
             {errors.form && (
-              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-xl flex items-center gap-2 text-red-500 font-bold text-[9px] uppercase">
+              <div className="mb-3 p-2.5 bg-red-500/10 border border-red-500/50 rounded-xl flex items-center gap-2 text-red-500 font-bold text-[9px] uppercase">
                 <AlertCircle size={14} /> {errors.form}
               </div>
             )}
@@ -280,7 +296,7 @@ export default function InquiryModal({ company, onClose }: InquiryModalProps) {
               disabled={isSending}
               type="submit" 
               onClick={() => formRef.current?.requestSubmit()}
-              className="w-full bg-white text-black py-4 sm:py-4.5 rounded-[18px] sm:rounded-2xl font-black text-[10px] sm:text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-yellow-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full bg-white text-[#0a0f1a] py-3.5 sm:py-4.5 rounded-[18px] sm:rounded-2xl font-black text-[10px] sm:text-[11px] uppercase tracking-[0.2em] shadow-xl hover:bg-yellow-400 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isSending ? <Loader2 size={16} className="animate-spin" /> : <>Send Inquiry <Send size={16} /></>}
             </button>

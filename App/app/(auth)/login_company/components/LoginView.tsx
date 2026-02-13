@@ -58,7 +58,11 @@ function LoginViewContent({
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isDirty && errorMsg) return;
-    onSubmit({ isLogin, email, password, confirmPassword });
+
+    const payload = { isLogin, email, password, confirmPassword };
+    console.log("DEBUG: LoginView submit data ->", payload);
+    
+    onSubmit(payload);
   };
 
   const handleChange = (type: string, value: string) => {
