@@ -14,7 +14,9 @@ import {
   CheckCircle2,
   ShieldCheck,
   X,
-  Phone
+  Phone,
+  Eye,
+  EyeOff
 } from "lucide-react";
 
 export default function RegisterPage() {
@@ -28,6 +30,8 @@ export default function RegisterPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   
   const [showToast, setShowToast] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const supabase = useMemo(() => createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -208,13 +212,20 @@ export default function RegisterPage() {
             <div className="relative flex items-center group">
               <Lock className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min. 6 characters"
-                className="w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium"
+                className="w-full pl-12 lg:pl-14 pr-12 py-[1.5vh] bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-yellow-400 focus:bg-white outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-5 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
@@ -225,17 +236,24 @@ export default function RegisterPage() {
             <div className="relative flex items-center group">
               <ShieldCheck className="absolute left-5 text-slate-400 group-focus-within:text-yellow-600 transition-colors" size={18} />
               <input
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Repeat password"
-                className={`w-full pl-12 lg:pl-14 pr-6 py-[1.5vh] bg-slate-50 border-2 rounded-2xl outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium ${
+                className={`w-full pl-12 lg:pl-14 pr-12 py-[1.5vh] bg-slate-50 border-2 rounded-2xl outline-none text-sm font-bold transition-all text-slate-900 placeholder:text-slate-400 placeholder:font-medium ${
                   confirmPassword && password !== confirmPassword 
                   ? "border-red-300 focus:border-red-500" 
                   : "border-slate-100 focus:border-yellow-400 focus:bg-white"
                 }`}
               />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-5 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
