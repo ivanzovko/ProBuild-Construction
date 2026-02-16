@@ -6,6 +6,7 @@ import {
   Construction, Clock, ListFilter, ChevronDown, Home, Building2, Hammer, 
   X, CheckCircle2, LifeBuoy, Search, AlertTriangle, Loader2, Check
 } from "lucide-react";
+import { Tooltip } from "@components/Tooltip";
 import { createBrowserClient } from "@supabase/ssr";
 
 import ActiveProjectCard from "./components/ActiveProjectCard";
@@ -262,7 +263,7 @@ function ProjectTrackingContent() {
         />
       )}
 
-      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-[99] shadow-2xl">
+     <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-[99] shadow-2xl">
         <div className="max-w-[1440px] mx-auto px-4 md:px-6">
           <div className="py-5 flex flex-row items-center justify-between gap-2 md:gap-4">
             <div className="min-w-0 flex-1 pt-1 md:pt-0">
@@ -292,13 +293,15 @@ function ProjectTrackingContent() {
               </div>
 
               <div className="relative" ref={dropdownRef}>
-                <button 
-                  onClick={() => setIsSortOpen(!isSortOpen)} 
-                  className="flex items-center gap-2 px-3 md:px-4 py-2.5 bg-yellow-400 rounded-xl text-[11px] font-black uppercase text-slate-900 hover:bg-yellow-300 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/10"
-                >
-                  <ListFilter size={16} />
-                  <ChevronDown size={14} className={`hidden md:block transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
-                </button>
+                <Tooltip content="Sort your project list">
+                  <button 
+                    onClick={() => setIsSortOpen(!isSortOpen)} 
+                    className="flex items-center gap-2 px-3 md:px-4 py-2.5 bg-yellow-400 rounded-xl text-[11px] font-black uppercase text-slate-900 hover:bg-yellow-300 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-yellow-400/10"
+                  >
+                    <ListFilter size={16} />
+                    <ChevronDown size={14} className={`hidden md:block transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </Tooltip>
                 {isSortOpen && (
                   <div className="absolute right-0 mt-3 w-48 md:w-52 bg-slate-800 border border-white/10 rounded-2xl shadow-2xl p-1.5 z-[110] animate-in fade-in zoom-in-95 duration-200">
                     <div className="px-3 py-2 text-[8px] font-black text-slate-500 uppercase tracking-widest border-b border-white/5 mb-1">Sort By</div>
@@ -319,124 +322,165 @@ function ProjectTrackingContent() {
                 )}
               </div>
 
-              <button 
-                onClick={() => router.push("/support")}
-                className="flex items-center justify-center md:gap-2.5 px-3 md:px-4 py-2.5 bg-slate-800 border border-slate-700 text-slate-400 rounded-xl hover:text-yellow-400 hover:border-yellow-400/50 transition-all hover:scale-105 active:scale-95 group shadow-lg"
-              >
-                <LifeBuoy size={18} className="group-hover:rotate-12 transition-transform duration-300" />
-                <span className="hidden md:block text-[11px] font-black uppercase italic tracking-widest">
-                  Support
-                </span>
-              </button>
+              <Tooltip content="Need help with your projects?">
+                <button 
+                  onClick={() => router.push("/support")}
+                  className="flex items-center justify-center md:gap-2.5 px-3 md:px-4 py-2.5 bg-slate-800 border border-slate-700 text-slate-400 rounded-xl hover:text-yellow-400 hover:border-yellow-400/50 transition-all hover:scale-105 active:scale-95 group shadow-lg"
+                >
+                  <LifeBuoy size={18} className="group-hover:rotate-12 transition-transform duration-300" />
+                  <span className="hidden md:block text-[11px] font-black uppercase italic tracking-widest">
+                    Support
+                  </span>
+                </button>
+              </Tooltip>
             </div>
           </div>
 
           <div className="flex border-t border-white/5">
             {[
-              { id: 'active', label: 'Active', desktopLabel: ' Projects', icon: Construction },
-              { id: 'estimates', label: 'Estimates', desktopLabel: ' Projects', icon: Clock },
-              { id: 'completed', label: 'History', desktopLabel: ' Archive', icon: CheckCircle2 },
+              { id: 'active', label: 'Active', desktopLabel: ' Projects', icon: Construction, tooltip: "View ongoing construction work" },
+              { id: 'estimates', label: 'Estimates', desktopLabel: ' Projects', icon: Clock, tooltip: "Check your pending quotes" },
+              { id: 'completed', label: 'History', desktopLabel: ' Archive', icon: CheckCircle2, tooltip: "Review finished project records" },
             ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id as any)}
-                className={`flex-1 flex items-center justify-center gap-2 py-4 text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all border-b-2 group hover:bg-white/5 ${
-                  activeTab === tab.id
-                  ? "border-yellow-400 text-yellow-400 bg-white/5" 
-                  : "border-transparent text-slate-500 hover:text-slate-200"
-                }`}
-              >
-                <tab.icon size={14} className="shrink-0 group-hover:scale-110 transition-transform duration-300" />
-                <span className="truncate group-hover:tracking-[0.12em] transition-all duration-300">
-                  {tab.label}
-                  <span className="hidden md:inline">{tab.desktopLabel}</span>
-                </span>
-              </button>
+              <Tooltip key={tab.id} content={tab.tooltip}>
+                <button
+                  onClick={() => handleTabChange(tab.id as any)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 text-[9px] md:text-[10px] font-black uppercase tracking-wider transition-all border-b-2 group hover:bg-white/5 ${
+                    activeTab === tab.id
+                    ? "border-yellow-400 text-yellow-400 bg-white/5" 
+                    : "border-transparent text-slate-500 hover:text-slate-200"
+                  }`}
+                >
+                  <tab.icon size={14} className="shrink-0 group-hover:scale-110 transition-transform duration-300" />
+                  <span className="truncate group-hover:tracking-[0.12em] transition-all duration-300">
+                    {tab.label}
+                    <span className="hidden md:inline">{tab.desktopLabel}</span>
+                  </span>
+                </button>
+              </Tooltip>
             ))}
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 md:px-6 py-6 md:py-10 relative z-10">
-        {loading ? (
-          <div className="grid gap-6">
-            <SkeletonCard type={activeTab === 'estimates' ? 'grid' : 'list'} />
-            <SkeletonCard type={activeTab === 'estimates' ? 'grid' : 'list'} />
-          </div>
-        ) : (
-          <div className="grid gap-6">
-            {activeTab === 'active' && (
-              <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {activeProjects.map((job, i) => (
-                  <div key={job.id} className="hover:scale-[1.01] transition-transform duration-300">
-                    <ActiveProjectCard 
-                      job={job} 
-                      index={i + 1}
-                      config={getCategoryData(job.project_type)}
-                      onOpenRating={setRatingJob}
-                      onRejectFinish={setRejectionJobId}
-                      onOpenChat={setChatJob}
-                      onOpenCompany={() => setSelectedCompany(job.contractor)}
-                      searchQuery={searchQuery}
-                    />
-                  </div>
-                ))}
-                {activeProjects.length === 0 && (
-                  <EmptyState 
-                    icon={<Construction size={24}/>} 
-                    title={searchQuery ? "No results found" : "No Active Projects"} 
-                    description={searchQuery ? "Try searching for something else." : "Construction progress appears here."} 
-                  />
-                )}
-              </div>
-            )}
+ <main className="max-w-6xl mx-auto px-4 md:px-6 relative z-10">
+        {/* Intro sekcija - sada rastegnuta na punu širinu kontejnera */}
+        <div className="w-full animate-in fade-in slide-in-from-top-1 duration-700 group">
+          <div className="bg-white border-x border-b border-slate-200 p-4 md:p-5 shadow-sm hover:shadow-md transition-all duration-500 relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-1 h-full bg-yellow-400" />
+            
+            <div className="flex items-center gap-4 relative z-10">
+              <Tooltip content="Your Project Control Center">
+                <div className="w-10 h-10 bg-slate-900 rounded-none flex items-center justify-center shrink-0 shadow-lg group-hover:scale-105 transition-transform duration-500">
+                  <Construction className="text-yellow-400" size={20} />
+                </div>
+              </Tooltip>
 
-            {activeTab === 'estimates' && (
-              <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {myEstimates.map((job, i) => (
-                  <div key={job.id} className="hover:scale-[1.01] transition-transform duration-300">
-                    <EstimateCard 
-                      job={job} 
-                      index={i + 1} 
-                      onDelete={setDeleteId} 
-                      searchQuery={searchQuery}
-                    />
-                  </div>
-                ))}
-                {myEstimates.length === 0 && (
-                  <EmptyState 
-                    icon={<Clock size={24}/>} 
-                    title={searchQuery ? "No results found" : "No Estimates"} 
-                    description={searchQuery ? "Try searching for something else." : "Saved quotes appear here."} 
-                  />
-                )}
-              </div>
-            )}
+           <div className="flex-1 min-w-0">
+                <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3 mb-1">
+                  <h2 className="text-[14px] font-black text-slate-900 uppercase italic tracking-tighter shrink-0">
+                    Project Hub
+                  </h2>
+                  <div className="hidden md:block h-1 w-1 bg-slate-300 rounded-full" />
+                  <p className="text-[10px] md:text-[12px] font-bold text-slate-500 uppercase tracking-widest leading-tight text-justify italic opacity-90">
+                    Track work progress, choose the best offers, or rate companies after the job is done. Simple, clear, and without the unnecessary back-and-forth.
+                  </p>
+                </div>
 
-            {activeTab === 'completed' && (
-              <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                {completedProjects.map((job, i) => (
-                  <div key={job.id} className="hover:scale-[1.01] transition-transform duration-300">
-                    <CompletedProjectCard 
-                      job={job} 
-                      index={i + 1}
-                      config={getCategoryData(job.project_type)} 
-                      onOpenCompany={() => setSelectedCompany(job.contractor)}
-                      searchQuery={searchQuery}
-                    />
-                  </div>
-                ))}
-                {completedProjects.length === 0 && (
-                  <EmptyState 
-                    icon={<CheckCircle2 size={24}/>} 
-                    title={searchQuery ? "No results found" : "History Empty"} 
-                    description={searchQuery ? "Try searching for something else." : "Archived projects appear here."} 
-                  />
-                )}
+                <div className="flex gap-1.5">
+                  <Tooltip content="Operational Status">
+                    <div className="flex gap-1.5">
+                      <div className="h-0.5 w-8 bg-yellow-400" />
+                      <div className="h-0.5 w-2 bg-slate-200 group-hover:w-4 transition-all duration-500" />
+                    </div>
+                  </Tooltip>
+                </div>
               </div>
-            )}
+            </div>
           </div>
-        )}
+        </div>
+
+        <div className="py-6 md:py-10">
+          {loading ? (
+            <div className="grid gap-6">
+              <SkeletonCard type={activeTab === 'estimates' ? 'grid' : 'list'} />
+              <SkeletonCard type={activeTab === 'estimates' ? 'grid' : 'list'} />
+            </div>
+          ) : (
+            <div className="grid gap-6">
+              {activeTab === 'active' && (
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  {activeProjects.map((job, i) => (
+                    <div key={job.id} className="hover:scale-[1.01] transition-transform duration-300">
+                      <ActiveProjectCard 
+                        job={job} 
+                        index={i + 1}
+                        config={getCategoryData(job.project_type)}
+                        onOpenRating={setRatingJob}
+                        onRejectFinish={setRejectionJobId}
+                        onOpenChat={setChatJob}
+                        onOpenCompany={() => setSelectedCompany(job.contractor)}
+                        searchQuery={searchQuery}
+                      />
+                    </div>
+                  ))}
+                  {activeProjects.length === 0 && (
+                    <EmptyState 
+                      icon={<Construction size={24}/>} 
+                      title={searchQuery ? "No results found" : "No Active Projects"} 
+                      description={searchQuery ? "Try searching for something else." : "Construction progress appears here."} 
+                    />
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'estimates' && (
+                <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  {myEstimates.map((job, i) => (
+                    <div key={job.id} className="hover:scale-[1.01] transition-transform duration-300">
+                      <EstimateCard 
+                        job={job} 
+                        index={i + 1} 
+                        onDelete={setDeleteId} 
+                        searchQuery={searchQuery}
+                      />
+                    </div>
+                  ))}
+                  {myEstimates.length === 0 && (
+                    <EmptyState 
+                      icon={<Clock size={24}/>} 
+                      title={searchQuery ? "No results found" : "No Estimates"} 
+                      description={searchQuery ? "Try searching for something else." : "Saved quotes appear here."} 
+                    />
+                  )}
+                </div>
+              )}
+
+              {activeTab === 'completed' && (
+                <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  {completedProjects.map((job, i) => (
+                    <div key={job.id} className="hover:scale-[1.01] transition-transform duration-300">
+                      <CompletedProjectCard 
+                        job={job} 
+                        index={i + 1}
+                        config={getCategoryData(job.project_type)} 
+                        onOpenCompany={() => setSelectedCompany(job.contractor)}
+                        searchQuery={searchQuery}
+                      />
+                    </div>
+                  ))}
+                  {completedProjects.length === 0 && (
+                    <EmptyState 
+                      icon={<CheckCircle2 size={24}/>} 
+                      title={searchQuery ? "No results found" : "History Empty"} 
+                      description={searchQuery ? "Try searching for something else." : "Archived projects appear here."} 
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

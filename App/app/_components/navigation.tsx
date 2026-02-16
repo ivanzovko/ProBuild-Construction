@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import { getSiteSettings } from "@/lib/cms";
+import { Tooltip } from "@components/Tooltip";
 import { 
   Hammer, 
   User, 
@@ -181,32 +182,36 @@ export function Navigation() {
       )}
 
       <div className="container mx-auto px-4 h-14 lg:h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group relative z-[60] hover:scale-105 transition-transform duration-200">
-          <div className="bg-yellow-400 p-1.5 lg:p-2 rounded-lg group-hover:bg-yellow-500 transition-colors">
-            <Hammer size={18} className="text-black lg:size-[22px]" />
-          </div>
-          <span className="text-lg lg:text-xl font-black tracking-tighter text-slate-900">
-            PRO-BUILD<span className="text-yellow-500"> CONSTRUCTION</span>
-          </span>
-        </Link>
+        <Tooltip content="Go to Home">
+          <Link href="/" className="flex items-center gap-2 group relative z-[60] hover:scale-105 transition-transform duration-200">
+            <div className="bg-yellow-400 p-1.5 lg:p-2 rounded-lg group-hover:bg-yellow-500 transition-colors">
+              <Hammer size={18} className="text-black lg:size-[22px]" />
+            </div>
+            <span className="text-lg lg:text-xl font-black tracking-tighter text-slate-900">
+              PRO-BUILD<span className="text-yellow-500"> CONSTRUCTION</span>
+            </span>
+          </Link>
+        </Tooltip>
 
         <nav className="hidden lg:flex items-center gap-8">
-          <ul className="flex gap-6">
+          <ul className="flex gap-8">
             {visiblePages.map((page, index) => {
               const isActive = currentPath === page.path;
               return (
                 <li key={index}>
-                  <Link
-                    href={page.path}
-                    className={`relative text-sm font-bold uppercase tracking-wide transition-all py-1.5 hover:scale-110 inline-block
-                      after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
-                      ${isActive 
-                        ? "text-slate-900 after:w-full after:h-[3px] after:bg-yellow-500" 
-                        : "text-slate-500 hover:text-yellow-600 after:w-0 hover:after:w-full after:h-[2px] after:bg-yellow-400/60"
-                      }`}
-                  >
-                    {page.title}
-                  </Link>
+                  <Tooltip content={`Visit ${page.title}`}>
+                    <Link
+                      href={page.path}
+                      className={`relative text-base font-bold uppercase tracking-wide transition-all py-1.5 hover:scale-110 inline-block
+                        after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
+                        ${isActive 
+                          ? "text-slate-900 after:w-full after:h-[3px] after:bg-yellow-500" 
+                          : "text-slate-500 hover:text-yellow-600 after:w-0 hover:after:w-full after:h-[2px] after:bg-yellow-400/60"
+                        }`}
+                    >
+                      {page.title}
+                    </Link>
+                  </Tooltip>
                 </li>
               );
             })}
@@ -216,55 +221,61 @@ export function Navigation() {
 
           <div className="flex items-center gap-6 min-w-[120px] justify-end">
             {isAdmin && (
-              <Link 
-                href="/admin"
-                className={`relative text-sm font-black transition-all py-1.5 flex items-center gap-2 hover:scale-105 text-red-600
-                  after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
-                  ${currentPath === "/admin" 
-                    ? "after:w-full after:h-[3px] after:bg-red-600" 
-                    : "after:w-0 hover:after:w-full after:h-[2px] after:bg-red-600/30"
-                  }`}
-              >
-                <ShieldAlert size={14} />
-                Admin
-              </Link>
+              <Tooltip content="Admin Control Panel">
+                <Link 
+                  href="/admin"
+                  className={`relative text-sm font-black transition-all py-1.5 flex items-center gap-2 hover:scale-105 text-red-600
+                    after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
+                    ${currentPath === "/admin" 
+                      ? "after:w-full after:h-[3px] after:bg-red-600" 
+                      : "after:w-0 hover:after:w-full after:h-[2px] after:bg-red-600/30"
+                    }`}
+                >
+                  <ShieldAlert size={14} />
+                  Admin
+                </Link>
+              </Tooltip>
             )}
 
             {showCompanyLink && !isAdmin && (
-              <Link 
-                href={user ? "/dashboard" : "/login_company"}
-                className={`relative text-sm font-bold transition-all py-1.5 flex items-center gap-2 hover:scale-105
-                  after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
-                  ${isCompanySection 
-                    ? "text-slate-900 after:w-full after:h-[3px] after:bg-slate-900" 
-                    : "text-slate-500 hover:text-slate-900 after:w-0 hover:after:w-full after:h-[2px] after:bg-slate-900/30"
-                  }`}
-              >
-                For Companies
-              </Link>
+              <Tooltip content="Company Dashboard">
+                <Link 
+                  href={user ? "/dashboard" : "/login_company"}
+                  className={`relative text-sm font-bold transition-all py-1.5 flex items-center gap-2 hover:scale-105
+                    after:content-[''] after:absolute after:left-0 after:bottom-0 after:transition-all after:duration-300
+                    ${isCompanySection 
+                      ? "text-slate-900 after:w-full after:h-[3px] after:bg-slate-900" 
+                      : "text-slate-500 hover:text-slate-900 after:w-0 hover:after:w-full after:h-[2px] after:bg-slate-900/30"
+                    }`}
+                >
+                  For Companies
+                </Link>
+              </Tooltip>
             )}
 
             {isLoading ? (
               <div className="h-9 w-24 bg-slate-100 animate-pulse rounded-full" />
             ) : user ? (
               <div className="relative" ref={dropdownRef}>
-                <button 
-                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="flex items-center gap-3 bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 min-w-fit"
-                >
-                  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-black flex-shrink-0">
-                    <User size={14} />
-                  </div>
-                  <div className="flex flex-col items-start leading-tight">
-                    <span className="italic text-[12px] whitespace-nowrap">
-                      {user.user_metadata?.full_name || user.email?.split('@')[0]}
-                    </span>
-                    <span className="text-[9px] text-slate-400 font-medium whitespace-nowrap">
-                      {user.email}
-                    </span>
-                  </div>
-                  <ChevronDown size={14} className={`transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
+                <Tooltip content="Account Settings">
+                  <button 
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center gap-3 bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 min-w-fit"
+                  >
+                    <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-black flex-shrink-0">
+                      <User size={14} />
+                    </div>
+                    <div className="flex flex-col items-start leading-tight">
+                      <span className="italic text-[12px] whitespace-nowrap">
+                        {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                      </span>
+                      <span className="text-[9px] text-slate-400 font-medium whitespace-nowrap">
+                        {user.email}
+                      </span>
+                    </div>
+                    <ChevronDown size={14} className={`transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+                </Tooltip>
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 py-2 animate-in fade-in slide-in-from-top-2">
@@ -280,16 +291,18 @@ export function Navigation() {
                 )}
               </div>
             ) : (
-              <Link
-                href="/login"
-                className={`flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm transition-all shadow-md hover:scale-105 active:scale-95 
-                  ${isLoginActive 
-                    ? "bg-yellow-500 text-black" 
-                    : "bg-slate-900 text-white hover:bg-slate-800"}`}
-              >
-                <User size={16} />
-                Sign In
-              </Link>
+              <Tooltip content="Sign in to your account">
+                <Link
+                  href="/login"
+                  className={`flex items-center gap-2 px-5 py-2 rounded-full font-bold text-sm transition-all shadow-md hover:scale-105 active:scale-95 
+                    ${isLoginActive 
+                      ? "bg-yellow-500 text-black" 
+                      : "bg-slate-900 text-white hover:bg-slate-800"}`}
+                >
+                  <User size={16} />
+                  Sign In
+                </Link>
+              </Tooltip>
             )}
           </div>
         </nav>

@@ -31,6 +31,20 @@ interface ProjectFinanceProps {
   onVoidPayment?: (paymentId: string) => void;
 }
 
+const FinanceSkeleton = () => (
+  <div className="space-y-8 animate-pulse">
+    <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="h-24 bg-slate-200 rounded-[20px] border-l-4 border-slate-300" />
+      ))}
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="h-[400px] bg-slate-100 rounded-[32px]" />
+      <div className="h-[400px] bg-slate-100 rounded-[32px]" />
+    </div>
+  </div>
+);
+
 export default function ProjectFinance({
   originalQuote = 0,
   estimatedPrice,
@@ -56,7 +70,7 @@ export default function ProjectFinance({
   const [isAvans, setIsAvans] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  if (loading) return <div className="p-8 text-center font-black uppercase animate-pulse text-slate-400">Loading Finances...</div>;
+  if (loading) return <FinanceSkeleton />;
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Tooltip } from "@components/Tooltip";
 import { 
   ShieldCheck, Video, Calculator, 
   Construction, Zap, Paintbrush, LayoutGrid,
@@ -67,35 +68,41 @@ export default function Home() {
             </h1>
             
             <div className="grid grid-cols-1 gap-4 sm:gap-6 max-w-2xl lg:max-w-md mx-auto lg:mx-0">
-              <div className="flex items-center lg:items-start gap-4 p-4 sm:p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm transition-transform hover:scale-105 duration-300">
-                <div className="w-10 h-10 shrink-0 bg-blue-500/20 border border-blue-500/30 rounded-xl flex items-center justify-center text-blue-400">
-                  <ShieldCheck size={20} />
+              <Tooltip content="We verify every business license">
+                <div className="flex items-center lg:items-start gap-4 p-4 sm:p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm transition-transform hover:scale-105 duration-300">
+                  <div className="w-10 h-10 shrink-0 bg-blue-500/20 border border-blue-500/30 rounded-xl flex items-center justify-center text-blue-400">
+                    <ShieldCheck size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black uppercase italic text-[10px] lg:text-sm mb-0.5 tracking-widest text-white">Fraud Protection</h3>
+                    <p className="text-slate-400 text-[10px] lg:text-xs leading-relaxed">Verified companies only.</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-black uppercase italic text-[10px] lg:text-sm mb-0.5 tracking-widest text-white">Fraud Protection</h3>
-                  <p className="text-slate-400 text-[10px] lg:text-xs leading-relaxed">Verified companies only.</p>
-                </div>
-              </div>
+              </Tooltip>
 
-              <div className="flex items-center lg:items-start gap-4 p-4 sm:p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm transition-transform hover:scale-105 duration-300">
-                <div className="w-10 h-10 shrink-0 bg-yellow-400/20 border border-yellow-400/30 rounded-xl flex items-center justify-center text-yellow-400">
-                  <Video size={20} />
+              <Tooltip content="Monitor project progress in real-time">
+                <div className="flex items-center lg:items-start gap-4 p-4 sm:p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm transition-transform hover:scale-105 duration-300">
+                  <div className="w-10 h-10 shrink-0 bg-yellow-400/20 border border-yellow-400/30 rounded-xl flex items-center justify-center text-yellow-400">
+                    <Video size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black uppercase italic text-[10px] lg:text-sm mb-0.5 tracking-widest text-white">Live Tracking</h3>
+                    <p className="text-slate-400 text-[10px] lg:text-xs leading-relaxed">Daily progress updates.</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-black uppercase italic text-[10px] lg:text-sm mb-0.5 tracking-widest text-white">Live Tracking</h3>
-                  <p className="text-slate-400 text-[10px] lg:text-xs leading-relaxed">Daily progress updates.</p>
-                </div>
-              </div>
+              </Tooltip>
 
-              <div className="flex items-center lg:items-start gap-4 p-4 sm:p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm transition-transform hover:scale-105 duration-300">
-                <div className="w-10 h-10 shrink-0 bg-green-400/20 border border-green-400/30 rounded-xl flex items-center justify-center text-green-400">
-                  <Calculator size={20} />
+              <Tooltip content="Get transparent and fixed quotes">
+                <div className="flex items-center lg:items-start gap-4 p-4 sm:p-5 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm transition-transform hover:scale-105 duration-300">
+                  <div className="w-10 h-10 shrink-0 bg-green-400/20 border border-green-400/30 rounded-xl flex items-center justify-center text-green-400">
+                    <Calculator size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black uppercase italic text-[10px] lg:text-sm mb-0.5 tracking-widest text-white">Price Certainty</h3>
+                    <p className="text-slate-400 text-[10px] lg:text-xs leading-relaxed">No hidden costs.</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-black uppercase italic text-[10px] lg:text-sm mb-0.5 tracking-widest text-white">Price Certainty</h3>
-                  <p className="text-slate-400 text-[10px] lg:text-xs leading-relaxed">No hidden costs.</p>
-                </div>
-              </div>
+              </Tooltip>
             </div>
           </div>
         </section>
@@ -111,33 +118,34 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-6">
-             {NAV_CARDS.map((card) => (
-  <button
-    key={card.id}
-    onClick={() => navigateTo(card.id)}
-    className={`cursor-pointer group relative flex flex-col justify-between p-4 sm:p-6 h-40 sm:h-52 bg-white border border-slate-200 rounded-[24px] sm:rounded-[40px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.03] ${card.color} hover:border-transparent overflow-hidden`}
-  >
-    <div className="absolute -right-4 -bottom-4 text-slate-100 group-hover:text-white/10 transition-all duration-500 rotate-12 group-hover:rotate-0">
-      {card.bgIcon}
-    </div>
+              {NAV_CARDS.map((card) => (
+                <Tooltip key={card.id} content={`Explore ${card.title}`}>
+                  <button
+                    onClick={() => navigateTo(card.id)}
+                    className={`cursor-pointer group relative flex flex-col justify-between p-4 sm:p-6 h-40 sm:h-52 bg-white border border-slate-200 rounded-[24px] sm:rounded-[40px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.03] ${card.color} hover:border-transparent overflow-hidden`}
+                  >
+                    <div className="absolute -right-4 -bottom-4 text-slate-100 group-hover:text-white/10 transition-all duration-500 rotate-12 group-hover:rotate-0">
+                      {card.bgIcon}
+                    </div>
 
-    <div className="relative z-10 flex justify-between items-start">
-      <div className="p-2.5 sm:p-3 bg-slate-900 text-white rounded-xl group-hover:bg-white group-hover:text-slate-900 transition-all duration-300">
-        {card.icon}
-      </div>
-      <ArrowUpRight className="text-slate-300 group-hover:text-white/50 transition-colors" size={20} />
-    </div>
+                    <div className="relative z-10 flex justify-between items-start">
+                      <div className="p-2.5 sm:p-3 bg-slate-900 text-white rounded-xl group-hover:bg-white group-hover:text-slate-900 transition-all duration-300">
+                        {card.icon}
+                      </div>
+                      <ArrowUpRight className="text-slate-300 group-hover:text-white/50 transition-colors" size={20} />
+                    </div>
 
-    <div className="relative z-10 text-left">
-      <span className="text-[7px] sm:text-[9px] font-black text-yellow-600 group-hover:text-yellow-200 transition-colors uppercase tracking-widest block mb-1">
-        {card.stats}
-      </span>
-      <h3 className="text-sm sm:text-xl font-black uppercase italic text-slate-900 group-hover:text-white transition-colors leading-none tracking-tight">
-        {card.title}
-      </h3>
-    </div>
-  </button>
-))}
+                    <div className="relative z-10 text-left">
+                      <span className="text-[7px] sm:text-[9px] font-black text-yellow-600 group-hover:text-yellow-200 transition-colors uppercase tracking-widest block mb-1">
+                        {card.stats}
+                      </span>
+                      <h3 className="text-sm sm:text-xl font-black uppercase italic text-slate-900 group-hover:text-white transition-colors leading-none tracking-tight">
+                        {card.title}
+                      </h3>
+                    </div>
+                  </button>
+                </Tooltip>
+              ))}
             </div>
           </div>
 

@@ -5,6 +5,14 @@ import { Toaster } from "sonner";
 import "./globals.css";
 import { Navigation } from "./_components/navigation";
 import * as Tooltip from "@radix-ui/react-tooltip";
+import { Plus_Jakarta_Sans } from 'next/font/google';
+import ErrorBoundary from "@components/ErrorBoundary";
+
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'], // 800 je tvoj font-black
+  variable: '--font-jakarta', // Definira CSS varijablu
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +41,9 @@ export default function RootLayout({
           <Navigation />
           <main className="pt-14 md:pt-16 min-h-screen">
             <NuqsAdapter>
-              {children}
+              <ErrorBoundary>
+                {children}
+              </ErrorBoundary>
               <Toaster 
                 position="bottom-right" 
                 richColors 

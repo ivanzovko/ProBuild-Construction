@@ -4,7 +4,8 @@ import { useState, Suspense, useRef, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import InquiryModal from "./components/InquiryModal";
 import ReviewsModal from "./components/reviewsModal";
-import DescriptionModal from "../_components/CompanyInfoModal";
+import DescriptionModal from "../_components/CompanyInfoModal"
+import { Tooltip } from "@components/Tooltip";;
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { 
@@ -331,7 +332,7 @@ function FindServiceContent() {
       return sortOrder === "asc" ? comparison : -comparison;
     });
 
-  return (
+ return (
     <div className={`bg-slate-50 min-h-screen flex flex-col ${(inquiryCompany || reviewModalData || descriptionCompany) ? 'overflow-hidden h-screen' : ''}`}>
       <header className="bg-white border-b border-slate-200 pt-6 sticky top-0 z-40 shadow-sm">
         <div className="container mx-auto px-4 md:px-6">
@@ -350,16 +351,18 @@ function FindServiceContent() {
                     ? 'w-full sm:max-w-[300px]' 
                     : 'w-10 sm:w-full sm:max-w-[300px]'}`}
               >
-                <button
-                  onClick={() => {
-                    setIsSearchExpanded(true);
-                    setTimeout(() => searchInputRef.current?.focus(), 100);
-                  }}
-                  className={`absolute left-0 sm:left-4 z-10 p-2.5 sm:p-0 bg-slate-100 sm:bg-transparent rounded-xl sm:rounded-none transition-colors
-                    ${isSearchExpanded ? 'text-yellow-500' : 'text-slate-400'}`}
-                >
-                  <Search size={18} />
-                </button>
+                <Tooltip content="Search by company name">
+                  <button
+                    onClick={() => {
+                      setIsSearchExpanded(true);
+                      setTimeout(() => searchInputRef.current?.focus(), 100);
+                    }}
+                    className={`absolute left-0 sm:left-4 z-10 p-2.5 sm:p-0 bg-slate-100 sm:bg-transparent rounded-xl sm:rounded-none transition-colors
+                      ${isSearchExpanded ? 'text-yellow-500' : 'text-slate-400'}`}
+                  >
+                    <Search size={18} />
+                  </button>
+                </Tooltip>
                 
                 <input 
                   ref={searchInputRef}
@@ -391,12 +394,14 @@ function FindServiceContent() {
 
               {/* Mobile Sort Button */}
               <div className="lg:hidden relative" ref={mobileSortRef}>
-                <button 
-                  onClick={() => setIsMobileSortOpen(!isMobileSortOpen)}
-                  className={`p-3 rounded-2xl transition-all shadow-sm active:scale-95 ${isMobileSortOpen ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}
-                >
-                  <ArrowUpDown size={20} />
-                </button>
+                <Tooltip content="Sort companies">
+                  <button 
+                    onClick={() => setIsMobileSortOpen(!isMobileSortOpen)}
+                    className={`p-3 rounded-2xl transition-all shadow-sm active:scale-95 ${isMobileSortOpen ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}
+                  >
+                    <ArrowUpDown size={20} />
+                  </button>
+                </Tooltip>
                 {isMobileSortOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2">
                     <div className="px-4 py-2 border-b border-slate-50 mb-1">
@@ -431,13 +436,15 @@ function FindServiceContent() {
                 )}
               </div>
 
-              <Link 
-                href="/support" 
-                className={`p-3 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-600 rounded-2xl transition-all shadow-sm hover:scale-110 active:scale-95
-                  ${isSearchExpanded ? 'hidden sm:flex' : 'flex'}`}
-              >
-                <HelpCircle size={20} />
-              </Link>
+              <Tooltip content="Help & Support">
+                <Link 
+                  href="/support" 
+                  className={`p-3 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-600 rounded-2xl transition-all shadow-sm hover:scale-110 active:scale-95
+                    ${isSearchExpanded ? 'hidden sm:flex' : 'flex'}`}
+                >
+                  <HelpCircle size={20} />
+                </Link>
+              </Tooltip>
             </div>
           </div>
 
@@ -473,21 +480,22 @@ function FindServiceContent() {
             <div className="container mx-auto px-4 md:px-6">
               <div className="flex flex-nowrap gap-2 overflow-x-auto py-4 no-scrollbar touch-pan-x animate-in slide-in-from-top-2 duration-300">
                 {CATEGORY_GROUPS.find(g => g.group === activeGroup)?.items.map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => {
-                      const newCat = cat.id === selectedCategory ? "all" : cat.id;
-                      setSelectedCategory(newCat);
-                      updateUrl(activeGroup, newCat, selectedLocation, searchValue);
-                    }}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 whitespace-nowrap transition-all font-black text-[10px] uppercase tracking-wider shrink-0 hover:scale-105
-                      ${selectedCategory === cat.id 
-                        ? "bg-slate-900 border-slate-900 text-white shadow-md scale-105" 
-                        : "bg-white border-slate-100 text-slate-500 hover:border-yellow-400"}`}
-                  >
-                    <span className={selectedCategory === cat.id ? "text-yellow-400" : "text-slate-400"}>{cat.icon}</span>
-                    {cat.title}
-                  </button>
+                  <Tooltip key={cat.id} content={`Filter by ${cat.title}`}>
+                    <button
+                      onClick={() => {
+                        const newCat = cat.id === selectedCategory ? "all" : cat.id;
+                        setSelectedCategory(newCat);
+                        updateUrl(activeGroup, newCat, selectedLocation, searchValue);
+                      }}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 whitespace-nowrap transition-all font-black text-[10px] uppercase tracking-wider shrink-0 hover:scale-105
+                        ${selectedCategory === cat.id 
+                          ? "bg-slate-900 border-slate-900 text-white shadow-md scale-105" 
+                          : "bg-white border-slate-100 text-slate-500 hover:border-yellow-400"}`}
+                    >
+                      <span className={selectedCategory === cat.id ? "text-yellow-400" : "text-slate-400"}>{cat.icon}</span>
+                      {cat.title}
+                    </button>
+                  </Tooltip>
                 ))}
               </div>
             </div>
@@ -505,15 +513,17 @@ function FindServiceContent() {
                 <h3 className="text-[10px] font-black uppercase tracking-widest">Client Location</h3>
               </div>
               <div className="relative">
-                <button 
-                  onClick={() => setIsLocationOpen(!isLocationOpen)}
-                  className="w-full flex items-center justify-between p-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-700 border border-transparent focus:border-yellow-400 transition-all hover:scale-[1.02]"
-                >
-                  <span className="truncate">{selectedLocation}</span>
-                  <div className={`transition-transform duration-300 ${isLocationOpen ? 'rotate-180' : ''}`}>
-                    <ChevronDown size={14} />
-                  </div>
-                </button>
+                <Tooltip content="Select your county">
+                  <button 
+                    onClick={() => setIsLocationOpen(!isLocationOpen)}
+                    className="w-full flex items-center justify-between p-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-700 border border-transparent focus:border-yellow-400 transition-all hover:scale-[1.02]"
+                  >
+                    <span className="truncate">{selectedLocation}</span>
+                    <div className={`transition-transform duration-300 ${isLocationOpen ? 'rotate-180' : ''}`}>
+                      <ChevronDown size={14} />
+                    </div>
+                  </button>
+                </Tooltip>
                 {isLocationOpen && (
                   <div className="absolute left-0 top-full mt-2 w-full max-h-60 overflow-y-auto bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50">
                     {COUNTIES.map((loc) => (
@@ -541,23 +551,27 @@ function FindServiceContent() {
                   <ArrowUpDown size={16} className="text-yellow-500" />
                   <h3 className="text-[10px] font-black uppercase tracking-widest">Sort By</h3>
                 </div>
-                <button 
-                  onClick={() => setSortOrder(prev => prev === "asc" ? "desc" : "asc")}
-                  className="p-2 bg-slate-100 hover:bg-slate-100 rounded-xl transition-colors text-slate-600"
-                >
-                  {sortOrder === "asc" ? <SortAsc size={16} /> : <SortDesc size={16} />}
-                </button>
+                <Tooltip content={sortOrder === "asc" ? "Change to Descending" : "Change to Ascending"}>
+                  <button 
+                    onClick={() => setSortOrder(prev => prev === "asc" ? "desc" : "asc")}
+                    className="p-2 bg-slate-100 hover:bg-slate-100 rounded-xl transition-colors text-slate-600"
+                  >
+                    {sortOrder === "asc" ? <SortAsc size={16} /> : <SortDesc size={16} />}
+                  </button>
+                </Tooltip>
               </div>
               <div className="relative">
-                <button 
-                  onClick={() => setIsSortOpen(!isSortOpen)}
-                  className="w-full flex items-center justify-between p-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-700 border border-transparent focus:border-yellow-400 transition-all hover:scale-[1.02]"
-                >
-                  <span className="truncate">{SORT_OPTIONS.find(o => o.id === sortBy)?.label}</span>
-                  <div className={`transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`}>
-                    <ChevronDown size={14} />
-                  </div>
-                </button>
+                <Tooltip content="Choose sorting criteria">
+                  <button 
+                    onClick={() => setIsSortOpen(!isSortOpen)}
+                    className="w-full flex items-center justify-between p-4 bg-slate-100 rounded-2xl font-black text-[10px] uppercase tracking-widest text-slate-700 border border-transparent focus:border-yellow-400 transition-all hover:scale-[1.02]"
+                  >
+                    <span className="truncate">{SORT_OPTIONS.find(o => o.id === sortBy)?.label}</span>
+                    <div className={`transition-transform duration-300 ${isSortOpen ? 'rotate-180' : ''}`}>
+                      <ChevronDown size={14} />
+                    </div>
+                  </button>
+                </Tooltip>
                 {isSortOpen && (
                   <div className="absolute left-0 top-full mt-2 w-full bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50">
                     {SORT_OPTIONS.map((opt) => (
@@ -579,110 +593,146 @@ function FindServiceContent() {
             </div>
           </aside>
 
-          <main className="flex-1 space-y-4 pb-32 lg:pb-24">
-            <div className="mb-2 px-2">
-              <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">
-                {isLoading ? "Loading companies..." : `${filteredAndSortedPros.length} companies found`}
-              </p>
-            </div>
+        <main className="flex-1 space-y-4 pb-32 lg:pb-24">
+  {/* OPTIMIZIRANA INTRO SEKCIJA */}
+<div className="w-full bg-white p-4 md:p-6 rounded-[24px] md:rounded-[32px] border border-slate-100 shadow-sm">
+  <div className="max-w-3xl space-y-2">
+    <Tooltip content="Need help finding something?">
+      <div className="flex items-center gap-2 md:gap-3">
+        <div className="p-1.5 bg-yellow-400 rounded-lg text-black shadow-sm shrink-0">
+          <Search className="w-3.5 h-3.5 md:w-4 md:h-4" />
+        </div>
+        <h2 className="text-[12px] md:text-xl font-black uppercase italic tracking-tighter text-slate-900 whitespace-nowrap md:whitespace-normal">
+          Find Exactly <span className="text-yellow-500">What You’re Looking For</span>
+        </h2>
+      </div>
+    </Tooltip>
+    
+    <p className="text-slate-700 font-bold leading-relaxed text-[11px] md:text-[13px] tracking-tight font-sans">
+      Why waste time searching when you can browse the best? Explore our 
+      <span className="font-black text-slate-900"> categorized directory of verified companies</span> and 
+      connect with experts tailored to your specific needs. Your next successful collaboration starts here.
+    </p>
+  </div>
+</div>
 
-            {isLoading ? (
-              Array(3).fill(0).map((_, i) => <SkeletonCard key={i} />)
-            ) : filteredAndSortedPros.length > 0 ? (
-              filteredAndSortedPros.map((company) => (
-  <div key={company.id} className="bg-white p-5 md:p-6 rounded-[24px] md:rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl hover:border-yellow-400/50 transition-all duration-300 group hover:scale-[1.01]">
-    <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
-      
-      <button 
-        onClick={() => setDescriptionCompany(company)}
-        className="hidden sm:flex w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-2xl shrink-0 items-center justify-center border border-slate-100 group-hover:bg-yellow-50 transition-all duration-300 overflow-hidden cursor-pointer hover:scale-110 active:scale-95"
-      >
-        {company.logo_url ? (
-          <img src={company.logo_url} alt="" className="w-full h-full object-cover" />
-        ) : (
-          <Home className="text-slate-200 group-hover:text-yellow-500 transition-colors" size={28} />
-        )}
-      </button>
+  <div className="mb-2 px-2">
+    <p className="text-slate-600 text-[10px] font-black uppercase tracking-[0.2em]">
+      {isLoading ? "Loading companies..." : `${filteredAndSortedPros.length} companies found`}
+    </p>
+  </div>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1.5">
-          <button 
-            onClick={() => setDescriptionCompany(company)}
-            className="hover:text-yellow-500 transition-all text-left cursor-pointer hover:scale-105 active:scale-95 origin-left"
-          >
-            <h2 className="text-base md:text-lg font-black text-slate-900 uppercase truncate">
-              {highlightText(company.company_name, searchValue)}
-            </h2>
-          </button>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <BadgeCheck className={`${company.is_verified ? "text-green-500" : "text-red-500"}`} size={18} />
+  {isLoading ? (
+    Array(3).fill(0).map((_, i) => <SkeletonCard key={i} />)
+  ) : filteredAndSortedPros.length > 0 ? (
+    filteredAndSortedPros.map((company) => (
+      <div key={company.id} className="bg-white p-5 md:p-6 rounded-[24px] md:rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl hover:border-yellow-400/50 transition-all duration-300 group hover:scale-[1.01]">
+        <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
+          
+          <Tooltip content="View company details">
             <button 
               onClick={() => setDescriptionCompany(company)}
-              className="text-blue-500 hover:text-blue-700 transition-colors cursor-pointer p-1 hover:scale-110 active:scale-90"
+              className="hidden sm:flex w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-2xl shrink-0 items-center justify-center border border-slate-100 group-hover:bg-yellow-50 transition-all duration-300 overflow-hidden cursor-pointer hover:scale-110 active:scale-95"
             >
-              <span className="sr-only">Info</span>
-              <Info size={20} />
+              {company.logo_url ? (
+                <img src={company.logo_url} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <Home className="text-slate-200 group-hover:text-yellow-500 transition-colors" size={28} />
+              )}
             </button>
+          </Tooltip>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Tooltip content="Click for more info">
+                <button 
+                  onClick={() => setDescriptionCompany(company)}
+                  className="hover:text-yellow-500 transition-all text-left cursor-pointer hover:scale-105 active:scale-95 origin-left"
+                >
+                  <h2 className="text-base md:text-lg font-black text-slate-900 uppercase truncate">
+                    {highlightText(company.company_name, searchValue)}
+                  </h2>
+                </button>
+              </Tooltip>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Tooltip content={company.is_verified ? "Verified Professional" : "Unverified"}>
+                  <BadgeCheck className={`${company.is_verified ? "text-green-500" : "text-red-500"}`} size={18} />
+                </Tooltip>
+                <Tooltip content="Full details">
+                  <button 
+                    onClick={() => setDescriptionCompany(company)}
+                    className="text-blue-500 hover:text-blue-700 transition-colors cursor-pointer p-1 hover:scale-110 active:scale-90"
+                  >
+                    <span className="sr-only">Info</span>
+                    <Info size={20} />
+                  </button>
+                </Tooltip>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap gap-3 text-[9px] md:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 items-center">
+              <Tooltip content="Read reviews">
+                <button 
+                  onClick={() => setReviewModalData({ id: company.id, name: company.company_name })}
+                  className="flex items-center gap-1.5 hover:bg-slate-50 px-2 py-1 -ml-2 rounded-lg transition-colors group/reviews cursor-pointer"
+                >
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star 
+                        key={star}
+                        size={14} 
+                        className={`${star <= Math.round(company.average_rating || 0) ? "text-yellow-500 fill-yellow-500" : "text-slate-200 fill-slate-100"}`} 
+                      />
+                    ))}
+                  </div>
+                  <span className="text-slate-900 ml-1">{company.average_rating ? company.average_rating.toFixed(1) : "0.0"}</span>
+                  <span className="text-slate-600 ml-0.5">({company.jobs_completed_count || 0})</span>
+                  <span className="ml-1 text-slate-400 group-hover/reviews:text-yellow-600 flex items-center gap-1 border-l border-slate-200 pl-2">
+                    Review <MessageSquare size={10} />
+                  </span>
+                </button>
+              </Tooltip>
+              <span className="flex items-center gap-1"><MapPin size={12} /> Base: {company.base_county}</span>
+            </div>
+
+            <CompanyCategories categories={company.categories || []} />
+            
+            <CompanyCovers counties={company.service_counties || []} />
+
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Tooltip content="Send direct inquiry">
+              <button 
+                onClick={() => setInquiryCompany(company)}
+                className="flex-1 sm:flex-none bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 group/btn cursor-pointer"
+              >
+                Inquiry
+                <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+              </button>
+            </Tooltip>
           </div>
         </div>
-        
-        <div className="flex flex-wrap gap-3 text-[9px] md:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 items-center">
-          <button 
-            onClick={() => setReviewModalData({ id: company.id, name: company.company_name })}
-            className="flex items-center gap-1.5 hover:bg-slate-50 px-2 py-1 -ml-2 rounded-lg transition-colors group/reviews cursor-pointer"
-          >
-            <div className="flex items-center gap-0.5">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star 
-                  key={star}
-                  size={14} 
-                  className={`${star <= Math.round(company.average_rating || 0) ? "text-yellow-500 fill-yellow-500" : "text-slate-200 fill-slate-100"}`} 
-                />
-              ))}
-            </div>
-            <span className="text-slate-900 ml-1">{company.average_rating ? company.average_rating.toFixed(1) : "0.0"}</span>
-            <span className="text-slate-600 ml-0.5">({company.jobs_completed_count || 0})</span>
-            <span className="ml-1 text-slate-400 group-hover/reviews:text-yellow-600 flex items-center gap-1 border-l border-slate-200 pl-2">
-              Review <MessageSquare size={10} />
-            </span>
-          </button>
-          <span className="flex items-center gap-1"><MapPin size={12} /> Base: {company.base_county}</span>
-        </div>
-
-        <CompanyCategories categories={company.categories || []} />
-        
-        <CompanyCovers counties={company.service_counties || []} />
-
       </div>
-      
-      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-        <button 
-          onClick={() => setInquiryCompany(company)}
-          className="flex-1 sm:flex-none bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 group/btn cursor-pointer"
-        >
-          Inquiry
-          <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
-        </button>
-      </div>
+    ))
+  ) : (
+    <div className="py-20 text-center bg-white rounded-[32px] border-2 border-dashed border-slate-100">
+      <p className="font-black uppercase text-slate-300 text-xs tracking-widest">No matching results</p>
     </div>
-  </div>
-))
-            ) : (
-              <div className="py-20 text-center bg-white rounded-[32px] border-2 border-dashed border-slate-100">
-                <p className="font-black uppercase text-slate-300 text-xs tracking-widest">No matching results</p>
-              </div>
-            )}
-          </main>
+  )}
+</main>
         </div>
       </div>
 
-      <button
-        onClick={scrollToTop}
-        className={`fixed bottom-8 right-8 p-4 bg-white text-slate-900 rounded-2xl shadow-2xl border border-slate-100 z-50 transition-all duration-500 hover:scale-110 active:scale-95 hover:bg-yellow-400 group
-          ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
-      >
-        <ArrowUp size={24} className="group-hover:-translate-y-1 transition-transform duration-300" />
-      </button>
+      <Tooltip content="Back to top">
+        <button
+          onClick={scrollToTop}
+          className={`fixed bottom-8 right-8 p-4 bg-white text-slate-900 rounded-2xl shadow-2xl border border-slate-100 z-50 transition-all duration-500 hover:scale-110 active:scale-95 hover:bg-yellow-400 group
+            ${showScrollTop ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0 pointer-events-none'}`}
+        >
+          <ArrowUp size={24} className="group-hover:-translate-y-1 transition-transform duration-300" />
+        </button>
+      </Tooltip>
 
       {inquiryCompany && (
         <InquiryModal 
