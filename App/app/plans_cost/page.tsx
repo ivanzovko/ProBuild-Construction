@@ -1,12 +1,10 @@
-// File: page.tsx
-// Folder: app/dashboard/estimates/
-
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Home, Building2, Hammer, Ruler, ArrowRight, Info, CheckCircle2, Sparkles, Loader2, Send, X, LockKeyhole, ChevronDown, ChevronUp, HelpCircle, ShieldCheck } from "lucide-react";
 import { createBrowserClient } from "@supabase/ssr";
+import { getSiteSettings } from "@/lib/cms";
 import CreateJobDetails from "./components/CreateJobDetails";
 
 export default function EstimatesPage() {
@@ -23,6 +21,9 @@ export default function EstimatesPage() {
   const [totalEstimate, setTotalEstimate] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   
+  const [cmsPrices, setCmsPrices] = useState<any>(null);
+  const [cmsMultipliers, setCmsMultipliers] = useState<any>(null);
+  
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [jobDetails, setJobDetails] = useState({ title: "", location: "", description: "" });
   const [showSuccess, setShowSuccess] = useState(false);
@@ -32,10 +33,34 @@ export default function EstimatesPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
-    const basePrice = projectType === "house" ? 1650 : projectType === "apartment" ? 950 : 600;
-    const qualityMultiplier = quality === "luxury" ? 1.7 : quality === "budget" ? 0.85 : 1;
+    const fetchSettings = async () => {
+      const settings = await getSiteSettings();
+      if (settings) {
+        if (settings.prices) setCmsPrices(settings.prices);
+        if (settings.multipliers) setCmsMultipliers(settings.multipliers);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    const prices = {
+      house: cmsPrices?.house || 1650,
+      apartment: cmsPrices?.apartment || 950,
+      renovation: cmsPrices?.renovation || 600
+    };
+
+    const multipliers = {
+      budget: cmsMultipliers?.budget || 0.85,
+      standard: cmsMultipliers?.standard || 1,
+      luxury: cmsMultipliers?.luxury || 1.7
+    };
+
+    const basePrice = prices[projectType as keyof typeof prices];
+    const qualityMultiplier = multipliers[quality as keyof typeof multipliers];
+    
     setTotalEstimate(sqm * basePrice * qualityMultiplier);
-  }, [sqm, projectType, quality]);
+  }, [sqm, projectType, quality, cmsPrices, cmsMultipliers]);
 
   const toggleStep = (step: number) => {
     if (window.innerWidth < 1024) {

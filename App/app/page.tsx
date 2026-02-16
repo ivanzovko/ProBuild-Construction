@@ -111,33 +111,33 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:gap-6">
-              {NAV_CARDS.map((card) => (
-                <button
-                  key={card.id}
-                  onClick={() => navigateTo(card.id)}
-                  className={`group relative flex flex-col justify-between p-4 sm:p-6 h-40 sm:h-52 bg-white border border-slate-200 rounded-[24px] sm:rounded-[40px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.03] ${card.color} hover:border-transparent overflow-hidden`}
-                >
-                  <div className="absolute -right-4 -bottom-4 text-slate-100 group-hover:text-white/10 transition-all duration-500 rotate-12 group-hover:rotate-0">
-                    {card.bgIcon}
-                  </div>
+             {NAV_CARDS.map((card) => (
+  <button
+    key={card.id}
+    onClick={() => navigateTo(card.id)}
+    className={`cursor-pointer group relative flex flex-col justify-between p-4 sm:p-6 h-40 sm:h-52 bg-white border border-slate-200 rounded-[24px] sm:rounded-[40px] transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.03] ${card.color} hover:border-transparent overflow-hidden`}
+  >
+    <div className="absolute -right-4 -bottom-4 text-slate-100 group-hover:text-white/10 transition-all duration-500 rotate-12 group-hover:rotate-0">
+      {card.bgIcon}
+    </div>
 
-                  <div className="relative z-10 flex justify-between items-start">
-                    <div className="p-2.5 sm:p-3 bg-slate-900 text-white rounded-xl group-hover:bg-white group-hover:text-slate-900 transition-all duration-300">
-                      {card.icon}
-                    </div>
-                    <ArrowUpRight className="text-slate-300 group-hover:text-white/50 transition-colors" size={20} />
-                  </div>
+    <div className="relative z-10 flex justify-between items-start">
+      <div className="p-2.5 sm:p-3 bg-slate-900 text-white rounded-xl group-hover:bg-white group-hover:text-slate-900 transition-all duration-300">
+        {card.icon}
+      </div>
+      <ArrowUpRight className="text-slate-300 group-hover:text-white/50 transition-colors" size={20} />
+    </div>
 
-                  <div className="relative z-10 text-left">
-                    <span className="text-[7px] sm:text-[9px] font-black text-yellow-600 group-hover:text-yellow-200 transition-colors uppercase tracking-widest block mb-1">
-                      {card.stats}
-                    </span>
-                    <h3 className="text-sm sm:text-xl font-black uppercase italic text-slate-900 group-hover:text-white transition-colors leading-none tracking-tight">
-                      {card.title}
-                    </h3>
-                  </div>
-                </button>
-              ))}
+    <div className="relative z-10 text-left">
+      <span className="text-[7px] sm:text-[9px] font-black text-yellow-600 group-hover:text-yellow-200 transition-colors uppercase tracking-widest block mb-1">
+        {card.stats}
+      </span>
+      <h3 className="text-sm sm:text-xl font-black uppercase italic text-slate-900 group-hover:text-white transition-colors leading-none tracking-tight">
+        {card.title}
+      </h3>
+    </div>
+  </button>
+))}
             </div>
           </div>
 

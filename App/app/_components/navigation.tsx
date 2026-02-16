@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
+import { getSiteSettings } from "@/lib/cms";
 import { 
   Hammer, 
   User, 
@@ -37,6 +38,8 @@ export function Navigation() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
+  const [visiblePages, setVisiblePages] = useState<Page[]>(pages);
+  const [canShowCompanies, setCanShowCompanies] = useState(true);
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -51,6 +54,33 @@ export function Navigation() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   ), []);
+
+  useEffect(() => {
+    const syncCMS = async () => {
+      try {
+        const settings = await getSiteSettings();
+        if (settings) {
+          const filtered = pages.filter(page => {
+            if (page.path === "/" && settings.showHome === false) return false;
+            if (page.path === "/find_service" && settings.showServices === false) return false;
+            if (page.path === "/plans_cost" && settings.showEstimates === false) return false;
+            if (page.path === "/project_tracking" && settings.showTracking === false) return false;
+            return true;
+          });
+          setVisiblePages(filtered);
+          
+          if (settings.showCompanies === false) {
+            setCanShowCompanies(false);
+          } else {
+            setCanShowCompanies(true);
+          }
+        }
+      } catch (error) {
+        console.error("CMS sync error:", error);
+      }
+    };
+    syncCMS();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -128,7 +158,7 @@ export function Navigation() {
     }
   };
 
-  const showCompanyLink = !user || user?.user_metadata?.user_type === 'company';
+  const showCompanyLink = canShowCompanies && (!user || user?.user_metadata?.user_type === 'company');
   const isLoginActive = currentPath === "/login";
 
   return (
@@ -162,7 +192,7 @@ export function Navigation() {
 
         <nav className="hidden lg:flex items-center gap-8">
           <ul className="flex gap-6">
-            {pages.map((page, index) => {
+            {visiblePages.map((page, index) => {
               const isActive = currentPath === page.path;
               return (
                 <li key={index}>
@@ -219,22 +249,22 @@ export function Navigation() {
             ) : user ? (
               <div className="relative" ref={dropdownRef}>
                 <button 
-  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-  className="flex items-center gap-3 bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 min-w-fit"
->
-  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-black flex-shrink-0">
-    <User size={14} />
-  </div>
-  <div className="flex flex-col items-start leading-tight">
-    <span className="italic text-[12px] whitespace-nowrap">
-      {user.user_metadata?.full_name || user.email?.split('@')[0]}
-    </span>
-    <span className="text-[9px] text-slate-400 font-medium whitespace-nowrap">
-      {user.email}
-    </span>
-  </div>
-  <ChevronDown size={14} className={`transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
-</button>
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  className="flex items-center gap-3 bg-slate-900 text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 min-w-fit"
+                >
+                  <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center text-black flex-shrink-0">
+                    <User size={14} />
+                  </div>
+                  <div className="flex flex-col items-start leading-tight">
+                    <span className="italic text-[12px] whitespace-nowrap">
+                      {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                    </span>
+                    <span className="text-[9px] text-slate-400 font-medium whitespace-nowrap">
+                      {user.email}
+                    </span>
+                  </div>
+                  <ChevronDown size={14} className={`transition-transform flex-shrink-0 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
 
                 {isDropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 py-2 animate-in fade-in slide-in-from-top-2">
@@ -277,7 +307,7 @@ export function Navigation() {
         `}>
           <div className="mt-16 flex flex-col gap-8 overflow-y-auto">
             <ul className="flex flex-col gap-6">
-              {pages.map((page, index) => (
+              {visiblePages.map((page, index) => (
                 <li key={index}>
                   <Link
                     href={page.path}

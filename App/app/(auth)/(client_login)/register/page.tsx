@@ -83,7 +83,7 @@ export default function RegisterPage() {
             phone: phone,
             user_type: 'client',
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/callback`,
         },
       });
 

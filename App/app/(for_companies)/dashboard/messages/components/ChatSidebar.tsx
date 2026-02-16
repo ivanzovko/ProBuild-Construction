@@ -3,12 +3,20 @@ import { useState, useRef, useMemo } from "react";
 import { ChatSkeleton } from "./chatSkeletons";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tooltip } from "@components/Tooltip";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 interface ChatSidebarProps {
-  loading: boolean; searchQuery: string; setSearchQuery: (val: string) => void;
-  filteredChats: any[]; selectedJobId: string | null; setSelectedJobId: (id: string | null) => void;
-  highlightText: (text: string, query: string) => React.ReactNode; formatLastMessageTime: (date: string | undefined) => string;
-  pinnedIds: string[]; togglePin: (e: React.MouseEvent, id: string) => void; onStartNewChat: () => void;
+  loading: boolean; 
+  searchQuery: string; 
+  setSearchQuery: (val: string) => void;
+  filteredChats: any[]; 
+  selectedJobId: string | null; 
+  setSelectedJobId: (id: string | null) => void;
+  highlightText: (text: string, query: string) => React.ReactNode; 
+  formatLastMessageTime: (date: string | undefined) => string;
+  pinnedIds: string[]; 
+  togglePin: (e: React.MouseEvent, id: string) => void; 
+  onStartNewChat: () => void;
 }
 
 export const ChatSidebar = ({
@@ -17,8 +25,14 @@ export const ChatSidebar = ({
 }: ChatSidebarProps) => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
-  const [activeFilter, setActiveFilter] = useState<'all' | 'active' | 'completed'>('all');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Dohvaćamo filter iz URL-a, ako ga nema default je 'all'
+  const activeFilter = (searchParams.get('filter') as 'all' | 'active' | 'completed') || 'all';
 
   const displayChats = useMemo(() => {
     if (activeFilter === 'all') return filteredChats;
@@ -39,6 +53,24 @@ export const ChatSidebar = ({
 
   const scrollToTop = () => {
     scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Navigacija na chat uz očuvanje trenutnog filtera u URL-u
+ const handleChatClick = (id: string) => {
+  const params = new URLSearchParams(searchParams.toString());
+  const queryString = params.toString();
+  
+  // Ovo osigurava da filter (i bilo koji drugi parametar poput searcha) 
+  // ostane u URL-u dok se navigiraš kroz chatove.
+  router.push(`/dashboard/messages/${id}${queryString ? `?${queryString}` : ''}`);
+  setSelectedJobId(id);
+};
+
+  // Promjena filtera u URL-u uz očuvanje trenutne putanje (ID-a razgovora)
+  const handleFilterChange = (filter: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('filter', filter);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
@@ -87,7 +119,7 @@ export const ChatSidebar = ({
             {(['all', 'active', 'completed'] as const).map((filter) => (
               <button
                 key={filter}
-                onClick={() => setActiveFilter(filter)}
+                onClick={() => handleFilterChange(filter)}
                 className={`flex-1 py-2 text-[9px] font-black uppercase tracking-wider rounded-[11px] transition-all flex items-center justify-center gap-1 hover:scale-105 active:scale-95 ${
                   activeFilter === filter 
                     ? "bg-yellow-400 text-slate-950 shadow-sm border border-black/10" 
@@ -142,7 +174,7 @@ export const ChatSidebar = ({
                   <div key={filter} className="flex-1">
                     <Tooltip content={`Filter by ${filter}`} side="bottom">
                       <button
-                        onClick={() => setActiveFilter(filter)}
+                        onClick={() => handleFilterChange(filter)}
                         className={`w-full py-2 text-[10px] font-black uppercase tracking-wider rounded-[11px] transition-all flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95 ${
                           activeFilter === filter 
                             ? "bg-yellow-400 text-slate-950 shadow-sm" 
@@ -183,7 +215,7 @@ export const ChatSidebar = ({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2, delay: index * 0.01 }}
-                    onClick={() => setSelectedJobId(chat.id)} 
+                    onClick={() => handleChatClick(chat.id)} 
                     className={`group/chat-item relative p-4 rounded-[30px] cursor-pointer transition-all duration-200 ${isSel ? "bg-slate-950 shadow-2xl scale-[1.03] z-10" : "bg-white hover:bg-yellow-400 hover:scale-[1.02] hover:shadow-xl active:scale-[0.97] border border-gray-100"}`}
                   >
                     {!isSel && (

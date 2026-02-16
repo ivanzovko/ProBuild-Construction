@@ -320,7 +320,7 @@ export default function ChatModal({ job, onClose, isReadOnly }: { job: any; onCl
                     {job.title || 'Chat'}
                   </h3>
                   <p className="text-[8px] sm:text-[9px] text-slate-500 font-black uppercase tracking-wider">
-                    Contractor: {job.contractor_name || 'N/A'}
+                    Contractor: {job.contractor_name || job?.company_profiles?.company_name || 'N/A'}
                   </p>
                 </div>
               </div>
@@ -474,7 +474,7 @@ export default function ChatModal({ job, onClose, isReadOnly }: { job: any; onCl
                     <button 
                       type="submit" 
                       disabled={!newMessage.trim() || uploading} 
-                      className="w-9 h-9 bg-slate-900 text-yellow-400 rounded-lg flex items-center justify-center hover:scale-105 active:scale-90 disabled:opacity-20 transition-all shadow-md"
+                      className="w-7 h-6 bg-slate-900 text-yellow-400 rounded-lg flex items-center justify-center hover:scale-105 active:scale-90 disabled:opacity-20 transition-all shadow-md"
                     >
                       <Send size={14} />
                     </button>

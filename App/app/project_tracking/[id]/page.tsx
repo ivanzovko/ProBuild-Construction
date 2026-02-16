@@ -62,24 +62,41 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const docInputRef = useRef<HTMLInputElement>(null);
   const imgInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      const { data, error } = await supabase
-        .from('jobs')
-        .select(`
-          *,
-          company_profiles (*),
-          payments (id, amount, payment_date, description, created_at)
-        `)
-        .eq('id', projectId)
-        .single();
-      
-      if (error) console.error("Error fetching project:", error.message);
-      if (data) setJob(data);
-      loading && setLoading(false);
-    };
+useEffect(() => {
+  const fetchProject = async () => {
+    const { data, error } = await supabase
+      .from('jobs')
+      .select(`
+        *,
+        company_profiles (*),
+        estimates (price),
+        payments (
+          id, 
+          amount, 
+          payment_date, 
+          description, 
+          created_at,
+          is_avans,
+          status 
+        ),
+        project_items (*)
+      `)
+      .eq('id', projectId)
+      .single();
+    
+    if (error) {
+      console.error("Error fetching project:", error.message);
+    } else if (data) {
+      setJob(data);
+    }
+    
+    if (loading) setLoading(false);
+  };
+
+  if (projectId) {
     fetchProject();
-  }, [projectId, supabase]);
+  }
+}, [projectId, supabase]);
 
   const getBackUrl = () => {
     if (!job) return '/project_tracking';
@@ -176,7 +193,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const remainingToPay = totalWorkValue - paidSoFar;
 
   const tabs = [
-    { id: 'timeline', label: 'Timeline', icon: Calendar },
+    { id: 'timeline', label: 'WORK LOG', icon: Calendar },
     { id: 'costs', label: 'Costs & Payments', icon: Wallet },
     { id: 'images', label: 'Images', icon: ImageIcon },
     { id: 'documents', label: 'Documents', icon: FileText },
@@ -259,142 +276,142 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-2xl">
-        <div className="max-w-[1440px] mx-auto px-4 lg:px-6">
-          <div className="py-4 lg:py-6 flex items-center gap-4 lg:gap-6">
+     <header className="bg-slate-900 border-b border-slate-800 relative z-50 shadow-2xl">
+  <div className="max-w-[1440px] mx-auto px-4 lg:px-6">
+    <div className="py-3 lg:py-4 flex items-center gap-4 lg:gap-6">
+      <button 
+        onClick={() => router.push(getBackUrl())}
+        className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-white/5 text-white rounded-xl lg:rounded-2xl hover:bg-yellow-400 hover:text-slate-900 transition-all border border-white/5 shrink-0 hover:scale-110"
+      >
+        <ArrowLeft size={20} />
+      </button>
+      
+      <div className="flex-1 flex flex-col lg:flex-row lg:items-center justify-between min-w-0 gap-1 lg:gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg md:text-2xl font-black text-white uppercase italic leading-tight tracking-tighter">
+              {job?.title || job?.project_type}
+            </h1>
             <button 
-              onClick={() => router.push(getBackUrl())}
-              className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-white/5 text-white rounded-xl lg:rounded-2xl hover:bg-yellow-400 hover:text-slate-900 transition-all border border-white/5 shrink-0 hover:scale-110"
+              onClick={() => setIsInfoOpen(true)}
+              className="p-2 bg-white/10 text-yellow-400 rounded-xl hover:bg-yellow-400 hover:text-slate-900 transition-all active:scale-90"
             >
-              <ArrowLeft size={20} />
+              <Info size={18} className="lg:w-6 lg:h-6 w-5 h-5" />
             </button>
-            
-            <div className="flex-1 flex flex-col lg:flex-row lg:items-center justify-between min-w-0 gap-1 lg:gap-4">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-3">
-                  <h1 className="text-lg md:text-4xl font-black text-white uppercase italic leading-tight tracking-tighter">
-                    {job?.title || job?.project_type}
-                  </h1>
-                  <button 
-                    onClick={() => setIsInfoOpen(true)}
-                    className="p-2 bg-white/10 text-yellow-400 rounded-xl hover:bg-yellow-400 hover:text-slate-900 transition-all active:scale-90"
-                  >
-                    <Info size={18} className="lg:w-8 lg:h-8 w-6 h-6" />
-                  </button>
-                </div>
-              </div>
-
-              {job?.status === 'completed' && (
-                <div className="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full shrink-0">
-                  <CheckCircle2 size={14} className="text-emerald-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Completed Project</span>
-                </div>
-              )}
-
-              <div className="hidden lg:flex items-center gap-6 shrink-0">
-                <div className="flex flex-col items-start border-l border-white/10 pl-6 first:border-none first:pl-0">
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Contractor</span>
-                  <div className="flex items-center gap-3">
-                    <button 
-                      onClick={() => setIsCompanyOpen(true)}
-                      className="flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 group/contractor"
-                    >
-                      <HardHat size={16} className="text-yellow-400 group-hover/contractor:rotate-12 transition-transform" />
-                      <span className="text-[14px] font-black uppercase text-white group-hover/contractor:text-yellow-400 transition-colors">
-                        {job?.company_profiles?.company_name || "N/A"}
-                      </span>
-                    </button>
-                    {job?.contractor_id && (
-                      <button 
-                        onClick={() => setIsReviewsOpen(true)}
-                        className="flex items-center gap-1.5 bg-yellow-400 px-3 py-1 rounded-lg hover:bg-white transition-all group active:scale-95"
-                      >
-                        <Star size={12} className="fill-slate-950 text-slate-950 group-hover:scale-110 transition-transform" />
-                        <span className="text-[10px] font-black uppercase text-slate-950">Reviews</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex flex-col items-start border-l border-white/10 pl-6">
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Started on</span>
-                  <div className="flex items-center gap-2">
-                    <Calendar size={16} className="text-yellow-400" />
-                    <span className="text-[14px] font-black uppercase text-white">
-                      {job?.created_at ? new Date(job.created_at).toLocaleDateString('en-GB') : "N/A"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="lg:hidden pb-4 relative">
-            <button 
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="w-full bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-widest rounded-xl px-4 py-4 flex items-center justify-between active:bg-white/10 transition-all"
-            >
-              <div className="flex items-center gap-3">
-                {(() => {
-                  const activeIcon = tabs.find(t => t.id === activeTab)?.icon || Calendar;
-                  const Icon = activeIcon;
-                  return <Icon size={16} className="text-yellow-400" />;
-                })()}
-                <span>{tabs.find(t => t.id === activeTab)?.label}</span>
-              </div>
-              <ChevronDown size={18} className={`text-yellow-400 transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            {isMobileMenuOpen && (
-              <>
-                <div className="fixed inset-0 z-40" onClick={() => setIsMobileMenuOpen(false)} />
-                <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
-                  <div className="p-2 space-y-1">
-                    {tabs.map((tab) => (
-                      <button
-                        key={tab.id}
-                        onClick={() => {
-                          if (tab.id === 'chat') {
-                            setIsChatOpen(true);
-                          } else {
-                            setActiveTab(tab.id as TabType);
-                          }
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                          activeTab === tab.id && tab.id !== 'chat'
-                            ? "bg-yellow-400 text-slate-900" 
-                            : "text-white hover:bg-white/5"
-                        }`}
-                      >
-                        <tab.icon size={16} className={activeTab === tab.id && tab.id !== 'chat' ? "text-slate-900" : "text-yellow-400"} />
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="hidden lg:flex border-t border-white/5">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => tab.id === 'chat' ? setIsChatOpen(true) : setActiveTab(tab.id as TabType)}
-                className={`flex-1 flex items-center justify-center gap-2 py-4 text-[11px] font-black uppercase tracking-wider transition-all border-b-2 group hover:bg-white/5 ${
-                  activeTab === tab.id && tab.id !== 'chat'
-                  ? "border-yellow-400 text-yellow-400 bg-white/5" 
-                  : "border-transparent text-slate-500 hover:text-slate-200"
-                }`}
-              >
-                <tab.icon size={14} className="group-hover:scale-110 transition-transform" />
-                <span className="group-hover:scale-110 group-hover:ml-1 transition-all duration-200">{tab.label}</span>
-              </button>
-            ))}
           </div>
         </div>
-      </header>
+
+        {job?.status === 'completed' && (
+          <div className="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full shrink-0">
+            <CheckCircle2 size={14} className="text-emerald-500" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Completed Project</span>
+          </div>
+        )}
+
+        <div className="hidden lg:flex items-center gap-6 shrink-0">
+          <div className="flex flex-col items-start border-l border-white/10 pl-6 first:border-none first:pl-0">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Contractor</span>
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setIsCompanyOpen(true)}
+                className="flex items-center gap-2 cursor-pointer transition-all hover:scale-105 active:scale-95 group/contractor"
+              >
+                <HardHat size={16} className="text-yellow-400 group-hover/contractor:rotate-12 transition-transform" />
+                <span className="text-[14px] font-black uppercase text-white group-hover/contractor:text-yellow-400 transition-colors">
+                  {job?.company_profiles?.company_name || "N/A"}
+                </span>
+              </button>
+              {job?.contractor_id && (
+                <button 
+                  onClick={() => setIsReviewsOpen(true)}
+                  className="flex items-center gap-1.5 bg-yellow-400 px-3 py-1 rounded-lg hover:bg-white transition-all group active:scale-95"
+                >
+                  <Star size={12} className="fill-slate-950 text-slate-950 group-hover:scale-110 transition-transform" />
+                  <span className="text-[10px] font-black uppercase text-slate-950">Reviews</span>
+                </button>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-start border-l border-white/10 pl-6">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Started on</span>
+            <div className="flex items-center gap-2">
+              <Calendar size={16} className="text-yellow-400" />
+              <span className="text-[14px] font-black uppercase text-white">
+                {job?.created_at ? new Date(job.created_at).toLocaleDateString('en-GB') : "N/A"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="lg:hidden pb-4 relative">
+      <button 
+        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        className="w-full bg-white/5 border border-white/10 text-white text-[11px] font-black uppercase tracking-widest rounded-xl px-4 py-4 flex items-center justify-between active:bg-white/10 transition-all"
+      >
+        <div className="flex items-center gap-3">
+          {(() => {
+            const activeIcon = tabs.find(t => t.id === activeTab)?.icon || Calendar;
+            const Icon = activeIcon;
+            return <Icon size={16} className="text-yellow-400" />;
+          })()}
+          <span>{tabs.find(t => t.id === activeTab)?.label}</span>
+        </div>
+        <ChevronDown size={18} className={`text-yellow-400 transition-transform ${isMobileMenuOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isMobileMenuOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-200">
+            <div className="p-2 space-y-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => {
+                    if (tab.id === 'chat') {
+                      setIsChatOpen(true);
+                    } else {
+                      setActiveTab(tab.id as TabType);
+                    }
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-4 px-4 py-4 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
+                    activeTab === tab.id && tab.id !== 'chat'
+                      ? "bg-yellow-400 text-slate-900" 
+                      : "text-white hover:bg-white/5"
+                  }`}
+                >
+                  <tab.icon size={16} className={activeTab === tab.id && tab.id !== 'chat' ? "text-slate-900" : "text-yellow-400"} />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+
+    <div className="hidden lg:flex border-t border-white/5">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          onClick={() => tab.id === 'chat' ? setIsChatOpen(true) : setActiveTab(tab.id as TabType)}
+          className={`flex-1 flex items-center justify-center gap-2 py-4 text-[11px] font-black uppercase tracking-wider transition-all border-b-2 group hover:bg-white/5 ${
+            activeTab === tab.id && tab.id !== 'chat'
+            ? "border-yellow-400 text-yellow-400 bg-white/5" 
+            : "border-transparent text-slate-500 hover:text-slate-200"
+          }`}
+        >
+          <tab.icon size={14} className="group-hover:scale-110 transition-transform" />
+          <span className="group-hover:scale-110 group-hover:ml-1 transition-all duration-200">{tab.label}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+</header>
 
       <main className="max-w-[1440px] mx-auto px-6 py-8">
         {activeTab === 'timeline' && (
@@ -410,14 +427,39 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         )}
 
         {activeTab === 'costs' && (
-          <ProjectFinance 
-            estimatedPrice={estimatedPrice}
-            totalWorkValue={totalWorkValue}
-            paidSoFar={paidSoFar}
-            remainingToPay={remainingToPay}
-            payments={job?.payments || []}
-          />
-        )}
+<ProjectFinance 
+  jobId={projectId}
+  // Dohvaćamo IBAN iz company_profiles koji je povezan s job-om
+  companyIban={job?.company_profiles?.iban || "IBAN not available"}
+  // Osnovne financijske informacije
+  originalQuote={job?.estimates?.[0]?.price || 0}
+  estimatedPrice={estimatedPrice}
+  totalWorkValue={totalWorkValue}
+  paidSoFar={paidSoFar}
+  remainingToPay={remainingToPay}
+  // Lista uplata za tablicu history-a
+  payments={job?.payments || []}
+  // Onemogućavamo admin funkcije na klijentskoj strani
+  isAdmin={false}
+  // DODANO: Funkcija za poništavanje uplate (Void)
+  onVoidPayment={async (paymentId) => {
+    try {
+      // Ovdje ide tvoj update prema bazi
+      const { error } = await supabase
+        .from('payments')
+        .update({ status: 'voided' })
+        .eq('id', paymentId);
+
+      if (error) throw error;
+      
+      // Ovdje pozovi funkciju kojom osvježavaš podatke (npr. fetchJob())
+      // refreshData(); 
+    } catch (err) {
+      console.error("Error voiding payment:", err);
+    }
+  }}
+/>
+)}
 
         {(activeTab === 'images' || activeTab === 'documents') && (
           <ProjectMedia 

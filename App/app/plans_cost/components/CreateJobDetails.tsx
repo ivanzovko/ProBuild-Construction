@@ -1,6 +1,3 @@
-// File: CreateJobDetails.tsx
-// Folder: app/dashboard/estimates/components/
-
 "use client";
 
 import { useState } from "react";
@@ -35,12 +32,25 @@ export default function CreateJobDetails({ onClose, onSubmit, projectData }: Det
     e.preventDefault();
     setIsSubmitting(true);
 
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) return;
+    console.log("Starting submission...");
+    console.log("Form Data:", formData);
+    console.log("Project Data from Props:", projectData);
 
-      const { error } = await supabase
+    try {
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error("Session Error:", sessionError);
+      }
+
+      if (!session) {
+        console.error("No active session found. User might not be logged in correctly.");
+        return;
+      }
+
+      console.log("User authenticated. ID:", session.user.id);
+
+      const { data, error } = await supabase
         .from("jobs")
         .insert([
           {
@@ -54,13 +64,20 @@ export default function CreateJobDetails({ onClose, onSubmit, projectData }: Det
             estimated_price: projectData.estimated_price,
             status: "pending"
           }
-        ]);
+        ])
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase Insert Error:", error);
+        console.error("Error Message:", error.message);
+        console.error("Error Details:", error.details);
+        throw error;
+      }
 
+      console.log("Insert successful! Data returned:", data);
       onSubmit(formData);
     } catch (error) {
-      console.error(error);
+      console.error("Catch block error:", error);
     } finally {
       setIsSubmitting(false);
     }

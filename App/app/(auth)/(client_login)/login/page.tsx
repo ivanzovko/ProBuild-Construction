@@ -112,14 +112,17 @@ function LoginContent() {
     }
   };
 
-  const handleGoogleLogin = async () => {
+ const handleGoogleLogin = async () => {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/callback`,
+        // Koristimo queryParams za prosljeđivanje informacije o ulozi
+        // koju ćemo kasnije moći pročitati u callbacku ili triggeru
         queryParams: {
           prompt: 'select_account',
           access_type: 'offline',
+          user_role: 'client' // Dodajemo ovo ovdje
         },
       },
     });

@@ -163,7 +163,13 @@ export default function DashboardSidebar({ isOpen, onClose }: DashboardSidebarPr
         
         <nav className="flex-1 space-y-2 lg:space-y-3 overflow-y-auto scrollbar-hide pr-2 -mr-2">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            // Nova logika za aktivno stanje:
+            // Ako je link '/dashboard', mora biti točan match da ne bi sve ostalo bilo aktivno.
+            // Za ostale linkove provjeravamo počinje li URL putanja s tim href-om.
+            const isActive = item.href === "/dashboard" 
+              ? pathname === "/dashboard" 
+              : pathname.startsWith(item.href);
+
             return (
               <Link 
                 key={item.name}

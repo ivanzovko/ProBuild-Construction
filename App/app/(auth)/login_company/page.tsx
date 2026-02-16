@@ -96,7 +96,7 @@ export default function ForCompaniesPage() {
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: {
-            data: { user_type: 'company', full_name: email.split('@')[0] },
+            data: { user_role: 'company', full_name: email.split('@')[0] },
             emailRedirectTo: `${window.location.origin}/auth/callback`,
           }
         });
