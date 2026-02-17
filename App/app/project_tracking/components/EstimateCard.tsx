@@ -124,7 +124,7 @@ export default function EstimateCard({ job, index, onDelete, searchQuery = "" }:
             onClick={handleNavigate}
             className="h-11 flex-1 md:flex-none px-5 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-widest group-hover:bg-yellow-400 group-hover:text-slate-900 transition-all flex items-center justify-center md:justify-start gap-2 shadow-md"
           >
-            <span className="truncate">{isPending ? 'View' : 'Details'}</span>
+            <span className="truncate">{isPending ? 'View offers' : 'Details'}</span>
             <ArrowRight size={14} className="flex-shrink-0" />
           </button>
         </div>
