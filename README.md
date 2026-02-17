@@ -20,6 +20,7 @@
 
 - Link to your production version: [**Production Version**](https://pro-build-construction.vercel.app/) <!-- Replace with actual URL -->
 - Link to your final report: [**Final Report**](https://github.com/ivanzovko/ProBuild-Construction/blob/main/docs/Pro-Build%20Construction_Final_Report.pdf) <!-- Replace with actual URL -->
+- Link to Login credentials:[Login credentials](https://github.com/ivanzovko/ProBuild-Construction/blob/main/docs/login_credentials.pdf)
 <!-- Add more as necessary -->
 
 ### Semester Assignments
