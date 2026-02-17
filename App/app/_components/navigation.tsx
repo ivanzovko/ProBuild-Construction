@@ -141,23 +141,43 @@ export function Navigation() {
     setIsDropdownOpen(false);
   }, [currentPath]);
 
-  const handleLogout = async () => {
-    try {
-      setIsLoggingOut(true);
-      await supabase.auth.signOut();
-      localStorage.clear();
-      await new Promise(resolve => setTimeout(resolve, 300));
-      setShowLogoutToast(true);
-      setTimeout(() => setShowLogoutToast(false), 2000);
-    } catch (error) {
-      console.error("Logout error:", error);
-      window.location.reload();
-    } finally {
-      setIsLoggingOut(false);
-      setIsDropdownOpen(false);
-      setIsOpen(false);
-    }
-  };
+// @components/Navigation.tsx
+
+const handleLogout = async () => {
+  try {
+    setIsLoggingOut(true);
+
+    // 1. Odmah očisti lokalni state korisnika
+    // Ovo osigurava da se "Sign In" gumb pojavi bez čekanja na mrežni odgovor
+    setUser(null);
+    setIsLoading(false);
+
+    // 2. Izvrši odjavu na Supabase serveru
+    await supabase.auth.signOut();
+
+    // 3. Počisti localStorage
+    localStorage.clear();
+
+    // 4. KLJUČNO: Osvježi rutu kako bi Middleware prepoznao promjenu sesije
+    // Ako je korisnik na /dashboard, Middleware će ga sada automatski preusmjeriti
+    router.refresh();
+
+    // 5. Prikaži toast poruku
+    await new Promise(resolve => setTimeout(resolve, 300));
+    setShowLogoutToast(true);
+    setTimeout(() => setShowLogoutToast(false), 2000);
+
+  } catch (error) {
+    console.error("Logout error:", error);
+    // U slučaju kritične greške, resetiraj stranicu na početnu
+    window.location.href = "/";
+  } finally {
+    // 6. Zatvori sve UI elemente
+    setIsLoggingOut(false);
+    setIsDropdownOpen(false);
+    setIsOpen(false);
+  }
+};
 
   const showCompanyLink = canShowCompanies && (!user || user?.user_metadata?.user_type === 'company');
   const isLoginActive = currentPath === "/login";
