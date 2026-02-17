@@ -91,8 +91,9 @@ function LoginContent() {
         .single();
 
       if (adminCheck?.is_admin) {
+         router.refresh();
         router.push("/admin");
-        router.refresh();
+       
         return;
       }
 
@@ -102,9 +103,9 @@ function LoginContent() {
         setIsSubmitting(false);
         return;
       }
-
+        router.refresh();
       router.push("/project_tracking");
-      router.refresh();
+    
     } catch (err: any) {
       setGeneralError(err.message);
     } finally {

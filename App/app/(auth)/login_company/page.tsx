@@ -56,7 +56,7 @@ export default function ForCompaniesPage() {
         .select("is_onboarded")
         .eq("id", user.id)
         .single();
-
+      router.refresh();
       if (!profile?.is_onboarded) {
         router.replace("/onboarding");
       } else {
@@ -101,7 +101,10 @@ export default function ForCompaniesPage() {
           }
         });
         if (error) throw error;
-        if (data.session) router.replace('/onboarding');
+        if (data.session){
+          router.refresh();
+         router.replace('/onboarding');
+        }
         else {
           setErrorMsg("Account created! Please check your email to confirm registration.");
           setAuthLoading(false);
