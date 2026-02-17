@@ -151,9 +151,9 @@ export default function DashboardSidebar({ isOpen, onClose }: DashboardSidebarPr
                   </span>
                 )}
               </div>
-              <h2 className="text-xl sm:text-2xl font-black italic tracking-tighter uppercase truncate pr-4">
-                {companyName}
-              </h2>
+            <h2 className="text-base sm:text-lg md:text-xl font-black italic tracking-tighter uppercase line-clamp-2 leading-[1.1] break-words">
+  {companyName}
+</h2>
             </div>
           )}
           <button onClick={onClose} className="lg:hidden text-slate-400 hover:text-white transition-colors">
