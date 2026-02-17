@@ -100,9 +100,17 @@ export default function InquiryModal({ company, onClose }: InquiryModalProps) {
     try {
       const uploadedUrls: string[] = [];
       for (const file of files) {
-        const cleanName = file.name.replace(/\s+/g, '-');
+        const cleanName = file.name
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, '-')
+          .replace(/[^a-zA-Z0-9.-]/g, '');
+          
         const filePath = `${crypto.randomUUID()}_${cleanName}`;
-        const { error: uploadError } = await supabase.storage.from('inquiry-attachments').upload(filePath, file);
+        const { error: uploadError } = await supabase.storage.from('inquiry-attachments').upload(filePath, file, {
+          contentType: file.type,
+          upsert: false
+        });
         if (uploadError) throw uploadError;
         const { data: { publicUrl } } = supabase.storage.from('inquiry-attachments').getPublicUrl(filePath);
         uploadedUrls.push(publicUrl);
