@@ -106,7 +106,7 @@ export default function Step1PersonalInfo({
 
         {/* FULL NAME */}
         <div className="group">
-          <label className="text-[9px] font-black uppercase tracking-widest text-slate-900 ml-3 mb-1.5 block">Full Name</label>
+          <label className="text-[9px] font-black uppercase tracking-widest text-slate-900 ml-3 mb-1.5 block">OWNER Full Name</label>
           <input 
             className={`w-full p-4 bg-slate-50 border-2 rounded-xl text-sm font-bold outline-none transition-all ${errors.owner_full_name ? 'border-red-500 bg-red-50' : 'border-slate-100 focus:border-blue-600 focus:bg-white'}`} 
             placeholder="Enter name" 
