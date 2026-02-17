@@ -187,6 +187,8 @@ function SkeletonCard() {
 function FindServiceContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 5; // Broj kartica po stranici
   
   const [activeGroup, setActiveGroup] = useState(searchParams.get("group") || "all");
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get("category") || "all");
@@ -223,7 +225,9 @@ function FindServiceContent() {
     setSelectedLocation(location);
     setSearchValue(query);
   }, [searchParams]);
-
+useEffect(() => {
+    setCurrentPage(1);
+  }, [searchValue, activeGroup, selectedCategory, selectedLocation, sortBy, sortOrder]);
   useEffect(() => {
     const fetchCompanies = async () => {
       setIsLoading(true);
@@ -331,7 +335,10 @@ function FindServiceContent() {
       }
       return sortOrder === "asc" ? comparison : -comparison;
     });
-
+// --- PAGINACIJA LOGIKA ---
+  const totalPages = Math.ceil(filteredAndSortedPros.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedCompanies = filteredAndSortedPros.slice(startIndex, startIndex + itemsPerPage);
  return (
     <div className={`bg-slate-50 min-h-screen flex flex-col ${(inquiryCompany || reviewModalData || descriptionCompany) ? 'overflow-hidden h-screen' : ''}`}>
       <header className="bg-white border-b border-slate-200 pt-6 sticky top-0 z-40 shadow-sm">
@@ -622,99 +629,147 @@ function FindServiceContent() {
     </p>
   </div>
 
-  {isLoading ? (
+{isLoading ? (
     Array(3).fill(0).map((_, i) => <SkeletonCard key={i} />)
-  ) : filteredAndSortedPros.length > 0 ? (
-    filteredAndSortedPros.map((company) => (
-      <div key={company.id} className="bg-white p-5 md:p-6 rounded-[24px] md:rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl hover:border-yellow-400/50 transition-all duration-300 group hover:scale-[1.01]">
-        <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
-          
-          <Tooltip content="View company details">
-            <button 
-              onClick={() => setDescriptionCompany(company)}
-              className="hidden sm:flex w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-2xl shrink-0 items-center justify-center border border-slate-100 group-hover:bg-yellow-50 transition-all duration-300 overflow-hidden cursor-pointer hover:scale-110 active:scale-95"
-            >
-              {company.logo_url ? (
-                <img src={company.logo_url} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <Home className="text-slate-200 group-hover:text-yellow-500 transition-colors" size={28} />
-              )}
-            </button>
-          </Tooltip>
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1.5">
-              <Tooltip content="Click for more info">
-                <button 
-                  onClick={() => setDescriptionCompany(company)}
-                  className="hover:text-yellow-500 transition-all text-left cursor-pointer hover:scale-105 active:scale-95 origin-left"
-                >
-                  <h2 className="text-base md:text-lg font-black text-slate-900 uppercase truncate">
-                    {highlightText(company.company_name, searchValue)}
-                  </h2>
-                </button>
-              </Tooltip>
-              <div className="flex items-center gap-1.5 shrink-0">
-                <Tooltip content={company.is_verified ? "Verified Professional" : "Unverified"}>
-                  <BadgeCheck className={`${company.is_verified ? "text-green-500" : "text-red-500"}`} size={18} />
-                </Tooltip>
-                <Tooltip content="Full details">
-                  <button 
-                    onClick={() => setDescriptionCompany(company)}
-                    className="text-blue-500 hover:text-blue-700 transition-colors cursor-pointer p-1 hover:scale-110 active:scale-90"
-                  >
-                    <span className="sr-only">Info</span>
-                    <Info size={20} />
-                  </button>
-                </Tooltip>
-              </div>
-            </div>
+  ) : paginatedCompanies.length > 0 ? (
+    <>
+      {paginatedCompanies.map((company) => (
+        <div key={company.id} className="bg-white p-5 md:p-6 rounded-[24px] md:rounded-[32px] border border-slate-100 shadow-sm hover:shadow-xl hover:border-yellow-400/50 transition-all duration-300 group hover:scale-[1.01] mb-4">
+          <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center">
             
-            <div className="flex flex-wrap gap-3 text-[9px] md:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 items-center">
-              <Tooltip content="Read reviews">
-                <button 
-                  onClick={() => setReviewModalData({ id: company.id, name: company.company_name })}
-                  className="flex items-center gap-1.5 hover:bg-slate-50 px-2 py-1 -ml-2 rounded-lg transition-colors group/reviews cursor-pointer"
-                >
-                  <div className="flex items-center gap-0.5">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star 
-                        key={star}
-                        size={14} 
-                        className={`${star <= Math.round(company.average_rating || 0) ? "text-yellow-500 fill-yellow-500" : "text-slate-200 fill-slate-100"}`} 
-                      />
-                    ))}
-                  </div>
-                  <span className="text-slate-900 ml-1">{company.average_rating ? company.average_rating.toFixed(1) : "0.0"}</span>
-                  <span className="text-slate-600 ml-0.5">({company.jobs_completed_count || 0})</span>
-                  <span className="ml-1 text-slate-400 group-hover/reviews:text-yellow-600 flex items-center gap-1 border-l border-slate-200 pl-2">
-                    Review <MessageSquare size={10} />
-                  </span>
-                </button>
-              </Tooltip>
-              <span className="flex items-center gap-1"><MapPin size={12} /> Base: {company.base_county}</span>
-            </div>
-
-            <CompanyCategories categories={company.categories || []} />
-            
-            <CompanyCovers counties={company.service_counties || []} />
-
-          </div>
-          
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <Tooltip content="Send direct inquiry">
+            <Tooltip content="View company details">
               <button 
-                onClick={() => setInquiryCompany(company)}
-                className="flex-1 sm:flex-none bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 group/btn cursor-pointer"
+                onClick={() => setDescriptionCompany(company)}
+                className="hidden sm:flex w-16 h-16 md:w-20 md:h-20 bg-slate-50 rounded-2xl shrink-0 items-center justify-center border border-slate-100 group-hover:bg-yellow-50 transition-all duration-300 overflow-hidden cursor-pointer hover:scale-110 active:scale-95"
               >
-                Inquiry
-                <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                {company.logo_url ? (
+                  <img src={company.logo_url} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <Home className="text-slate-200 group-hover:text-yellow-500 transition-colors" size={28} />
+                )}
               </button>
             </Tooltip>
+
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1.5">
+                <Tooltip content="Click for more info">
+                  <button 
+                    onClick={() => setDescriptionCompany(company)}
+                    className="hover:text-yellow-500 transition-all text-left cursor-pointer hover:scale-105 active:scale-95 origin-left"
+                  >
+                    <h2 className="text-base md:text-lg font-black text-slate-900 uppercase truncate">
+                      {highlightText(company.company_name, searchValue)}
+                    </h2>
+                  </button>
+                </Tooltip>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <Tooltip content={company.is_verified ? "Verified Professional" : "Unverified"}>
+                    <BadgeCheck className={`${company.is_verified ? "text-green-500" : "text-red-500"}`} size={18} />
+                  </Tooltip>
+                  <Tooltip content="Full details">
+                    <button 
+                      onClick={() => setDescriptionCompany(company)}
+                      className="text-blue-500 hover:text-blue-700 transition-colors cursor-pointer p-1 hover:scale-110 active:scale-90"
+                    >
+                      <span className="sr-only">Info</span>
+                      <Info size={20} />
+                    </button>
+                  </Tooltip>
+                </div>
+              </div>
+              
+              <div className="flex flex-wrap gap-3 text-[9px] md:text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 items-center">
+                <Tooltip content="Read reviews">
+                  <button 
+                    onClick={() => setReviewModalData({ id: company.id, name: company.company_name })}
+                    className="flex items-center gap-1.5 hover:bg-slate-50 px-2 py-1 -ml-2 rounded-lg transition-colors group/reviews cursor-pointer"
+                  >
+                    <div className="flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star 
+                          key={star}
+                          size={14} 
+                          className={`${star <= Math.round(company.average_rating || 0) ? "text-yellow-500 fill-yellow-500" : "text-slate-200 fill-slate-100"}`} 
+                        />
+                      ))}
+                    </div>
+                    <span className="text-slate-900 ml-1">{company.average_rating ? company.average_rating.toFixed(1) : "0.0"}</span>
+                    <span className="text-slate-600 ml-0.5">({company.jobs_completed_count || 0})</span>
+                    <span className="ml-1 text-slate-400 group-hover/reviews:text-yellow-600 flex items-center gap-1 border-l border-slate-200 pl-2">
+                      Review <MessageSquare size={10} />
+                    </span>
+                  </button>
+                </Tooltip>
+                <span className="flex items-center gap-1"><MapPin size={12} /> Base: {company.base_county}</span>
+              </div>
+
+              <CompanyCategories categories={company.categories || []} />
+              
+              <CompanyCovers counties={company.service_counties || []} />
+
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Tooltip content="Send direct inquiry">
+                <button 
+                  onClick={() => setInquiryCompany(company)}
+                  className="flex-1 sm:flex-none bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-black transition-all active:scale-95 shadow-md flex items-center justify-center gap-2 group/btn cursor-pointer"
+                >
+                  Inquiry
+                  <ArrowUpRight size={16} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                </button>
+              </Tooltip>
+            </div>
           </div>
         </div>
-      </div>
-    ))
+      ))}
+
+      {/* --- PAGINATION UI --- */}
+      {totalPages > 1 && (
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 p-6 bg-white rounded-[32px] border border-slate-100 shadow-sm">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => {
+              setCurrentPage(p => p - 1);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 transition-all disabled:opacity-30 disabled:hover:bg-slate-100 cursor-pointer"
+          >
+            Previous
+          </button>
+          
+          <div className="flex flex-wrap justify-center gap-2">
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => {
+                  setCurrentPage(i + 1);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`w-10 h-10 rounded-xl text-[10px] font-black transition-all cursor-pointer ${
+                  currentPage === i + 1 
+                  ? "bg-slate-950 text-yellow-500 scale-110 shadow-lg" 
+                  : "bg-slate-50 text-slate-400 hover:bg-slate-200"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => {
+              setCurrentPage(p => p + 1);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 text-slate-900 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-yellow-400 transition-all disabled:opacity-30 disabled:hover:bg-slate-100 cursor-pointer"
+          >
+            Next
+          </button>
+        </div>
+      )}
+    </>
   ) : (
     <div className="py-20 text-center bg-white rounded-[32px] border-2 border-dashed border-slate-100">
       <p className="font-black uppercase text-slate-300 text-xs tracking-widest">No matching results</p>
