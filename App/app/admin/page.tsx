@@ -158,7 +158,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="bg-slate-900 py-3 px-4 md:py-6 md:px-8 border-b border-slate-800 sticky top-0 z-[40]">
+      <header className="bg-slate-900 py-3 px-4 md:py-6 md:px-8 border-b border-slate-800 sticky top-0 z-[99]">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-4 shrink-0">
             <h1 className="text-lg md:text-3xl font-black uppercase italic tracking-tighter text-white leading-tight transition-transform hover:scale-105">
@@ -189,14 +189,14 @@ export default function AdminDashboard() {
                 <ChevronDown className={`transition-transform duration-300 ${isDropdownOpen ? 'rotate-180' : ''}`} size={16} />
               </button>
               {isDropdownOpen && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-2xl z-[110] animate-in fade-in slide-in-from-top-2">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-2xl z-[120] animate-in fade-in slide-in-from-top-2">
                   {(['companies', 'clients', 'tickets'] as TabType[]).map((tab) => (
                     <button 
                       key={tab}
                       onClick={() => { setActiveTab(tab); setIsDropdownOpen(false); }} 
                       className={`w-full text-left px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-colors ${activeTab === tab ? 'bg-yellow-500 text-slate-900' : 'text-slate-300 hover:bg-slate-700'}`}
                     >
-                      {tab}
+                      {tab} ({tab === 'companies' ? companies.length : tab === 'clients' ? clients.length : tickets.length})
                     </button>
                   ))}
                 </div>
@@ -205,64 +205,64 @@ export default function AdminDashboard() {
           </div>
         </div>
       </header>
-
-<div className="w-full bg-white border-b-2 border-slate-100 shadow-sm relative z-[100]">
-  <div 
-    className={`overflow-hidden transition-all duration-500 ease-in-out ${
-      isIntroVisible ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
-    }`}
-  >
-    <div className="w-full p-5 md:py-6 md:px-10 group/hero">
-      <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center max-w-7xl mx-auto">
-        <div className="space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-yellow-500 rounded-xl text-slate-900 group-hover/hero:rotate-12 transition-transform shadow-lg shadow-yellow-500/20">
-              <Info size={18} />
-            </div>
-            <h2 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter text-slate-900">
-              System <span className="text-yellow-500">Administration</span>
-            </h2>
-          </div>
-          <p className="text-slate-600 font-medium leading-relaxed text-xs md:text-sm text-justify">
-            Welcome to the central management hub. This interface provides a comprehensive overview of all 
-            <span className="font-black text-slate-900"> registered companies and clients</span>. 
-            As an administrator, you are responsible for the regular verification of company profiles.
-          </p>
-        </div>
-
-        <div className="bg-slate-50 p-4 md:p-5 rounded-2xl border border-slate-200 hover:border-yellow-500 transition-all duration-300 shadow-sm">
-          <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Core Controls</h4>
-          <p className="text-[10px] text-slate-500 mb-4 leading-relaxed font-bold text-justify">
-            Access the Sanity CMS to manage advanced platform settings,
-            <strong> adjust calculator pricing</strong> or <strong>toggle page visibility</strong>.
-          </p>
-          <Tooltip content="Open Sanity CMS structure">
-            <Link 
-              href="/studio/structure" 
-              className="w-full md:w-fit inline-flex items-center justify-center gap-3 bg-slate-900 hover:bg-yellow-500 text-white hover:text-slate-900 px-5 py-2.5 rounded-xl font-black uppercase tracking-widest text-[9px] transition-all group shadow-lg active:scale-95 hover:scale-105"
-            >
-              <Settings size={14} className="group-hover:rotate-180 transition-transform duration-700" />
-              Open CMS Control Panel
-            </Link>
-          </Tooltip>
+  <div className="relative w-full h-0 z-[99] flex justify-center">
+        <div className="absolute -top-4 md:-top-5">
+            <Tooltip content={isIntroVisible ? "Hide intro" : "Show intro"}>
+                <button 
+                    onClick={() => setIsIntroVisible(!isIntroVisible)}
+                    className="bg-white border-2 border-slate-100 text-slate-400 hover:text-yellow-500 hover:border-yellow-500 p-1.5 md:p-2 rounded-full shadow-xl transition-all hover:scale-125 active:scale-90 flex items-center justify-center"
+                >
+                    {isIntroVisible ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+            </Tooltip>
         </div>
       </div>
-    </div>
-  </div>
+      <div className="w-full bg-white border-b-2 border-slate-100 shadow-sm relative z-[10]">
+        <div 
+          className={`overflow-hidden transition-all duration-500 ease-in-out ${
+            isIntroVisible ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="w-full p-5 md:py-6 md:px-10 group/hero">
+            <div className="grid md:grid-cols-2 gap-6 md:gap-12 items-center max-w-7xl mx-auto">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-yellow-500 rounded-xl text-slate-900 group-hover/hero:rotate-12 transition-transform shadow-lg shadow-yellow-500/20">
+                    <Info size={18} />
+                  </div>
+                  <h2 className="text-xl md:text-2xl font-black uppercase italic tracking-tighter text-slate-900">
+                    System <span className="text-yellow-500">Administration</span>
+                  </h2>
+                </div>
+                <p className="text-slate-600 font-medium leading-relaxed text-xs md:text-sm text-justify">
+                  Welcome to the central management hub. This interface provides a comprehensive overview of all 
+                  <span className="font-black text-slate-900"> registered companies and clients</span>. 
+                  As an administrator, you are responsible for the regular verification of company profiles.
+                </p>
+              </div>
 
-  <div className={`flex justify-center relative z-[110] transition-all duration-500 ${isIntroVisible ? 'h-0' : 'h-8'}`}>
-  <div className={`flex justify-center relative z-[110] transition-all duration-500 ${isIntroVisible ? 'h-0' : 'h-8'}`}>
-  <Tooltip content={isIntroVisible ? "Hide intro" : "Show intro"}>
-    <button 
-      onClick={() => setIsIntroVisible(!isIntroVisible)}
-      className="bg-white border-2 border-slate-100 text-slate-400 hover:text-yellow-500 hover:border-yellow-500 p-1.5 rounded-full shadow-md transition-all hover:scale-125 active:scale-90 flex items-center justify-center absolute top-0 -translate-y-1/2"
-    >
-      {isIntroVisible ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-    </button>
-  </Tooltip>
-</div>
-  </div>
-</div>
+              <div className="bg-slate-50 p-4 md:p-5 rounded-2xl border border-slate-200 hover:border-yellow-500 transition-all duration-300 shadow-sm">
+                <h4 className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Core Controls</h4>
+                <p className="text-[10px] text-slate-500 mb-4 leading-relaxed font-bold text-justify">
+                  Access the Sanity CMS to manage advanced platform settings,
+                  <strong> adjust calculator pricing</strong> or <strong>toggle page visibility</strong>.
+                </p>
+                <Tooltip content="Open Sanity CMS structure">
+                  <Link 
+                    href="/studio/structure" 
+                    className="w-full md:w-fit inline-flex items-center justify-center gap-3 bg-slate-900 hover:bg-yellow-500 text-white hover:text-slate-900 px-5 py-2.5 rounded-xl font-black uppercase tracking-widest text-[9px] transition-all group shadow-lg active:scale-95 hover:scale-105"
+                  >
+                    <Settings size={14} className="group-hover:rotate-180 transition-transform duration-700" />
+                    Open CMS Control Panel
+                  </Link>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        </div>
+
+    
+      </div>
 
       <main className="p-2 md:p-8 flex flex-col items-center">
         <div className="w-full max-w-7xl">
